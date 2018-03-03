@@ -15,10 +15,12 @@ public class PeerDataItem{
 
     private String authToken;
     private String endpointId;
+    private String friendlyName;
 
-    public PeerDataItem(String authToken, String endpointId) {
+    public PeerDataItem(String authToken, String endpointId, String friendlyName) {
         this.authToken = authToken;
         this.endpointId = endpointId;
+        this.friendlyName = friendlyName;
     }
 
     public String getEndpointId() {
@@ -29,9 +31,11 @@ public class PeerDataItem{
         return authToken;
     }
 
+    public String getFriendlyName(){return friendlyName;}
+
     @Override
     public String toString(){
-        return getEndpointId() + "," + getAuthToken();
+        return getEndpointId() + "," + getAuthToken() + "," + getFriendlyName();
     }
 
 

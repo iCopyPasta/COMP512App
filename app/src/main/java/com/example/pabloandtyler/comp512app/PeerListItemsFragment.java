@@ -32,9 +32,9 @@ public class PeerListItemsFragment extends ListFragment {
     private OnPeerClickedListener mListener;
     private ArrayAdapter<PeerDataItem> peersAdapter;
 
-    public void insertPeer(String authToken, String endpointId){
+    public void insertPeer(String authToken, String endpointId, String friendlyName){
         Log.i(TAG, "insertPeer");
-        PeerDataItem tmp = new PeerDataItem(authToken, endpointId);
+        PeerDataItem tmp = new PeerDataItem(authToken, endpointId, friendlyName);
         Log.i(TAG, tmp.toString());
         peersAdapter.add(tmp);
 

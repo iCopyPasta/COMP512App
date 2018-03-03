@@ -35,7 +35,6 @@ public class TextFight extends AppCompatActivity implements PeerListItemsFragmen
         JoinPeerAlert.JoinPeerAlertListener{
 
     private static final String TAG = "2FT: TextFight";
-    public static List<PeerDataItem> peerDataItemList = new ArrayList<PeerDataItem>();
     private static String mode = null;
     private PeerListItemsFragment peerListItemsFragment = null;
 
@@ -221,10 +220,11 @@ public class TextFight extends AppCompatActivity implements PeerListItemsFragmen
                 }
 
                 else if(mode.equals(MainActivity.MODE_PEER)){
-                    //TODO: add new peers to list but do not auto-accpet
+                    //TODO: add new peers to list but do not auto-accepet
                     peerListItemsFragment.insertPeer(
                             connectionInfo.getAuthenticationToken(),
-                            endpointId);
+                            endpointId,
+                            connectionInfo.getEndpointName());
 
                     Log.i(TAG, "onConnectionInitiatd, MODE = PEER");
                 }
@@ -268,16 +268,21 @@ public class TextFight extends AppCompatActivity implements PeerListItemsFragmen
         //TODO: initialize connection here with new peer, and display alert dialog.
         Toast.makeText(this, "Peer clicked", Toast.LENGTH_LONG).show();
 
-        JoinPeerAlert alert = JoinPeerAlert.newInstance(item.toString());
+        JoinPeerAlert alert = JoinPeerAlert.newInstance(item);
         alert.setmListener(this);
         alert.show(getSupportFragmentManager(), "uniqueStringTaglel");
 
     }
 
     @Override
-    public void onAlertPositiveClick() {
+    public void onAlertPositiveClick(PeerDataItem item) {
 
         Toast.makeText(this, "next fragment!", Toast.LENGTH_SHORT).show();
+
+        //TODO: Accept connection to new peer
+        //TODO: replace fragment with TextMainArena
+        Nearby.getConnectionsClient(this)
+                .acceptConnection(item.getEndpointId(),payloadCallback);
     }
 
     @Override
