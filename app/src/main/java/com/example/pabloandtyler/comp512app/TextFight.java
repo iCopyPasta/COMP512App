@@ -212,7 +212,7 @@ public class TextFight extends AppCompatActivity implements PeerListItemsFragmen
             @Override
             public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
                 Log.i(TAG, "onConnectionInitiated: accepting connection");
-                Toast.makeText(TextFight.this, "accepting peer", Toast.LENGTH_SHORT).show();
+                Toast.makeText(TextFight.this, "accepting peer?", Toast.LENGTH_SHORT).show();
 
                 if(mode.equals(MainActivity.MODE_HOST)){
                     //auto accept client
@@ -220,7 +220,7 @@ public class TextFight extends AppCompatActivity implements PeerListItemsFragmen
                     Log.d(TAG, "onConnectedInitiated, MODE = HOST");
                 }
 
-                if(mode.equals(MainActivity.MODE_PEER)){
+                else if(mode.equals(MainActivity.MODE_PEER)){
                     //TODO: add new peers to list but do not auto-accpet
                     peerListItemsFragment.insertPeer(
                             connectionInfo.getAuthenticationToken(),
