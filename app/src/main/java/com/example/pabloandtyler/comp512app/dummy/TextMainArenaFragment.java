@@ -9,6 +9,8 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -72,6 +74,17 @@ public class TextMainArenaFragment extends Fragment
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD); //disable auto-correct
         type_word.requestFocus();
 
+        /*InputMethodManager imm = (InputMethodManager) getActivity()
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+        if(imm != null){
+            Log.i(TAG, "forcing keyboard to appear?");
+            imm.showSoftInput(type_word, InputMethodManager.SHOW_FORCED);
+        }*/
+
+        getActivity().getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
+        );
+
     }
 
     @Override
@@ -120,11 +133,13 @@ public class TextMainArenaFragment extends Fragment
             //send a message to our parent activity
             String message = type_word.getText().toString();
             //TODO: test these methods to ensure proper behavior
-            type_word.setText(""); //should hopefully clear out the composed text thus far?
-            type_word.callOnClick();//we shouldn't lose the keyboard after hitting enter?
-            //type_word.requestFocus(); //we shouldn't lose the keyboard after hitting enter?
+            type_word.setText(""); //clear out the composed text thus far
+            ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
+                    .showSoftInput(type_word, InputMethodManager.SHOW_FORCED);
             Log.i(TAG, "back to TextFight with message: " + message);
             mListener.onTextMainFragmentInteraction(message);
+
+            return true;
 
         }
         return false;
