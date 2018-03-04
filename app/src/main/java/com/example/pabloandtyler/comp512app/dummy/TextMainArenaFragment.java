@@ -74,16 +74,20 @@ public class TextMainArenaFragment extends Fragment
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD); //disable auto-correct
         type_word.requestFocus();
 
-        /*InputMethodManager imm = (InputMethodManager) getActivity()
+        InputMethodManager imm = (InputMethodManager) getActivity()
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         if(imm != null){
-            Log.i(TAG, "forcing keyboard to appear?");
-            imm.showSoftInput(type_word, InputMethodManager.SHOW_FORCED);
-        }*/
+            Log.i(TAG, "forcing keyboard to appear");
+            imm.toggleSoftInput(
+                    InputMethodManager.SHOW_FORCED,
+                    InputMethodManager.HIDE_IMPLICIT_ONLY
+            );
 
-        getActivity().getWindow().setSoftInputMode(
-                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
-        );
+        }
+
+        //display the keyboard if not already displayed
+        type_word.callOnClick();
+
 
     }
 
