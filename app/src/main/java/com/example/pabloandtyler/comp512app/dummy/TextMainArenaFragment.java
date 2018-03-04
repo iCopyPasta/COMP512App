@@ -44,7 +44,7 @@ public class TextMainArenaFragment extends Fragment
      *
      * @return A new instance of fragment TextMainArenaFragment.
      */
-    // TODO: Rename and change types and number of parameters
+
     public static TextMainArenaFragment newInstance() {
         return new TextMainArenaFragment();
     }
@@ -87,7 +87,6 @@ public class TextMainArenaFragment extends Fragment
 
         //display the keyboard if not already displayed
         type_word.callOnClick();
-
 
     }
 
@@ -149,20 +148,20 @@ public class TextMainArenaFragment extends Fragment
         return false;
     }
 
+    //CODE specific to this TextMainArenaFragment
+
     public void updateFriendlyName(String friendly_name){
         ((TextView) getActivity().findViewById(R.id.friendly_name))
                 .setText(friendly_name);
     }
 
     public void updateDebugMessage(String message){
+
         Log.i(TAG,"we received: " + message);
 
         ((TextView) getActivity().findViewById(R.id.debug_message))
                 .setText(message);
     }
-
-
-    //CODE specific to this TextMainArenaFragment
 
     /**
      * This interface must be implemented by activities that contain this
@@ -171,7 +170,6 @@ public class TextMainArenaFragment extends Fragment
      * activity.
      */
     public interface OnTextMainFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onTextMainFragmentInteraction(String message);
     }
 }
