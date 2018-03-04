@@ -39,6 +39,10 @@ public class TextMainArenaFragment extends Fragment
      * @return A new instance of fragment TextMainArenaFragment.
      */
     // TODO: Rename and change types and number of parameters
+    public static TextMainArenaFragment newInstance() {
+        return new TextMainArenaFragment();
+    }
+
     public static TextMainArenaFragment newInstance(String friendly_name) {
         TextMainArenaFragment fragment = new TextMainArenaFragment();
         Bundle args = new Bundle();
@@ -116,6 +120,11 @@ public class TextMainArenaFragment extends Fragment
             return true;
         }
         return false;
+    }
+
+    public void updateFriendlyName(String friendly_name){
+        ((TextView) getActivity().findViewById(R.id.friendly_name))
+                .setText(friendly_name);
     }
 
 

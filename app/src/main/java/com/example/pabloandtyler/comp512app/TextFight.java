@@ -28,8 +28,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.HashMap;
-
-
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class TextFight extends AppCompatActivity
@@ -78,9 +76,9 @@ public class TextFight extends AppCompatActivity
                 fragmentTransaction.commit();
             }
             if(mode.equals(MainActivity.MODE_HOST)){
-                //fragmentTransaction.add(R.id.multi_fragments, new INSERT_YOUR_TEXT_FIGHT_FRAGMENT_HERE);
-                //fragmentTransaction.commit();
-                Log.d(TAG, "requires you to input 'TextFight' fragment ");
+                textMainArenaFragment = TextMainArenaFragment.newInstance();
+                fragmentTransaction.add(R.id.multi_fragments, textMainArenaFragment);
+                fragmentTransaction.commit();
             }
         }
 
@@ -98,9 +96,9 @@ public class TextFight extends AppCompatActivity
         }
     }
 
-
     //CALLBACKS FOR THE NEARBY CONNECTIONS API-----------------------------------------------------
     // Callbacks for receiving payloads
+    //TODO: Incoporate architecture for different type of messages
     private final PayloadCallback payloadCallback =
         new PayloadCallback() {
             @Override
@@ -118,13 +116,19 @@ public class TextFight extends AppCompatActivity
     // Broadcasts our presence using Nearby Connections so other players can find us.
     private void startAdvertising() {
         Log.i(TAG, "advertising started");
+        final String friendly_name = CodenameGenerator.generate();
         // Note: Advertising may fail. To keep this demo simple, we don't handle failures.
         connectionsClient.startAdvertising(
-                "host", getPackageName(), connectionLifecycleCallback, new AdvertisingOptions(MainActivity.STRATEGY))
+                friendly_name, getPackageName(), connectionLifecycleCallback, new AdvertisingOptions(MainActivity.STRATEGY))
         .addOnSuccessListener(
                 new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        if (mode.equals(MainActivity.MODE_HOST)){
+                            textMainArenaFragment.updateFriendlyName(
+                                    friendly_name);
+
+                        }
                         Log.i(TAG, "we are successfully advertising");
                     }
                 }
@@ -133,6 +137,7 @@ public class TextFight extends AppCompatActivity
                 new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        //TODO: add logic depending on the scenario
                         Log.e(TAG, "We were unable to start advertising");
                     }
                 }
@@ -301,7 +306,7 @@ public class TextFight extends AppCompatActivity
         fragmentManager.beginTransaction()
                 .replace(R.id.multi_fragments,
                         textMainArenaFragment)
-                .addToBackStack("PeersList")
+                .addToBackStack("PeerListItemFragment")
                 .commit();
 
     }

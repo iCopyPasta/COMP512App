@@ -57,15 +57,11 @@ public class MainActivity extends AppCompatActivity {
 
     public static final Strategy STRATEGY = Strategy.P2P_CLUSTER;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
     }
-
 
     @Override
     protected void onStart() {
@@ -117,7 +113,6 @@ public class MainActivity extends AppCompatActivity {
         recreate();
     }
 
-
     /** Finds an opponent to play the game with using Nearby Connections API. */
     public void findOpponent(View view) {
         Log.i(TAG, "new activity: PeersList.class passed in");
@@ -135,8 +130,4 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
 
     }
-
-
-
-
 }
