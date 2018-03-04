@@ -10,6 +10,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.pabloandtyler.comp512app.dummy.PeerDataItem;
+import com.example.pabloandtyler.comp512app.dummy.TextMainArenaFragment;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
@@ -26,18 +27,24 @@ import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class TextFight extends AppCompatActivity implements PeerListItemsFragment.OnPeerClickedListener,
-        JoinPeerAlert.JoinPeerAlertListener{
+public class TextFight extends AppCompatActivity
+        implements
+        PeerListItemsFragment.OnPeerClickedListener,
+        JoinPeerAlert.JoinPeerAlertListener,
+        TextMainArenaFragment.OnTextMainFragmentInteractionListener{
 
     private static final String TAG = "2FT: TextFight";
+
     private static String mode = null;
     private PeerListItemsFragment peerListItemsFragment = null;
-
+    private TextMainArenaFragment textMainArenaFragment = null;
+    private FragmentManager fragmentManager = null;
+    private HashMap<String, String> peersMap = null;
 
     // Our handle to Nearby Connections
     private ConnectionsClient connectionsClient;
@@ -47,12 +54,10 @@ public class TextFight extends AppCompatActivity implements PeerListItemsFragmen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_text_fight);
         connectionsClient = Nearby.getConnectionsClient(this);
-
-        //EditText wordSpace = (EditText) findViewById(R.id.type_space);
-        //wordSpace.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+        peersMap = new HashMap<>();
 
         //Determine which fragment to insert first
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
         // From MainActivity, gather if we are a host or a peer
@@ -109,7 +114,6 @@ public class TextFight extends AppCompatActivity implements PeerListItemsFragmen
 
             }
         };
-
 
     // Broadcasts our presence using Nearby Connections so other players can find us.
     private void startAdvertising() {
@@ -261,8 +265,15 @@ public class TextFight extends AppCompatActivity implements PeerListItemsFragmen
         };
 
 
+    private void sendPayload(String endpointId, String message){
+        connectionsClient.sendPayload(
+                endpointId,
+                Payload.fromBytes(message.getBytes(UTF_8))
+        );
+    }
 
     // A callback from the fragment that a the user wants to potentially join a peer!
+    //CALLBACKS FROM PeerListItemsFragment.java
     @Override
     public void onPeerClicked(PeerDataItem item) {
         //TODO: initialize connection here with new peer, and display alert dialog.
@@ -277,12 +288,22 @@ public class TextFight extends AppCompatActivity implements PeerListItemsFragmen
     @Override
     public void onAlertPositiveClick(PeerDataItem item) {
 
-        Toast.makeText(this, "next fragment!", Toast.LENGTH_SHORT).show();
-
-        //TODO: Accept connection to new peer
-        //TODO: replace fragment with TextMainArena
         Nearby.getConnectionsClient(this)
                 .acceptConnection(item.getEndpointId(),payloadCallback);
+
+        peersMap.put(item.getEndpointId(), item.getFriendlyName());
+
+        textMainArenaFragment = TextMainArenaFragment.newInstance(
+                item.getFriendlyName()
+        );
+
+        //TODO: replace fragment with TextMainArena
+        fragmentManager.beginTransaction()
+                .replace(R.id.multi_fragments,
+                        textMainArenaFragment)
+                .addToBackStack("PeersList")
+                .commit();
+
     }
 
     @Override
@@ -290,4 +311,15 @@ public class TextFight extends AppCompatActivity implements PeerListItemsFragmen
         Toast.makeText(this, "stay in fragment!", Toast.LENGTH_SHORT).show();
 
     }
+
+    //CALLBACKS FROM TextMainArenaFragment.java
+    @Override
+    public void onTextMainFragmentInteraction(String message) {
+        for(String endpointId: peersMap.keySet()){
+            sendPayload(endpointId, message);
+        }
+
+    }
+
+
 }
