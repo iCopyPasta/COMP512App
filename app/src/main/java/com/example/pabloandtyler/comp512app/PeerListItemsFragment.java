@@ -77,7 +77,7 @@ public class PeerListItemsFragment extends ListFragment {
         View view = inflater.inflate(R.layout.peers_list_fragment_item_list, container, false);
 
         // Set the adapter
-        peersAdapter = new ArrayAdapter<PeerDataItem>(getActivity(),
+        peersAdapter = new ArrayAdapter<>(getActivity(),
                 android.R.layout.simple_list_item_activated_1);
 
         setListAdapter(peersAdapter);

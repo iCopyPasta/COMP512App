@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.pabloandtyler.comp512app.R;
+
+import java.security.Key;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -24,6 +27,7 @@ import com.example.pabloandtyler.comp512app.R;
 public class TextMainArenaFragment extends Fragment
     implements View.OnKeyListener{
 
+    private static final String TAG = "TextMainFragment";
     private OnTextMainFragmentInteractionListener mListener;
     private EditText type_word;
     private static final String FRIENDLY_NAME = "FRIENDLY_NAME";
@@ -109,15 +113,19 @@ public class TextMainArenaFragment extends Fragment
     @Override
     public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
         //TODO: have additional logic for display/retrieval of words in the future
+        Log.i(TAG, "onKey called");
 
-        if(keyCode == KeyEvent.KEYCODE_ENTER){
+        if(keyCode == KeyEvent.KEYCODE_ENTER &&
+                keyEvent.getAction() == KeyEvent.ACTION_DOWN){
             //send a message to our parent activity
             String message = type_word.getText().toString();
-            mListener.onTextMainFragmentInteraction(message);
             //TODO: test these methods to ensure proper behavior
-            type_word.clearComposingText(); //should hopefully clear out the composed text thus far?
-            type_word.requestFocus(); //we shouldn't lose the keyboard after hitting enter?
-            return true;
+            type_word.setText(""); //should hopefully clear out the composed text thus far?
+            type_word.callOnClick();//we shouldn't lose the keyboard after hitting enter?
+            //type_word.requestFocus(); //we shouldn't lose the keyboard after hitting enter?
+            Log.i(TAG, "back to TextFight with message: " + message);
+            mListener.onTextMainFragmentInteraction(message);
+
         }
         return false;
     }
@@ -125,6 +133,13 @@ public class TextMainArenaFragment extends Fragment
     public void updateFriendlyName(String friendly_name){
         ((TextView) getActivity().findViewById(R.id.friendly_name))
                 .setText(friendly_name);
+    }
+
+    public void updateDebugMessage(String message){
+        Log.i(TAG,"we received: " + message);
+
+        ((TextView) getActivity().findViewById(R.id.debug_message))
+                .setText(message);
     }
 
 
@@ -140,6 +155,4 @@ public class TextMainArenaFragment extends Fragment
         // TODO: Update argument type and name
         void onTextMainFragmentInteraction(String message);
     }
-
-
 }

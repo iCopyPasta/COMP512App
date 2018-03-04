@@ -28,6 +28,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.HashMap;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class TextFight extends AppCompatActivity
@@ -81,7 +82,6 @@ public class TextFight extends AppCompatActivity
                 fragmentTransaction.commit();
             }
         }
-
     }
 
     @Override
@@ -103,8 +103,30 @@ public class TextFight extends AppCompatActivity
         new PayloadCallback() {
             @Override
             public void onPayloadReceived(String endpointId, Payload payload) {
-                String text = new String(payload.asBytes(), UTF_8);
-                Toast.makeText(TextFight.this, text, Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "onPayloadReceived called");
+                if(payload == null){
+                    Log.e(TAG, "payload is null, somehow?");
+                }
+                else{
+                    Log.d(TAG, "displaying message");
+                    try{
+                        byte[] message = payload.asBytes();
+                        if(message != null){
+                            String text = new String(message, UTF_8);
+                            textMainArenaFragment.updateDebugMessage(text);
+                        }
+
+                    } catch(NullPointerException e){
+                        Log.e(TAG, e.getMessage());
+                        Toast.makeText(TextFight.this, "Null PTE", Toast.LENGTH_SHORT).show();
+
+                    }catch (Exception e){
+                        Log.e(TAG, e.getMessage());
+                        Toast.makeText(TextFight.this, "We died?", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+
             }
 
             @Override
@@ -154,7 +176,7 @@ public class TextFight extends AppCompatActivity
                         new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Log.i(TAG, "We're looking for someone to SMASH");
+                                Log.i(TAG, "We're looking for someone to play against");
                             }
                         }
                 )
@@ -224,7 +246,11 @@ public class TextFight extends AppCompatActivity
 
                 if(mode.equals(MainActivity.MODE_HOST)){
                     //auto accept client
-                    Nearby.getConnectionsClient(TextFight.this).acceptConnection(endpointId, payloadCallback);
+
+                    peersMap.put(endpointId, connectionInfo.getEndpointName());
+
+                    Nearby.getConnectionsClient(TextFight.this).
+                            acceptConnection(endpointId, payloadCallback);
                     Log.d(TAG, "onConnectedInitiated, MODE = HOST");
                 }
 
@@ -265,15 +291,15 @@ public class TextFight extends AppCompatActivity
             public void onDisconnected(String endpointId) {
                 Log.i(TAG, "onDisconnected: disconnected from the opponent");
                 Toast.makeText(TextFight.this, "disconnected", Toast.LENGTH_SHORT).show();
-
             }
         };
 
 
     private void sendPayload(String endpointId, String message){
+        Log.i(TAG, "sendPayload called");
         connectionsClient.sendPayload(
                 endpointId,
-                Payload.fromBytes(message.getBytes(UTF_8))
+                Payload.fromBytes(message.getBytes())
         );
     }
 
@@ -282,7 +308,7 @@ public class TextFight extends AppCompatActivity
     @Override
     public void onPeerClicked(PeerDataItem item) {
         //TODO: initialize connection here with new peer, and display alert dialog.
-        Toast.makeText(this, "Peer clicked", Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, "Peer clicked", Toast.LENGTH_LONG).show();
 
         JoinPeerAlert alert = JoinPeerAlert.newInstance(item);
         alert.setmListener(this);
@@ -320,9 +346,13 @@ public class TextFight extends AppCompatActivity
     //CALLBACKS FROM TextMainArenaFragment.java
     @Override
     public void onTextMainFragmentInteraction(String message) {
+        Log.i(TAG, "received callback: message: " + message);
         for(String endpointId: peersMap.keySet()){
+            Log.i(TAG, "sending " + message + " to " + peersMap.get(endpointId));
             sendPayload(endpointId, message);
         }
+
+        Log.i(TAG, "onTextMainFragmentInteraction completed");
 
     }
 
