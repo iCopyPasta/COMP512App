@@ -39,12 +39,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText wordSpace = null;
-
-    // Our handle to Nearby Connections
-    private ConnectionsClient connectionsClient;
-
     private static final String TAG = "2FT:MainActivity";
+    public static final String MODE_HOST = "HOST";
+    public static final String MODE_PEER = "PEER";
+    public static final String MODE = "MODE";
 
     private static final String[] REQUIRED_PERMISSIONS =
             new String[] {
@@ -59,15 +57,11 @@ public class MainActivity extends AppCompatActivity {
 
     public static final Strategy STRATEGY = Strategy.P2P_CLUSTER;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
     }
-
 
     @Override
     protected void onStart() {
@@ -119,24 +113,21 @@ public class MainActivity extends AppCompatActivity {
         recreate();
     }
 
-
-    /** Finds an opponent to play the game with using Nearby Connections. */
+    /** Finds an opponent to play the game with using Nearby Connections API. */
     public void findOpponent(View view) {
         Log.i(TAG, "new activity: PeersList.class passed in");
-        Intent intent = new Intent(this, PeersList.class);
+        Intent intent = new Intent(this, TextFight.class);
+        intent.putExtra(MODE, MODE_PEER);
         startActivity(intent);
 
     }
 
-    /** Hosts a game from a peer*/
+    /** Hosts a game for a peer using the Nearby Connections API*/
     public void hostGame(View view){
         Log.i(TAG, "new activity: TextFight.class passed in");
         Intent intent = new Intent(this, TextFight.class);
+        intent.putExtra(MODE, MODE_HOST);
         startActivity(intent);
 
     }
-
-
-
-
 }

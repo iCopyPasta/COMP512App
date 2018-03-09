@@ -23,8 +23,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".TextFight" />
-        <activity android:name=".PeersList"></activity>
+        <activity
+            android:name=".TextFight"
+            android:screenOrientation="portrait"
+            />
+        <activity android:name=".PeersList"/>
     </application>
 
 </manifest>
