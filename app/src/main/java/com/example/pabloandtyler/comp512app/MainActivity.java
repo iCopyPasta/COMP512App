@@ -1,6 +1,7 @@
 package com.example.pabloandtyler.comp512app;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -34,6 +35,8 @@ import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate.Status;
 import com.google.android.gms.nearby.connection.Strategy;
+
+import java.util.Random;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -129,5 +132,17 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra(MODE, MODE_HOST);
         startActivity(intent);
 
+    }
+
+
+    public void randomWord(View view){ //how to use the random word arrays, use this code as template
+
+        Resources res = getResources();
+        String[] words = res.getStringArray(R.array.bonusDigitList); //change here to alter which wordset the random word comes from
+
+        int randomIndex = new Random().nextInt(words.length);
+
+        Log.i(TAG, "randomWord function invoked in main activity");
+        ((TextView) view).setText(words[randomIndex]);
     }
 }
