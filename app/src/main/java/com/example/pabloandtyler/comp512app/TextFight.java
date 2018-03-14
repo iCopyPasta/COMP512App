@@ -27,9 +27,10 @@ import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -46,8 +47,8 @@ public class TextFight extends AppCompatActivity
     private PeerListItemsFragment peerListItemsFragment = null;
     private TextMainArenaFragment textMainArenaFragment = null;
     private FragmentManager fragmentManager = null;
-    private HashMap<String, String> peersMap = null;
-    private HashMap<String, String> peersColorMap = null;
+    private HashMap<String, String> peersMap = null; //maps endpointId to friendly names
+    private HashMap<String, String> peersColorMap = null; //maps endpointId to an assigned color
     private String[] colors = null;
 
     // Our handle to Nearby Connections
@@ -341,8 +342,8 @@ public class TextFight extends AppCompatActivity
         return peersColorMap.get(endpointId);
     }
 
-    public Set<String> getPeerEndpointIds(){
-        return peersMap.keySet();
+    public List<String> getPeerEndpointIds(){
+        return new ArrayList<>(peersMap.keySet());
     }
 
     // A callback from the fragment that a the user wants to potentially join a peer!

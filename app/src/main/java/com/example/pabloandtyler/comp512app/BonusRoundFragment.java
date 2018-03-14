@@ -1,21 +1,22 @@
 package com.example.pabloandtyler.comp512app;
 
-import android.app.Activity;
+
 import android.content.Context;
 import android.graphics.Color;
-import android.net.Uri;
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -26,10 +27,11 @@ import java.util.Set;
  */
 public class BonusRoundFragment extends Fragment {
 
+    private static final String TAG = "2FT: BonusRoundFrag";
+
     public interface BonusRoundFragmentListener{
         String getPeerColor(String endpointId);
-        Set<String> getPeerEndpointIds();
-
+        List<String> getPeerEndpointIds();
     }
 
     private BonusRoundFragmentListener mListener;
@@ -39,12 +41,13 @@ public class BonusRoundFragment extends Fragment {
     private ProgressBar opponent1ProgressBar = null;
     private ProgressBar opponent2ProgressBar = null;
     private ProgressBar opponent3ProgressBar = null;
+    private Map<String, Integer> opponentMap = null;
+
 
 
     public BonusRoundFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -64,23 +67,62 @@ public class BonusRoundFragment extends Fragment {
         opponent3TextView = getActivity().findViewById(R.id.opponent3TextView);
         opponent3ProgressBar = getActivity().findViewById(R.id.progressBarOpponent3);
 
-
-
         // populate the TextViews with colors
-        Set<String> colors = mListener.getPeerEndpointIds();
+        List<String> peers = mListener.getPeerEndpointIds();
 
-        Iterator<String> iterator = colors.iterator();
+        Iterator<String> iterator = peers.iterator();
+        opponentMap = new HashMap<>();
+        String tmp_opponent;
+        String tmp_color;
 
-        if(iterator.hasNext())
-            opponent1TextView.setTextColor(Color.parseColor(iterator.next()));
+        if(iterator.hasNext()){
+            tmp_opponent = iterator.next();
+            tmp_color = mListener.getPeerColor(tmp_opponent);
+            opponent1TextView.setTextColor(Color.parseColor(
+                    tmp_color));
 
-        if(iterator.hasNext())
-            opponent2TextView.setTextColor(Color.parseColor(iterator.next()));
+            opponentMap.put(tmp_opponent, 1);
+        }
 
-        if(iterator.hasNext())
-            opponent3TextView.setTextColor(Color.parseColor(iterator.next()));
+        if(iterator.hasNext()){
+            tmp_opponent = iterator.next();
+            tmp_color = mListener.getPeerColor(tmp_opponent);
+            opponent2TextView.setTextColor(Color.parseColor(
+                    tmp_color));
 
+            opponentMap.put(tmp_opponent, 2);
 
+        }
+
+        if(iterator.hasNext()){
+            tmp_opponent = iterator.next();
+            tmp_color = mListener.getPeerColor(tmp_opponent);
+
+            opponent3TextView.setTextColor(Color.parseColor(
+                    tmp_color));
+
+            opponentMap.put(tmp_opponent, 3);
+
+        }
+
+    }
+
+    public void updateOpponentProgressBar(String endpointId, int progress){
+        int i = opponentMap.get(endpointId);
+        switch(i){
+            case 1:
+                opponent1ProgressBar.setProgress(progress);
+                break;
+            case 2:
+                opponent2ProgressBar.setProgress(progress);
+                break;
+            case 3:
+                opponent3ProgressBar.setProgress(progress);
+                break;
+            default:
+                Log.e(TAG, "Unexpected switch statement position passed");
+                break;
+        }
     }
 
     @Override
