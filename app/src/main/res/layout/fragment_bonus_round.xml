@@ -19,7 +19,7 @@
             app:layout_constraintEnd_toStartOf="@+id/progressBarOpponent1"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/bonusSentenceTextView" />
+            app:layout_constraintTop_toBottomOf="@+id/bonusRoundOpponentHeader" />
 
         <TextView
             android:id="@+id/opponent2TextView"
@@ -52,8 +52,9 @@
             android:layout_marginTop="8dp"
             android:text="TextView"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.454"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/opponent3TextView" />
 
         <ProgressBar
             android:id="@+id/progressBarOpponent1"
@@ -86,6 +87,32 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/opponent3TextView"
             app:layout_constraintTop_toTopOf="@+id/opponent3TextView" />
+
+        <TextView
+            android:id="@+id/bonusRoundOpponentHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/boundRoundOpponentHeader"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/bonusRoundTypeSpace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:ems="10"
+            android:imeOptions="actionNone"
+            android:inputType="none"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/bonusSentenceTextView" />
 
     </android.support.constraint.ConstraintLayout>
 </FrameLayout>

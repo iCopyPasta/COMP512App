@@ -128,7 +128,11 @@ public class TextMainArenaFragment extends Fragment
 
     @Override
     public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
+        
         //TODO: have additional logic for display/retrieval of words in the future
+        //TODO: ensure the word is correct
+        //TODO: have logic if the word is not correct upon enter
+
         Log.i(TAG, "onKey called");
 
         if(keyCode == KeyEvent.KEYCODE_ENTER &&

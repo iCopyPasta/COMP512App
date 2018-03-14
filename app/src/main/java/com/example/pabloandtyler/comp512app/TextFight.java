@@ -315,28 +315,12 @@ public class TextFight extends AppCompatActivity
         );
     }
 
-    // Methods for updating data------------------------------------------------------------------
-    public void insertColorForPeer(String endpointId){
-
-        boolean completedRandomColorAssignment = false;
-        String assignedColor = "";
-
-        while(!completedRandomColorAssignment){
-
-            int randomIndex = new Random().nextInt(colors.length);
-
-            assignedColor = colors[randomIndex];
-            completedRandomColorAssignment = true;
-
-            for(String colorAssigned: peersColorMap.keySet()){
-                if(assignedColor.equals(colorAssigned)){
-                    completedRandomColorAssignment = false;
-                }
-            }
-        }
-
-        peersColorMap.put(assignedColor, endpointId);
+    // CALLBACKS FROM BonusRoundFragment.java-------------------------------------------------------
+    public void onBonusRoundProgressUpdate(int progress){
+        Log.i(TAG, "sending message to all peers");
+        Toast.makeText(this, "to implement, yet!", Toast.LENGTH_SHORT).show();
     }
+
 
     public String getPeerColor(String endpointId){
         return peersColorMap.get(endpointId);
@@ -358,6 +342,8 @@ public class TextFight extends AppCompatActivity
         alert.show(getSupportFragmentManager(), "uniqueStringTaglel");
 
     }
+
+    //CALLBACKS FOR?
 
     @Override
     public void onAlertPositiveClick(PeerDataItem item) {
@@ -399,5 +385,27 @@ public class TextFight extends AppCompatActivity
         Log.i(TAG, "onTextMainFragmentInteraction completed");
     }
 
+    //Local methods
+    public void insertColorForPeer(String endpointId){
+
+        boolean completedRandomColorAssignment = false;
+        String assignedColor = "";
+
+        while(!completedRandomColorAssignment){
+
+            int randomIndex = new Random().nextInt(colors.length);
+
+            assignedColor = colors[randomIndex];
+            completedRandomColorAssignment = true;
+
+            for(String colorAssigned: peersColorMap.keySet()){
+                if(assignedColor.equals(colorAssigned)){
+                    completedRandomColorAssignment = false;
+                }
+            }
+        }
+
+        peersColorMap.put(assignedColor, endpointId);
+    }
 
 }

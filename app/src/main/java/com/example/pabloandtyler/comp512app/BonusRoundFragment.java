@@ -6,10 +6,14 @@ import android.graphics.Color;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.InputType;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -25,13 +29,17 @@ import java.util.Map;
  * {@link BonusRoundFragment.BonusRoundFragmentListener} interface
  * to handle interaction events.
  */
-public class BonusRoundFragment extends Fragment {
+public class BonusRoundFragment extends Fragment
+    implements View.OnKeyListener{
 
     private static final String TAG = "2FT: BonusRoundFrag";
+
+
 
     public interface BonusRoundFragmentListener{
         String getPeerColor(String endpointId);
         List<String> getPeerEndpointIds();
+        void onBonusRoundProgressUpdate(int progress);
     }
 
     private BonusRoundFragmentListener mListener;
@@ -42,6 +50,7 @@ public class BonusRoundFragment extends Fragment {
     private ProgressBar opponent2ProgressBar = null;
     private ProgressBar opponent3ProgressBar = null;
     private Map<String, Integer> opponentMap = null;
+    private EditText type_word = null;
 
 
 
@@ -105,6 +114,28 @@ public class BonusRoundFragment extends Fragment {
 
         }
 
+        //set our listener for the bonus round keyboard
+        //TODO: wire up UI with appropriate callbacks, properties, and other elements
+        type_word = getActivity().findViewById(R.id.type_word);
+        type_word.setOnKeyListener(this); //feedback will be handled within the app as an intermediate step
+        type_word.setInputType(
+                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD); //disable auto-correct
+        type_word.requestFocus();
+
+        InputMethodManager imm = (InputMethodManager) getActivity()
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+        if(imm != null){
+            Log.i(TAG, "forcing keyboard to appear");
+            imm.toggleSoftInput(
+                    InputMethodManager.SHOW_FORCED,
+                    InputMethodManager.HIDE_IMPLICIT_ONLY
+            );
+
+        }
+
+        //display the keyboard if not already displayed
+        type_word.callOnClick();
+
     }
 
     public void updateOpponentProgressBar(String endpointId, int progress){
@@ -124,6 +155,50 @@ public class BonusRoundFragment extends Fragment {
                 break;
         }
     }
+
+    @Override
+    public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
+
+        if(keyCode == KeyEvent.KEYCODE_SPACE &&
+                keyEvent.getAction() == KeyEvent.ACTION_DOWN){
+
+            Log.i(TAG, "onKey if called");
+
+            //TODO: determine the progress for the current sentence here
+
+            int progress = 20;
+
+            Log.i(TAG, "back to TextFight with progress: " + progress);
+            mListener.onBonusRoundProgressUpdate(progress);
+
+            return true;
+
+        }
+
+        if(keyCode == KeyEvent.KEYCODE_SPACE &&
+                keyEvent.getAction() == KeyEvent.ACTION_DOWN){
+
+            Log.i(TAG, "onKey if called");
+
+            //TODO: ensure the sentence is correct
+            //TODO: have logic if the sentence is not correct
+
+            int progress = 100;
+
+            Log.i(TAG, "back to TextFight with progress: " + progress);
+            mListener.onBonusRoundProgressUpdate(progress);
+
+            //TODO: disable user input only if their sentence is fully spelled and is correct
+
+            return true;
+
+        }
+
+
+
+        return false;
+    }
+
 
     @Override
     public void onAttach(Context context) {

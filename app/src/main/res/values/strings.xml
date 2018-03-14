@@ -8,6 +8,7 @@
     <string name="opponent1">opponent1</string>
     <string name="opponent2">opponent2</string>
     <string name="opponent3">opponent3</string>
+    <string name="boundRoundOpponentHeader">Enemy Progress</string>
 
     <string-array name="opponentColors">
         <item>#ffbb00</item> <!-- bright orange -->
