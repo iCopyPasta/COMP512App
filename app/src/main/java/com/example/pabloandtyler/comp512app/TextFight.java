@@ -397,7 +397,6 @@ public class TextFight extends AppCompatActivity
         }
 
         Log.i(TAG, "onTextMainFragmentInteraction completed");
-
     }
 
 

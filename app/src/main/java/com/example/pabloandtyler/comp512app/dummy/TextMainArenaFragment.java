@@ -29,7 +29,7 @@ import java.security.Key;
 public class TextMainArenaFragment extends Fragment
     implements View.OnKeyListener{
 
-    private static final String TAG = "TextMainFragment";
+    private static final String TAG = "2FT: TextMainFrag";
     private OnTextMainFragmentInteractionListener mListener;
     private EditText type_word;
     private static final String FRIENDLY_NAME = "FRIENDLY_NAME";
