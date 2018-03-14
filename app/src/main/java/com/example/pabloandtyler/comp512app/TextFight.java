@@ -28,6 +28,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.HashMap;
+import java.util.Random;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -44,6 +45,8 @@ public class TextFight extends AppCompatActivity
     private TextMainArenaFragment textMainArenaFragment = null;
     private FragmentManager fragmentManager = null;
     private HashMap<String, String> peersMap = null;
+    private HashMap<String, String> peersColorMap = null;
+    String[] colors = null;
 
     // Our handle to Nearby Connections
     private ConnectionsClient connectionsClient;
@@ -53,7 +56,7 @@ public class TextFight extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_text_fight);
         connectionsClient = Nearby.getConnectionsClient(this);
-        peersMap = new HashMap<>();
+
 
         //Determine which fragment to insert first
         fragmentManager = getSupportFragmentManager();
@@ -82,6 +85,11 @@ public class TextFight extends AppCompatActivity
                 fragmentTransaction.commit();
             }
         }
+
+        //Instantiate the color and peers map
+        peersMap = new HashMap<>();
+        peersColorMap = new HashMap<>();
+        colors = getResources().getStringArray(R.array.opponentColors);
     }
 
     @Override
@@ -200,7 +208,7 @@ public class TextFight extends AppCompatActivity
                     //find peers and update GUI here
 
                     Nearby.getConnectionsClient(getApplicationContext()).requestConnection(
-                            "client",
+                            CodenameGenerator.generate(),
                             endpointId,
                             connectionLifecycleCallback)
                             .addOnSuccessListener(
@@ -303,6 +311,30 @@ public class TextFight extends AppCompatActivity
         );
     }
 
+    // Methods for updating data------------------------------------------------------------------
+    public void insertColorForPeer(String endpointId){
+
+        boolean completedRandomColorAssignment = false;
+        String assignedColor = "";
+
+        while(!completedRandomColorAssignment){
+
+            int randomIndex = new Random().nextInt(colors.length);
+
+            assignedColor = colors[randomIndex];
+            completedRandomColorAssignment = true;
+
+            for(String colorAssigned: peersColorMap.keySet()){
+                if(assignedColor.equals(colorAssigned)){
+                    completedRandomColorAssignment = false;
+
+                }
+            }
+        }
+
+        peersColorMap.put(assignedColor, endpointId);
+    }
+
     // A callback from the fragment that a the user wants to potentially join a peer!
     //CALLBACKS FROM PeerListItemsFragment.java
     @Override
@@ -322,7 +354,9 @@ public class TextFight extends AppCompatActivity
         Nearby.getConnectionsClient(this)
                 .acceptConnection(item.getEndpointId(),payloadCallback);
 
+        //update a new peer to our peers map
         peersMap.put(item.getEndpointId(), item.getFriendlyName());
+
 
         textMainArenaFragment = TextMainArenaFragment.newInstance(
                 item.getFriendlyName()

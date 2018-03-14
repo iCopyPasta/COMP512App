@@ -4,9 +4,19 @@
     <string name="host_game">Host Game</string>
     <string name="peers_list">Peers List</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="opponent1">opponent1</string>
     <string name="opponent2">opponent2</string>
     <string name="opponent3">opponent3</string>
+
+    <string-array name="opponentColors">
+        <item>#ffbb00</item> <!-- bright orange -->
+        <item>#ebb46c</item> <!--brown-orange -->
+        <item>#a6ff00</item> <!--bright green -->
+        <item>#779c32</item> <!--dark green -->
+        <item>#00c8ff</item> <!-- solid blue -->
+        <item>#36a7c7</item> <!-- dark navy blue -->
+        <item>#c1b1f2</item> <!-- light purple -->
+        <item>#f700da</item> <!-- bright pink -->
+    </string-array>
 </resources>
