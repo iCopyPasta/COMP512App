@@ -29,6 +29,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.HashMap;
 import java.util.Random;
+import java.util.Set;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -36,7 +37,8 @@ public class TextFight extends AppCompatActivity
         implements
         PeerListItemsFragment.OnPeerClickedListener,
         JoinPeerAlert.JoinPeerAlertListener,
-        TextMainArenaFragment.OnTextMainFragmentInteractionListener{
+        TextMainArenaFragment.OnTextMainFragmentInteractionListener,
+        BonusRoundFragment.BonusRoundFragmentListener{
 
     private static final String TAG = "2FT: TextFight";
 
@@ -46,7 +48,7 @@ public class TextFight extends AppCompatActivity
     private FragmentManager fragmentManager = null;
     private HashMap<String, String> peersMap = null;
     private HashMap<String, String> peersColorMap = null;
-    String[] colors = null;
+    private String[] colors = null;
 
     // Our handle to Nearby Connections
     private ConnectionsClient connectionsClient;
@@ -280,6 +282,7 @@ public class TextFight extends AppCompatActivity
                     case ConnectionsStatusCodes.STATUS_OK:
                         //we're connected! can now start sending and receiving data
                         Log.i(TAG, "onConnectionResult: connection successful");
+                        insertColorForPeer(endpointId);
 
                         Toast.makeText(TextFight.this, "accepted peer!", Toast.LENGTH_SHORT).show();
                         break;
@@ -327,12 +330,19 @@ public class TextFight extends AppCompatActivity
             for(String colorAssigned: peersColorMap.keySet()){
                 if(assignedColor.equals(colorAssigned)){
                     completedRandomColorAssignment = false;
-
                 }
             }
         }
 
         peersColorMap.put(assignedColor, endpointId);
+    }
+
+    public String getPeerColor(String endpointId){
+        return peersColorMap.get(endpointId);
+    }
+
+    public Set<String> getPeerEndpointIds(){
+        return peersMap.keySet();
     }
 
     // A callback from the fragment that a the user wants to potentially join a peer!
@@ -356,7 +366,6 @@ public class TextFight extends AppCompatActivity
 
         //update a new peer to our peers map
         peersMap.put(item.getEndpointId(), item.getFriendlyName());
-
 
         textMainArenaFragment = TextMainArenaFragment.newInstance(
                 item.getFriendlyName()
