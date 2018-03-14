@@ -35,7 +35,6 @@ public class BonusRoundFragment extends Fragment
     private static final String TAG = "2FT: BonusRoundFrag";
 
 
-
     public interface BonusRoundFragmentListener{
         String getPeerColor(String endpointId);
         List<String> getPeerEndpointIds();
@@ -43,9 +42,6 @@ public class BonusRoundFragment extends Fragment
     }
 
     private BonusRoundFragmentListener mListener;
-    private TextView opponent1TextView = null;
-    private TextView opponent2TextView = null;
-    private TextView opponent3TextView = null;
     private ProgressBar opponent1ProgressBar = null;
     private ProgressBar opponent2ProgressBar = null;
     private ProgressBar opponent3ProgressBar = null;
@@ -69,11 +65,11 @@ public class BonusRoundFragment extends Fragment
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
 
-        opponent1TextView = getActivity().findViewById(R.id.opponent1TextView);
+        TextView opponent1TextView = getActivity().findViewById(R.id.opponent1TextView);
         opponent1ProgressBar = getActivity().findViewById(R.id.progressBarOpponent1);
-        opponent2TextView = getActivity().findViewById(R.id.opponent2TextView);
+        TextView opponent2TextView = getActivity().findViewById(R.id.opponent2TextView);
         opponent2ProgressBar = getActivity().findViewById(R.id.progressBarOpponent2);
-        opponent3TextView = getActivity().findViewById(R.id.opponent3TextView);
+        TextView opponent3TextView = getActivity().findViewById(R.id.opponent3TextView);
         opponent3ProgressBar = getActivity().findViewById(R.id.progressBarOpponent3);
 
         // populate the TextViews with colors
@@ -165,6 +161,7 @@ public class BonusRoundFragment extends Fragment
             Log.i(TAG, "onKey if called");
 
             //TODO: determine the progress for the current sentence here
+            String tmp = type_word.getText().toString();
 
             int progress = 20;
 
@@ -182,6 +179,7 @@ public class BonusRoundFragment extends Fragment
 
             //TODO: ensure the sentence is correct
             //TODO: have logic if the sentence is not correct
+            String tmp = type_word.getText().toString();
 
             int progress = 100;
 
@@ -193,8 +191,6 @@ public class BonusRoundFragment extends Fragment
             return true;
 
         }
-
-
 
         return false;
     }
