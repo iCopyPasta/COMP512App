@@ -49,6 +49,7 @@ public class TextFight extends AppCompatActivity
     private TextMainArenaFragment textMainArenaFragment = null;
     private BonusRoundFragment bonusRoundFragment = null;
     private FragmentManager fragmentManager = null;
+
     private HashMap<String, String> peersMap = null; //maps endpointId to friendly names
     private HashMap<String, String> peersColorMap = null; //maps endpointId to an assigned color
     private String[] colors = null;
@@ -121,7 +122,7 @@ public class TextFight extends AppCompatActivity
             public void onPayloadReceived(String endpointId, Payload payload) {
                 Log.i(TAG, "onPayloadReceived called");
                 if(payload == null){
-                    Log.e(TAG, "payload is null, somehow?");
+                    Log.e(TAG, "payload is null");
                 }
                 else{
                     Log.d(TAG, "displaying message");
@@ -176,6 +177,7 @@ public class TextFight extends AppCompatActivity
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         //TODO: add logic depending on the scenario
+                        Log.e(TAG, "onFailure: " + e.getClass() + " " + e.getMessage());
                         Log.e(TAG, "We were unable to start advertising");
                     }
                 }
@@ -200,6 +202,8 @@ public class TextFight extends AppCompatActivity
                         new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
+                                //TODO: potential logic for failure, restart, potentially?
+                                Log.e(TAG, "onFailure: " + e.getClass() + " " + e.getMessage());
                                 Log.e(TAG, "Could not discover");
 
                             }
@@ -237,6 +241,8 @@ public class TextFight extends AppCompatActivity
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
                                             //Nearby Connections failed to request the connection
+                                            //TODO: potential logic for failure, restart, potentially?
+                                            Log.e(TAG, "onFailure: " + e.getClass() + " " + e.getMessage());
                                             Log.e(TAG, "failed to request connection");
 
                                         }
@@ -247,6 +253,7 @@ public class TextFight extends AppCompatActivity
                 }
 
                 @Override
+                //TODO: add logic depending on the situation of losing a peer
                 public void onEndpointLost(String endpointId) {
                     Log.i(TAG, "endpoint lost");
                 }
@@ -261,12 +268,12 @@ public class TextFight extends AppCompatActivity
                 Toast.makeText(TextFight.this, "accepting peer?", Toast.LENGTH_SHORT).show();
 
                 if(mode.equals(MainActivity.MODE_HOST)){
-                    //auto accept client
-
-                    peersMap.put(endpointId, connectionInfo.getEndpointName());
+                    //As a host, auto accept an incoming connection
 
                     Nearby.getConnectionsClient(TextFight.this).
                             acceptConnection(endpointId, payloadCallback);
+
+                    peersMap.put(endpointId, connectionInfo.getEndpointName());
 
                     insertColorForPeer(endpointId);
                     Log.d(TAG, "onConnectedInitiated, MODE = HOST");
@@ -301,6 +308,8 @@ public class TextFight extends AppCompatActivity
                         break;
                     case ConnectionsStatusCodes.STATUS_ERROR:
                         //the connection broke before it was able to be accepted
+                        //TODO: if we cannot connect to a peer, have logic here to indicate such
+                        Log.e(TAG, "status error for onConnectionResult");
                         break;
                 }
 
@@ -308,6 +317,7 @@ public class TextFight extends AppCompatActivity
 
             @Override
             public void onDisconnected(String endpointId) {
+                //TODO: depending on the type of disconnection and topology, have additional logic to conform to situation
                 Log.i(TAG, "onDisconnected: disconnected from the opponent");
                 Toast.makeText(TextFight.this, "disconnected", Toast.LENGTH_SHORT).show();
             }
