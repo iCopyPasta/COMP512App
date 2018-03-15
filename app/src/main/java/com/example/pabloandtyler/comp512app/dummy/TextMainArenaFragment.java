@@ -29,7 +29,7 @@ import java.security.Key;
 public class TextMainArenaFragment extends Fragment
     implements View.OnKeyListener{
 
-    private static final String TAG = "TextMainFragment";
+    private static final String TAG = "2FT: TextMainFrag";
     private OnTextMainFragmentInteractionListener mListener;
     private EditText type_word;
     private static final String FRIENDLY_NAME = "FRIENDLY_NAME";
@@ -128,7 +128,11 @@ public class TextMainArenaFragment extends Fragment
 
     @Override
     public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
+
         //TODO: have additional logic for display/retrieval of words in the future
+        //TODO: ensure the word is correct
+        //TODO: have logic if the word is not correct upon enter
+
         Log.i(TAG, "onKey called");
 
         if(keyCode == KeyEvent.KEYCODE_ENTER &&

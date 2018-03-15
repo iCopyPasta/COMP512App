@@ -27,7 +27,7 @@ import java.util.List;
 public class PeerListItemsFragment extends ListFragment {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
-    private static final String TAG = "PeerListFragment";
+    private static final String TAG = "2FT: PeerListFragment";
     private int mColumnCount = 1;
     private OnPeerClickedListener mListener;
     private ArrayAdapter<PeerDataItem> peersAdapter;
