@@ -54,6 +54,10 @@ public class BonusRoundFragment extends Fragment
         // Required empty public constructor
     }
 
+    public static BonusRoundFragment newInstance() {
+        return new BonusRoundFragment();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -112,8 +116,8 @@ public class BonusRoundFragment extends Fragment
 
         //set our listener for the bonus round keyboard
         //TODO: wire up UI with appropriate callbacks, properties, and other elements
-        type_word = getActivity().findViewById(R.id.type_word);
-        type_word.setOnKeyListener(this); //feedback will be handled within the app as an intermediate step
+        type_word = getActivity().findViewById(R.id.bonusRoundTypeSpace);
+        type_word.setOnKeyListener(BonusRoundFragment.this); //feedback will be handled within the app as an intermediate step
         type_word.setInputType(
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD); //disable auto-correct
         type_word.requestFocus();

@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.example.pabloandtyler.comp512app.dummy.PeerDataItem;
@@ -46,6 +47,7 @@ public class TextFight extends AppCompatActivity
     private static String mode = null;
     private PeerListItemsFragment peerListItemsFragment = null;
     private TextMainArenaFragment textMainArenaFragment = null;
+    private BonusRoundFragment bonusRoundFragment = null;
     private FragmentManager fragmentManager = null;
     private HashMap<String, String> peersMap = null; //maps endpointId to friendly names
     private HashMap<String, String> peersColorMap = null; //maps endpointId to an assigned color
@@ -93,6 +95,9 @@ public class TextFight extends AppCompatActivity
         peersMap = new HashMap<>();
         peersColorMap = new HashMap<>();
         colors = getResources().getStringArray(R.array.opponentColors);
+
+        //Store a reference to our third fragment, the bonus round
+        bonusRoundFragment = BonusRoundFragment.newInstance();
     }
 
     @Override
@@ -262,6 +267,8 @@ public class TextFight extends AppCompatActivity
 
                     Nearby.getConnectionsClient(TextFight.this).
                             acceptConnection(endpointId, payloadCallback);
+
+                    insertColorForPeer(endpointId);
                     Log.d(TAG, "onConnectedInitiated, MODE = HOST");
                 }
 
@@ -323,7 +330,10 @@ public class TextFight extends AppCompatActivity
 
 
     public String getPeerColor(String endpointId){
-        return peersColorMap.get(endpointId);
+        String tmp = peersColorMap.get(endpointId);
+        if(tmp == null)
+            return "#000000";
+        return tmp;
     }
 
     public List<String> getPeerEndpointIds(){
@@ -343,7 +353,7 @@ public class TextFight extends AppCompatActivity
 
     }
 
-    //CALLBACKS FOR?
+    //CALLBACKS FOR JoinPeerAlert.java
 
     @Override
     public void onAlertPositiveClick(PeerDataItem item) {
@@ -358,7 +368,6 @@ public class TextFight extends AppCompatActivity
                 item.getFriendlyName()
         );
 
-        //TODO: replace fragment with TextMainArena
         fragmentManager.beginTransaction()
                 .replace(R.id.multi_fragments,
                         textMainArenaFragment)
@@ -396,6 +405,12 @@ public class TextFight extends AppCompatActivity
             int randomIndex = new Random().nextInt(colors.length);
 
             assignedColor = colors[randomIndex];
+            if(assignedColor == null){
+                Log.e(TAG, "assignedColor was null");
+            }
+            else{
+                Log.i(TAG, "insertColorForPeer: "+ assignedColor);
+            }
             completedRandomColorAssignment = true;
 
             for(String colorAssigned: peersColorMap.keySet()){
@@ -405,7 +420,15 @@ public class TextFight extends AppCompatActivity
             }
         }
 
-        peersColorMap.put(assignedColor, endpointId);
+        peersColorMap.put(endpointId, assignedColor);
     }
 
+    public void onBonus(View view) {
+        fragmentManager.beginTransaction()
+                .replace(R.id.multi_fragments,
+                        bonusRoundFragment)
+                .addToBackStack("TextFightArenaFragment")
+                .commit();
+
+    }
 }

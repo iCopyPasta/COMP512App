@@ -12,13 +12,78 @@
         android:layout_height="match_parent">
 
         <TextView
+            android:id="@+id/opponent1TextView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/opponent1"
+            app:layout_constraintEnd_toStartOf="@+id/progressBarOpponent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/token" />
+
+        <TextView
+            android:id="@+id/opponent2TextView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/opponent2"
+            app:layout_constraintEnd_toStartOf="@+id/progressBarOpponent2"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/opponent1TextView2" />
+
+        <TextView
+            android:id="@+id/opponent3TextView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/opponent3"
+            app:layout_constraintEnd_toStartOf="@+id/progressBarOpponent3"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/opponent2TextView2" />
+
+        <ProgressBar
+            android:id="@+id/progressBarOpponent"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/opponent1TextView2"
+            app:layout_constraintTop_toTopOf="@+id/opponent1TextView2" />
+
+        <ProgressBar
+            android:id="@+id/progressBarOpponent2"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/opponent2TextView2"
+            app:layout_constraintTop_toTopOf="@+id/opponent2TextView2" />
+
+        <ProgressBar
+            android:id="@+id/progressBarOpponent3"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/opponent3TextView2"
+            app:layout_constraintTop_toTopOf="@+id/opponent3TextView2" />
+
+        <TextView
             android:id="@+id/token"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            app:layout_constraintEnd_toStartOf="@+id/current_word"
+            app:layout_constraintEnd_toStartOf="@+id/friendly_name"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -27,10 +92,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/current_word"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/token"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -39,11 +104,13 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.501"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-            <requestFocus/>
+            app:layout_constraintTop_toBottomOf="@+id/opponent3TextView2">
+
+            <requestFocus />
         </TextView>
 
 
@@ -60,6 +127,7 @@
             android:nextFocusForward="@id/type_word"
             android:singleLine="true"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.503"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/current_word"
             tools:labelFor="@+id/current_word" />
@@ -72,8 +140,20 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.501"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/type_word" />
+
+        <Button
+            android:id="@+id/button3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="24dp"
+            android:text="Bonus"
+            android:onClick="onBonus"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/debug_message" />
 
     </android.support.constraint.ConstraintLayout>
 
