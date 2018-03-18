@@ -125,12 +125,38 @@ public class TextFight extends AppCompatActivity
                     Log.e(TAG, "payload is null");
                 }
                 else{
-                    Log.d(TAG, "displaying message");
                     try{
                         byte[] message = payload.asBytes();
                         if(message != null){
-                            String text = new String(message, UTF_8);
-                            textMainArenaFragment.updateDebugMessage(text);
+
+                            String[] messageParts = (new String(message, UTF_8)).split(":");
+
+                            //Message self-identification check:
+                            switch(messageParts[0]){
+                                case "L":
+                                    break;
+                                case "B":
+                                    break;
+                                case "A":
+                                    break;
+                                case "P":
+                                    break;
+                                case "D":
+                                    break;
+                                case "E":
+                                    break;
+                                case "F":
+                                    break;
+                                case "R":
+                                    break;
+                                case "U":
+                                    break;
+                                default:
+                                    break;
+
+                            }
+
+                            //textMainArenaFragment.updateDebugMessage(text);
                         }
 
                     } catch(NullPointerException e){
@@ -389,7 +415,6 @@ public class TextFight extends AppCompatActivity
     @Override
     public void onAlertNegativeClick() {
         Toast.makeText(this, "stay in fragment!", Toast.LENGTH_SHORT).show();
-
     }
 
     //CALLBACKS FROM TextMainArenaFragment.java
@@ -439,6 +464,5 @@ public class TextFight extends AppCompatActivity
                         bonusRoundFragment)
                 .addToBackStack("TextFightArenaFragment")
                 .commit();
-
     }
 }
