@@ -133,11 +133,11 @@ public class TextFight extends AppCompatActivity
 
                             //Message self-identification check:
                             switch(messageParts[0]){
-                                case "L":
+                                case "L": //upon receiving a new map, see if our map matches the incoming map
                                     break;
-                                case "B":
+                                case "B": //bonus round has started, use the index in the message for the current sentence
                                     break;
-                                case "A":
+                                case "A"://
                                     break;
                                 case "P":
                                     break;
@@ -152,6 +152,7 @@ public class TextFight extends AppCompatActivity
                                 case "U":
                                     break;
                                 default:
+                                    Log.e(TAG, "no suitable deconstruction found");
                                     break;
 
                             }
@@ -464,5 +465,47 @@ public class TextFight extends AppCompatActivity
                         bonusRoundFragment)
                 .addToBackStack("TextFightArenaFragment")
                 .commit();
+    }
+
+    private class PeerBattleInfo{
+        private String peerColor;
+        private String peerFriendlyName;
+        private String peerLevel;
+        private String endpointId;
+
+        public String getPeerColor() {
+            return peerColor;
+        }
+
+        public void setPeerColor(String peerColor) {
+            this.peerColor = peerColor;
+        }
+
+        public String getPeerFriendlyName() {
+            return peerFriendlyName;
+        }
+
+        public void setPeerFriendlyName(String peerFriendlyName) {
+            this.peerFriendlyName = peerFriendlyName;
+        }
+
+        public String getPeerLevel() {
+            return peerLevel;
+        }
+
+        public void setPeerLevel(String peerLevel) {
+            this.peerLevel = peerLevel;
+        }
+
+        public String getEndpointId() {
+            return endpointId;
+        }
+
+        public void setEndpointId(String endpointId) {
+            this.endpointId = endpointId;
+        }
+
+
+
     }
 }
