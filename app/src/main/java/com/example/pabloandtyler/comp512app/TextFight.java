@@ -153,7 +153,7 @@ public class TextFight extends AppCompatActivity
         };
 
     // Broadcasts our presence using Nearby Connections so other players can find us.
-    private void startAdvertising() {
+    private void startAdvertising() { // let someone else connect to me
         Log.i(TAG, "advertising started");
         final String friendly_name = CodenameGenerator.generate();
         // Note: Advertising may fail. To keep this demo simple, we don't handle failures.
@@ -185,7 +185,7 @@ public class TextFight extends AppCompatActivity
     }
 
     /** Starts looking for other players using Nearby Connections. */
-    private void startDiscovery() {
+    private void startDiscovery() { //connect to someone else
         Log.i(TAG, "startDiscovery: finding peers");
         // Note: Discovery may fail. To keep this demo simple, we don't handle failures.
         connectionsClient.startDiscovery(

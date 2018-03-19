@@ -1,6 +1,7 @@
 package com.example.pabloandtyler.comp512app.dummy;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 import com.example.pabloandtyler.comp512app.R;
 
 import java.security.Key;
+import java.util.Random;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -33,6 +35,12 @@ public class TextMainArenaFragment extends Fragment
     private OnTextMainFragmentInteractionListener mListener;
     private EditText type_word;
     private static final String FRIENDLY_NAME = "FRIENDLY_NAME";
+
+    private int level = 4;
+    private int tier = 0;
+    private String currentWord;
+
+    private static final int MAX_TIER = 3; //the amount of words to complete for the level to increase
 
     public TextMainArenaFragment() {
         // Required empty public constructor
@@ -93,6 +101,7 @@ public class TextMainArenaFragment extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
 
     @Override
@@ -117,6 +126,8 @@ public class TextMainArenaFragment extends Fragment
     @Override
     public void onResume(){
         super.onResume();
+        getNewWord();
+        updateValues();
 
     }
 
@@ -146,6 +157,14 @@ public class TextMainArenaFragment extends Fragment
             Log.i(TAG, "back to TextFight with message: " + message);
             mListener.onTextMainFragmentInteraction(message);
 
+            if (message.equals(currentWord)) {
+                correctEntry();
+            }
+            else {
+                incorrectEntry();
+            }
+
+
             return true;
 
         }
@@ -165,6 +184,108 @@ public class TextMainArenaFragment extends Fragment
 
         ((TextView) getActivity().findViewById(R.id.debug_message))
                 .setText(message);
+    }
+
+    public void updateValues() {
+        //updates the displayed current tier and current level
+        Log.i(TAG,"updateValues() setting current level to " + String.valueOf(level) + " and current tier to " +String.valueOf(tier));
+
+        ((TextView) getActivity().findViewById(R.id.currentPlayerLevel))
+                .setText(String.valueOf(level));
+
+        ((TextView) getActivity().findViewById(R.id.currentTier))
+                .setText(String.valueOf(tier));
+    }
+
+    public void correctEntry() {
+        //updates the current word text view after incrementing tier, and level, if necessary
+        //called after the user submits the correct word
+        Log.i(TAG,"correctEntry()");
+        ((TextView) getActivity().findViewById(R.id.passOrFail))
+                .setText("Correct! You have gone up 1 tier.");
+
+        tier++;
+        if (tier == MAX_TIER) {
+            tier = 0;
+            level++;
+            if (level == 16) {
+                victory();
+            }
+
+        }
+
+        updateValues();
+
+        getNewWord();
+
+    }
+
+    private void incorrectEntry() {
+        //called after the user submits the incorrect word
+        Log.i(TAG,"incorrectEntry()");
+
+        ((TextView) getActivity().findViewById(R.id.passOrFail))
+                .setText("Incorrect!");
+    }
+
+    public void getNewWord() {
+        //returns a new word based on current level, be sure level is correct before invoking
+        Log.i(TAG,"getNewWord()");
+        Resources res = getResources();
+        String[] words = {"AN ERROR OCCURRED, please report this bug to sukmoon@psu.edu."};
+
+        if (level ==4) {
+            words = res.getStringArray(R.array.fourDigitList);
+        }
+        else if (level == 5) {
+            words = res.getStringArray(R.array.fiveDigitList);
+        }
+        else if (level == 6) {
+            words = res.getStringArray(R.array.sixDigitList);
+        }
+        else if (level == 7) {
+            words = res.getStringArray(R.array.sevenDigitList);
+        }
+        else if (level == 8) {
+            words = res.getStringArray(R.array.eightDigitList);
+        }
+        else if (level == 9) {
+            words = res.getStringArray(R.array.nineDigitList);
+        }
+        else if (level == 10) {
+            words = res.getStringArray(R.array.tenDigitList);
+        }
+        else if (level == 11) {
+            words = res.getStringArray(R.array.elevenDigitList);
+        }
+        else if (level == 12) {
+            words = res.getStringArray(R.array.twelveDigitList);
+        }
+        else if (level == 13) {
+            words = res.getStringArray(R.array.thirteenDigitList);
+        }
+        else if (level == 14) {
+            words = res.getStringArray(R.array.fourteenDigitList);
+        }
+        else if (level == 15) {
+            words = res.getStringArray(R.array.fifteenDigitList);
+        }
+
+
+
+        int randomIndex = new Random().nextInt(words.length);
+        currentWord = words[randomIndex];
+
+        ((TextView) getActivity().findViewById(R.id.currentWord))
+                .setText(currentWord);
+    }
+
+    public void victory() {
+        //this player has won, what should be done?
+        Log.i(TAG,"victory()");
+
+        ((TextView) getActivity().findViewById(R.id.currentWord))
+                .setText("YOU WON! CONGRATULATIONS!");
     }
 
     /**
