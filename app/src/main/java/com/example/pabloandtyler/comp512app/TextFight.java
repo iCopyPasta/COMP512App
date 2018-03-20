@@ -64,6 +64,7 @@ public class TextFight extends AppCompatActivity
         setContentView(R.layout.activity_text_fight);
 
         connectionsClient = Nearby.getConnectionsClient(this);
+        myFriendlyName = CodenameGenerator.generate();
 
 
         //Determine which fragment to insert first
@@ -106,6 +107,11 @@ public class TextFight extends AppCompatActivity
     @Override
     protected void onStart(){
         super.onStart();
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
 
         if(mode.equals(MainActivity.MODE_HOST)){
             startAdvertising();
@@ -113,6 +119,24 @@ public class TextFight extends AppCompatActivity
         if(mode.equals(MainActivity.MODE_PEER)){
             startDiscovery();
         }
+
+    }
+
+    @Override
+    protected void onStop(){
+        super.onStop();
+
+        connectionsClient.stopAdvertising();
+        connectionsClient.stopDiscovery();
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+
+        connectionsClient.stopDiscovery();
+        connectionsClient.stopAdvertising();
+        connectionsClient = null;
     }
 
     //CALLBACKS FOR THE NEARBY CONNECTIONS API-----------------------------------------------------
@@ -184,17 +208,17 @@ public class TextFight extends AppCompatActivity
     // Broadcasts our presence using Nearby Connections so other players can find us.
     private void startAdvertising() {
         Log.i(TAG, "advertising started");
-        final String friendly_name = CodenameGenerator.generate();
+
         // Note: Advertising may fail. To keep this demo simple, we don't handle failures.
         connectionsClient.startAdvertising(
-                friendly_name, getPackageName(), connectionLifecycleCallback, new AdvertisingOptions(MainActivity.STRATEGY))
+                myFriendlyName, getPackageName(), connectionLifecycleCallback, new AdvertisingOptions(MainActivity.STRATEGY))
         .addOnSuccessListener(
                 new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         if (mode.equals(MainActivity.MODE_HOST)){
                             textMainArenaFragment.updateFriendlyName(
-                                    friendly_name);
+                                    myFriendlyName);
 
                         }
                         Log.i(TAG, "we are successfully advertising");
@@ -252,7 +276,7 @@ public class TextFight extends AppCompatActivity
                 public void onEndpointFound(String endpointId, DiscoveredEndpointInfo info) {
 
                     Nearby.getConnectionsClient(getApplicationContext()).requestConnection(
-                            CodenameGenerator.generate(),
+                            myFriendlyName,
                             endpointId,
                             connectionLifecycleCallback)
                             .addOnSuccessListener(
@@ -262,7 +286,7 @@ public class TextFight extends AppCompatActivity
                                             //We successfully requested a connection. Now both
                                             // sides must accept before the connection is established
                                             Toast.makeText(TextFight.this,
-                                                    "onSuccess: requested connection",
+                                                    "requested connection",
                                                     Toast.LENGTH_SHORT).show();
                                             Log.i(TAG, "requested connection: both must accept");
                                         }
@@ -374,7 +398,6 @@ public class TextFight extends AppCompatActivity
         Toast.makeText(this, "to implement, yet!", Toast.LENGTH_SHORT).show();
     }
 
-
     public String getPeerColor(String endpointId){
         String tmp = peersColorMap.get(endpointId);
         if(tmp == null)
@@ -386,8 +409,9 @@ public class TextFight extends AppCompatActivity
         return new ArrayList<>(peersMap.keySet());
     }
 
-    // A callback from the fragment that a the user wants to potentially join a peer!
+
     //CALLBACKS FROM PeerListItemsFragment.java
+    // A callback from the fragment that a the user wants to potentially join a peer!
     @Override
     public void onPeerClicked(PeerDataItem item) {
         //TODO: initialize connection here with new peer, and display alert dialog.
@@ -410,6 +434,10 @@ public class TextFight extends AppCompatActivity
         // allow others to connect to us automatically now that we're in the network
         mode = MainActivity.MODE_HOST;
 
+        // stop looking for someone to join, let others join us, now.
+        //connectionsClient.stopDiscovery();
+        startAdvertising();
+
         //update a new peer to our peers map
         peersMap.put(item.getEndpointId(), item.getFriendlyName());
 
@@ -420,9 +448,10 @@ public class TextFight extends AppCompatActivity
         fragmentManager.beginTransaction()
                 .replace(R.id.multi_fragments,
                         textMainArenaFragment)
-                .addToBackStack("PeersListFragment")
+
                 .commit();
 
+        //.addToBackStack("PeersListFragment")
 
     }
 
@@ -522,11 +551,11 @@ public class TextFight extends AppCompatActivity
     }*/
 
     private void attemptReconnection(String endpointId){
-        Toast.makeText(getApplicationContext(), "reconnect!", Toast.LENGTH_SHORT).show();
+
 
         //reattempt connection only once
         Nearby.getConnectionsClient(getApplicationContext()).requestConnection(
-                CodenameGenerator.generate(),
+                myFriendlyName,
                 endpointId,
                 connectionLifecycleCallback)
                 .addOnSuccessListener(
@@ -536,9 +565,10 @@ public class TextFight extends AppCompatActivity
                                 //We successfully requested a connection. Now both
                                 // sides must accept before the connection is established
                                 Toast.makeText(TextFight.this,
-                                        "onSuccess: requested connection",
+                                        "attemptReconnection: requested connection",
                                         Toast.LENGTH_SHORT).show();
-                                Log.i(TAG, "requested connection: both must accept");
+                                Log.i(TAG, "attemptReconnection: both must accept");
+                                Toast.makeText(getApplicationContext(), "reconnect!", Toast.LENGTH_SHORT).show();
                             }
                         }
                 )
@@ -546,13 +576,21 @@ public class TextFight extends AppCompatActivity
                         new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(getApplicationContext(), "stop reconnect!", Toast.LENGTH_SHORT).show();
 
-                                Log.e(TAG, "onFailure: " + e.getClass() + " " + e.getMessage());
-                                Log.e(TAG, "will stop trying action of reattempts");
+                                Log.e(TAG, "attemptReconnection: " + e.getClass() + " " + e.getMessage());
+                                Log.e(TAG, "attemptReconnection: will stop trying action of reattempts");
 
                             }
                         }
                 );
 
+    }
+
+    public void onDisconnectTest(View view) {
+        for(String el: peersMap.keySet()){
+            Log.i(TAG, "onDisconnectTest: " + el);
+            connectionsClient.disconnectFromEndpoint(el);
+        }
     }
 }

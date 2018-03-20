@@ -27,7 +27,6 @@
             android:name=".TextFight"
             android:screenOrientation="portrait"
             />
-        <activity android:name=".PeersList"/>
     </application>
 
 </manifest>
