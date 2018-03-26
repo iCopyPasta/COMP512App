@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.pabloandtyler.comp512app.dummy.PeerDataItem;
@@ -27,6 +28,7 @@ import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,8 +55,10 @@ public class TextFight extends AppCompatActivity
     private HashMap<String, String> peersMap = null; //maps endpointId to friendly names
     private HashMap<String, String> peersColorMap = null; //maps endpointId to an assigned color
     private String[] colors = null;
-    private String myFriendlyName;
+    private String myFriendlyName = null;
 
+    public static GameStateContainer theState;
+    public static PeerState myState;
     // Our handle to Nearby Connections
     private ConnectionsClient connectionsClient;
 
@@ -63,8 +67,12 @@ public class TextFight extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_text_fight);
 
-        connectionsClient = Nearby.getConnectionsClient(this);
         myFriendlyName = CodenameGenerator.generate();
+        initializeState(); //TODO: save state and maybe put this somewhere else
+
+        connectionsClient = Nearby.getConnectionsClient(this);
+
+        Log.i(TAG, "onCreate: myFriendlyName = " + myFriendlyName);
 
 
         //Determine which fragment to insert first
@@ -113,6 +121,7 @@ public class TextFight extends AppCompatActivity
     protected void onResume(){
         super.onResume();
 
+
         if(mode.equals(MainActivity.MODE_HOST)){
             startAdvertising();
         }
@@ -154,36 +163,115 @@ public class TextFight extends AppCompatActivity
                     try{
                         byte[] message = payload.asBytes();
                         if(message != null){
+                            String messageString = (new String(message, UTF_8));
+                            Log.i(TAG, "onPayloadReceived: messageString is: " + messageString);
 
-                            String[] messageParts = (new String(message, UTF_8)).split(":");
+                            Gson gson = new Gson();
+                            GameStateContainer incomingGameContainer =
+                                    gson.fromJson(messageString, GameStateContainer.class
+                                    );
 
-                            //Message self-identification check:
-                            switch(messageParts[0]){
-                                case "L": //upon receiving a new map, see if our map matches the incoming map
-                                    break;
-                                case "B": //bonus round has started, use the index in the message for the current sentence
-                                    break;
-                                case "A"://
-                                    break;
-                                case "P":
-                                    break;
-                                case "D":
-                                    break;
-                                case "E":
-                                    break;
-                                case "F":
-                                    break;
-                                case "R":
-                                    break;
-                                case "U":
-                                    break;
-                                default:
-                                    Log.e(TAG, "no suitable deconstruction found");
-                                    break;
-
+                            for(PeerState el: incomingGameContainer.getPeersLevel()){
+                                Log.i(TAG, "onPayloadReceived: " + el.toString());
                             }
 
-                            //textMainArenaFragment.updateDebugMessage(text);
+
+                            //check equality of the incoming game container with the
+                            // local copy we have
+                            //if not equal: else just skip
+                            Log.i(TAG, "onPayloadReceived: comparing incomingGameContainer to our state");
+                            if (! incomingGameContainer.equals(theState)) { //TODO: this equality does not work
+                                Log.i(TAG, "onPayloadReceived: game containers they were not equal");
+
+                                //determine the game state, i.e. normal, bonus, win, etc.
+                                if (incomingGameContainer.getTypeOfGame().equals("N")) {
+                                    Log.i(TAG, "onPayloadReceived: the type of incoming game is " + incomingGameContainer.getTypeOfGame());
+                                    //CONNECTION TASKS
+                                    List<PeerState> incomingPeers = incomingGameContainer.getPeersLevel();
+                                    Log.i(TAG, "onPayloadReceived: starting for-each incoming peers");
+                                    for (PeerState peer: incomingPeers) {
+                                        Log.i(TAG, "onPayloadReceived: in iteration of peers");
+                                        Log.i(TAG, "onPayloadReceived: peer.getFriendlyName() =  " + peer.getFriendlyName());
+                                        if(! myState.getFriendlyName().equals(peer.getFriendlyName()) ){
+                                            Log.i(TAG, "onPayloadReceived: the friendlyNames were not equal");
+
+                                            //if XD was found, don't dare connect to it lol
+                                            if(peer.getEndpointId().equals("XD")){
+
+                                                peer.setEndpointId(endpointId);
+                                            }
+
+
+                                            if(! peersMap.containsKey(peer.getEndpointId()) )  {
+
+                                                Log.i(TAG, "onPayloadReceived: we did not find the peer in our map, should try to connect and then add");
+                                                //the peer isn't in my list, attempt to connect and add to list
+                                                connectionsClient.requestConnection(myFriendlyName,
+                                                        peer.getEndpointId(),
+                                                        connectionLifecycleCallback);
+
+                                            }
+                                            if ( (! theState.contains(peer))) {
+                                                Log.i(TAG, "Adding new peer: "+peer.getEndpointId());
+
+                                                theState.getPeersLevel().add(peer);
+                                            }
+                                            else { //peer is already in my list, check if there is truly an update
+                                                //GAME LOGIC TASKS
+                                                Log.i(TAG, "onPayloadReceived: peer is already in my list, check if there is truly an update");
+                                                PeerState myLocalPeer = null;
+
+                                                for (PeerState localPeer: theState.getPeersLevel()) {
+                                                    if (localPeer.getEndpointId().equals(peer.getEndpointId())) {
+                                                        myLocalPeer = localPeer; //TODO: is this a copy or a reference?
+
+                                                        break;
+                                                    }
+                                                }
+
+                                                if (peer.getLevelOfPeer() > myLocalPeer.getLevelOfPeer()) {
+                                                    myLocalPeer.setLevelOfPeer(peer.getLevelOfPeer());
+                                                    Log.e(TAG, "setting local peer to network level " + String.valueOf(peer.getLevelOfPeer()));
+                                                }
+
+                                            }
+
+                                        }
+                                        else{
+                                            if ( (! theState.getPeersLevel().contains(peer))) {
+
+                                                Log.i(TAG, "Adding myself to my peer state from received message: "+peer.getEndpointId());
+                                                myState.setEndpointId(peer.getEndpointId());
+                                            }
+                                        }
+                                    }
+                                }
+                                // if game state is normal, do the following:
+                                // Connection Tasks
+                                // 1. iterating over the PeerState elements
+                                //  if we don't have them in our map
+                                //   if the peer's friendly name does not match our's
+                                //    attempt to connect
+                                //   if it does match our's, simply update our local copy of PeerState with the endpointId
+
+
+                                //Game Logic Tasks
+                                //1. iterate through all peers
+                                //  check if the entry exists in our local copy
+                                //  if not in our copy: add
+                                //  else: check if their new incoming level is higher than our copy
+                                //    if it is, update that value
+
+                                //  update GUI elements as necessary (i.e. progress)
+                                Log.i(TAG, "onPayloadReceived: setting inject to values");
+                                // go through peers, match them to the correct GUI element, update the progress bar with some logic
+                                ((TextView) findViewById(R.id.opponent1TextView2)).setText(gson.toJson(theState));
+
+                                //at the end, sendBroadcast
+                                Log.i(TAG, "onPayloadReceived: sending brodcast after having our local game container updated");
+                                onBroadcastState();
+
+                            }
                         }
 
                     } catch(NullPointerException e){
@@ -204,6 +292,17 @@ public class TextFight extends AppCompatActivity
 
             }
         };
+
+    private void initializeState() {
+        myState = new PeerState();
+        myState.setEndpointId("XD");
+        myState.setLevelOfPeer(4);
+        myState.setFriendlyName(myFriendlyName);
+
+        theState = new GameStateContainer();
+
+        theState.getPeersLevel().add(myState);
+    }
 
     // Broadcasts our presence using Nearby Connections so other players can find us.
     private void startAdvertising() { // let someone else connect to me
@@ -592,5 +691,25 @@ public class TextFight extends AppCompatActivity
             Log.i(TAG, "onDisconnectTest: " + el);
             connectionsClient.disconnectFromEndpoint(el);
         }
+    }
+
+    public void onBroadcastState() {
+        String send = (new Gson()).toJson(theState);
+        //List<String> list = new ArrayList<String>(peersMap.keySet());
+
+
+        for(String endpointId: peersMap.keySet()){
+            Log.i(TAG, "sending " + send + " to " + peersMap.get(endpointId));
+            sendPayload(endpointId, send);
+        }
+        Gson gson = new Gson();
+
+        ((TextView) findViewById(R.id.opponent1TextView2)).setText(gson.toJson(theState));
+
+        Log.i(TAG, "onBroadcastState: finished sending to all peers");
+
+
+        //connectionsClient.sendPayload(list, Payload.fromBytes(send.getBytes()));
+
     }
 }

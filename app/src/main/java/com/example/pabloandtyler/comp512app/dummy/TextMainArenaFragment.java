@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.pabloandtyler.comp512app.R;
+import com.example.pabloandtyler.comp512app.TextFight;
 
 import java.security.Key;
 import java.util.Random;
@@ -40,7 +41,7 @@ public class TextMainArenaFragment extends Fragment
     private int tier = 0;
     private String currentWord;
 
-    private static final int MAX_TIER = 3; //the amount of words to complete for the level to increase
+    private static final int MAX_TIER = 1; //the amount of words to complete for the level to increase
 
     public TextMainArenaFragment() {
         // Required empty public constructor
@@ -154,8 +155,8 @@ public class TextMainArenaFragment extends Fragment
             type_word.setText(""); //clear out the composed text thus far
             ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
                     .showSoftInput(type_word, InputMethodManager.SHOW_FORCED);
-            Log.i(TAG, "back to TextFight with message: " + message);
-            mListener.onTextMainFragmentInteraction(message);
+            //Log.i(TAG, "back to TextFight with message: " + message);
+            //mListener.onTextMainFragmentInteraction(message);
 
             if (message.equals(currentWord)) {
                 correctEntry();
@@ -190,8 +191,8 @@ public class TextMainArenaFragment extends Fragment
         //updates the displayed current tier and current level
         Log.i(TAG,"updateValues() setting current level to " + String.valueOf(level) + " and current tier to " +String.valueOf(tier));
 
-        ((TextView) getActivity().findViewById(R.id.currentPlayerLevel))
-                .setText(String.valueOf(level));
+       // ((TextView) getActivity().findViewById(R.id.currentPlayerLevel))
+        //        .setText(String.valueOf(level));
 
         ((TextView) getActivity().findViewById(R.id.currentTier))
                 .setText(String.valueOf(tier));
@@ -202,12 +203,13 @@ public class TextMainArenaFragment extends Fragment
         //called after the user submits the correct word
         Log.i(TAG,"correctEntry()");
         ((TextView) getActivity().findViewById(R.id.passOrFail))
-                .setText("Correct! You have gone up 1 tier.");
+                .setText("");
 
         tier++;
         if (tier == MAX_TIER) {
             tier = 0;
             level++;
+            updateMyState();
             if (level == 16) {
                 victory();
             }
@@ -218,6 +220,11 @@ public class TextMainArenaFragment extends Fragment
 
         getNewWord();
 
+    }
+
+    public void updateMyState() {
+        TextFight.myState.setLevelOfPeer(level);
+        mListener.onBroadcastState();
     }
 
     private void incorrectEntry() {
@@ -286,7 +293,9 @@ public class TextMainArenaFragment extends Fragment
 
         ((TextView) getActivity().findViewById(R.id.currentWord))
                 .setText("YOU WON! CONGRATULATIONS!");
+
     }
+
 
     /**
      * This interface must be implemented by activities that contain this
@@ -296,5 +305,6 @@ public class TextMainArenaFragment extends Fragment
      */
     public interface OnTextMainFragmentInteractionListener {
         void onTextMainFragmentInteraction(String message);
+        void onBroadcastState();
     }
 }

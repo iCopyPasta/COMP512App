@@ -26,6 +26,7 @@ public final class CodenameGenerator {
                     "Plum",
                     "Orchid",
                     "Magenta",
+                    "Mutex"
             };
 
     private static final String[] TREATS =
@@ -46,7 +47,8 @@ public final class CodenameGenerator {
                     "Lollipop",
                     "Marshmallow",
                     "Nougat",
-                    "Oreo"
+                    "Oreo",
+                    "Hexi"
             };
 
     private static final Random generator = new Random();
