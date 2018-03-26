@@ -53,6 +53,7 @@ public class TextFight extends AppCompatActivity
     private HashMap<String, String> peersMap = null; //maps endpointId to friendly names
     private HashMap<String, String> peersColorMap = null; //maps endpointId to an assigned color
     private String[] colors = null;
+    private String myFriendlyName;
 
     // Our handle to Nearby Connections
     private ConnectionsClient connectionsClient;
@@ -61,7 +62,9 @@ public class TextFight extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_text_fight);
+
         connectionsClient = Nearby.getConnectionsClient(this);
+        myFriendlyName = CodenameGenerator.generate();
 
 
         //Determine which fragment to insert first
@@ -104,6 +107,11 @@ public class TextFight extends AppCompatActivity
     @Override
     protected void onStart(){
         super.onStart();
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
 
         if(mode.equals(MainActivity.MODE_HOST)){
             startAdvertising();
@@ -111,6 +119,24 @@ public class TextFight extends AppCompatActivity
         if(mode.equals(MainActivity.MODE_PEER)){
             startDiscovery();
         }
+
+    }
+
+    @Override
+    protected void onStop(){
+        super.onStop();
+
+        connectionsClient.stopAdvertising();
+        connectionsClient.stopDiscovery();
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+
+        connectionsClient.stopDiscovery();
+        connectionsClient.stopAdvertising();
+        connectionsClient = null;
     }
 
     //CALLBACKS FOR THE NEARBY CONNECTIONS API-----------------------------------------------------
@@ -125,12 +151,39 @@ public class TextFight extends AppCompatActivity
                     Log.e(TAG, "payload is null");
                 }
                 else{
-                    Log.d(TAG, "displaying message");
                     try{
                         byte[] message = payload.asBytes();
                         if(message != null){
-                            String text = new String(message, UTF_8);
-                            textMainArenaFragment.updateDebugMessage(text);
+
+                            String[] messageParts = (new String(message, UTF_8)).split(":");
+
+                            //Message self-identification check:
+                            switch(messageParts[0]){
+                                case "L": //upon receiving a new map, see if our map matches the incoming map
+                                    break;
+                                case "B": //bonus round has started, use the index in the message for the current sentence
+                                    break;
+                                case "A"://
+                                    break;
+                                case "P":
+                                    break;
+                                case "D":
+                                    break;
+                                case "E":
+                                    break;
+                                case "F":
+                                    break;
+                                case "R":
+                                    break;
+                                case "U":
+                                    break;
+                                default:
+                                    Log.e(TAG, "no suitable deconstruction found");
+                                    break;
+
+                            }
+
+                            //textMainArenaFragment.updateDebugMessage(text);
                         }
 
                     } catch(NullPointerException e){
@@ -155,17 +208,17 @@ public class TextFight extends AppCompatActivity
     // Broadcasts our presence using Nearby Connections so other players can find us.
     private void startAdvertising() { // let someone else connect to me
         Log.i(TAG, "advertising started");
-        final String friendly_name = CodenameGenerator.generate();
+
         // Note: Advertising may fail. To keep this demo simple, we don't handle failures.
         connectionsClient.startAdvertising(
-                friendly_name, getPackageName(), connectionLifecycleCallback, new AdvertisingOptions(MainActivity.STRATEGY))
+                myFriendlyName, getPackageName(), connectionLifecycleCallback, new AdvertisingOptions(MainActivity.STRATEGY))
         .addOnSuccessListener(
                 new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         if (mode.equals(MainActivity.MODE_HOST)){
                             textMainArenaFragment.updateFriendlyName(
-                                    friendly_name);
+                                    myFriendlyName);
 
                         }
                         Log.i(TAG, "we are successfully advertising");
@@ -186,6 +239,7 @@ public class TextFight extends AppCompatActivity
 
     /** Starts looking for other players using Nearby Connections. */
     private void startDiscovery() { //connect to someone else
+
         Log.i(TAG, "startDiscovery: finding peers");
         // Note: Discovery may fail. To keep this demo simple, we don't handle failures.
         connectionsClient.startDiscovery(
@@ -194,6 +248,7 @@ public class TextFight extends AppCompatActivity
                         new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
+                                Log.i(TAG, "onSuccess: " + getPackageName());
                                 Log.i(TAG, "We're looking for someone to play against");
                             }
                         }
@@ -215,12 +270,13 @@ public class TextFight extends AppCompatActivity
     // Callbacks for finding other devices
     private final EndpointDiscoveryCallback endpointDiscoveryCallback =
             new EndpointDiscoveryCallback() {
+
+                //find peers and update GUI here
                 @Override
                 public void onEndpointFound(String endpointId, DiscoveredEndpointInfo info) {
-                    //find peers and update GUI here
 
                     Nearby.getConnectionsClient(getApplicationContext()).requestConnection(
-                            CodenameGenerator.generate(),
+                            myFriendlyName,
                             endpointId,
                             connectionLifecycleCallback)
                             .addOnSuccessListener(
@@ -230,7 +286,7 @@ public class TextFight extends AppCompatActivity
                                             //We successfully requested a connection. Now both
                                             // sides must accept before the connection is established
                                             Toast.makeText(TextFight.this,
-                                                    "onSuccess: requested connection",
+                                                    "requested connection",
                                                     Toast.LENGTH_SHORT).show();
                                             Log.i(TAG, "requested connection: both must accept");
                                         }
@@ -253,7 +309,6 @@ public class TextFight extends AppCompatActivity
                 }
 
                 @Override
-                //TODO: add logic depending on the situation of losing a peer
                 public void onEndpointLost(String endpointId) {
                     Log.i(TAG, "endpoint lost");
                 }
@@ -268,7 +323,7 @@ public class TextFight extends AppCompatActivity
                 Toast.makeText(TextFight.this, "accepting peer?", Toast.LENGTH_SHORT).show();
 
                 if(mode.equals(MainActivity.MODE_HOST)){
-                    //As a host, auto accept an incoming connection
+                    // In host mode, auto accept an incoming connection
 
                     Nearby.getConnectionsClient(TextFight.this).
                             acceptConnection(endpointId, payloadCallback);
@@ -280,15 +335,16 @@ public class TextFight extends AppCompatActivity
                 }
 
                 else if(mode.equals(MainActivity.MODE_PEER)){
-                    //TODO: add new peers to list but do not auto-accepet
+
+                    // add new peers to list of found peers, but do not auto-accept
                     peerListItemsFragment.insertPeer(
                             connectionInfo.getAuthenticationToken(),
                             endpointId,
                             connectionInfo.getEndpointName());
 
-                    Log.i(TAG, "onConnectionInitiatd, MODE = PEER");
-                }
+                    Log.i(TAG, "onConnectionInitiated, MODE = PEER");
 
+                }
             }
 
             @Override
@@ -301,15 +357,17 @@ public class TextFight extends AppCompatActivity
 
                         Toast.makeText(TextFight.this, "accepted peer!", Toast.LENGTH_SHORT).show();
                         break;
+
                     case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                         // The connection was rejected by one or both sides.
                         Toast.makeText(TextFight.this, "peer rejected", Toast.LENGTH_SHORT).show();
                         Log.i(TAG, "onConnectionResult: connection failed");
                         break;
+
                     case ConnectionsStatusCodes.STATUS_ERROR:
                         //the connection broke before it was able to be accepted
-                        //TODO: if we cannot connect to a peer, have logic here to indicate such
                         Log.e(TAG, "status error for onConnectionResult");
+                        Toast.makeText(getApplicationContext(), "Error happened", Toast.LENGTH_SHORT).show();
                         break;
                 }
 
@@ -317,9 +375,11 @@ public class TextFight extends AppCompatActivity
 
             @Override
             public void onDisconnected(String endpointId) {
-                //TODO: depending on the type of disconnection and topology, have additional logic to conform to situation
+
                 Log.i(TAG, "onDisconnected: disconnected from the opponent");
                 Toast.makeText(TextFight.this, "disconnected", Toast.LENGTH_SHORT).show();
+
+                attemptReconnection(endpointId);
             }
         };
 
@@ -338,7 +398,6 @@ public class TextFight extends AppCompatActivity
         Toast.makeText(this, "to implement, yet!", Toast.LENGTH_SHORT).show();
     }
 
-
     public String getPeerColor(String endpointId){
         String tmp = peersColorMap.get(endpointId);
         if(tmp == null)
@@ -350,12 +409,13 @@ public class TextFight extends AppCompatActivity
         return new ArrayList<>(peersMap.keySet());
     }
 
-    // A callback from the fragment that a the user wants to potentially join a peer!
+
     //CALLBACKS FROM PeerListItemsFragment.java
+    // A callback from the fragment that a the user wants to potentially join a peer!
     @Override
     public void onPeerClicked(PeerDataItem item) {
         //TODO: initialize connection here with new peer, and display alert dialog.
-        //Toast.makeText(this, "Peer clicked", Toast.LENGTH_LONG).show();
+
 
         JoinPeerAlert alert = JoinPeerAlert.newInstance(item);
         alert.setmListener(this);
@@ -371,6 +431,13 @@ public class TextFight extends AppCompatActivity
         Nearby.getConnectionsClient(this)
                 .acceptConnection(item.getEndpointId(),payloadCallback);
 
+        // allow others to connect to us automatically now that we're in the network
+        mode = MainActivity.MODE_HOST;
+
+        // stop looking for someone to join, let others join us, now.
+        //connectionsClient.stopDiscovery();
+        startAdvertising();
+
         //update a new peer to our peers map
         peersMap.put(item.getEndpointId(), item.getFriendlyName());
 
@@ -381,21 +448,23 @@ public class TextFight extends AppCompatActivity
         fragmentManager.beginTransaction()
                 .replace(R.id.multi_fragments,
                         textMainArenaFragment)
-                .addToBackStack("PeerListItemFragment")
+
                 .commit();
+
+        //.addToBackStack("PeersListFragment")
 
     }
 
     @Override
     public void onAlertNegativeClick() {
         Toast.makeText(this, "stay in fragment!", Toast.LENGTH_SHORT).show();
-
     }
 
     //CALLBACKS FROM TextMainArenaFragment.java
     @Override
     public void onTextMainFragmentInteraction(String message) {
         Log.i(TAG, "received callback: message: " + message);
+
         for(String endpointId: peersMap.keySet()){
             Log.i(TAG, "sending " + message + " to " + peersMap.get(endpointId));
             sendPayload(endpointId, message);
@@ -439,6 +508,89 @@ public class TextFight extends AppCompatActivity
                         bonusRoundFragment)
                 .addToBackStack("TextFightArenaFragment")
                 .commit();
+    }
+/*
+    private class PeerBattleInfo{
+        private String peerColor;
+        private String peerFriendlyName;
+        private String peerLevel;
+        private String endpointId;
 
+        public String getPeerColor() {
+            return peerColor;
+        }
+
+        public void setPeerColor(String peerColor) {
+            this.peerColor = peerColor;
+        }
+
+        public String getPeerFriendlyName() {
+            return peerFriendlyName;
+        }
+
+        public void setPeerFriendlyName(String peerFriendlyName) {
+            this.peerFriendlyName = peerFriendlyName;
+        }
+
+        public String getPeerLevel() {
+            return peerLevel;
+        }
+
+        public void setPeerLevel(String peerLevel) {
+            this.peerLevel = peerLevel;
+        }
+
+        public String getEndpointId() {
+            return endpointId;
+        }
+
+        public void setEndpointId(String endpointId) {
+            this.endpointId = endpointId;
+        }
+
+    }*/
+
+    private void attemptReconnection(String endpointId){
+
+
+        //reattempt connection only once
+        Nearby.getConnectionsClient(getApplicationContext()).requestConnection(
+                myFriendlyName,
+                endpointId,
+                connectionLifecycleCallback)
+                .addOnSuccessListener(
+                        new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                //We successfully requested a connection. Now both
+                                // sides must accept before the connection is established
+                                Toast.makeText(TextFight.this,
+                                        "attemptReconnection: requested connection",
+                                        Toast.LENGTH_SHORT).show();
+                                Log.i(TAG, "attemptReconnection: both must accept");
+                                Toast.makeText(getApplicationContext(), "reconnect!", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                )
+                .addOnFailureListener(
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(getApplicationContext(), "stop reconnect!", Toast.LENGTH_SHORT).show();
+
+                                Log.e(TAG, "attemptReconnection: " + e.getClass() + " " + e.getMessage());
+                                Log.e(TAG, "attemptReconnection: will stop trying action of reattempts");
+
+                            }
+                        }
+                );
+
+    }
+
+    public void onDisconnectTest(View view) {
+        for(String el: peersMap.keySet()){
+            Log.i(TAG, "onDisconnectTest: " + el);
+            connectionsClient.disconnectFromEndpoint(el);
+        }
     }
 }
