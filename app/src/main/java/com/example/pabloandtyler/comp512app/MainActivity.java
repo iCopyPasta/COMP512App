@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
 
     /** Finds an opponent to play the game with using Nearby Connections API. */
     public void findOpponent(View view) {
-        Log.i(TAG, "new activity: PeersList.class passed in");
+        Log.i(TAG, "new activity: MODE_PEER passed in");
         Intent intent = new Intent(this, TextFight.class);
         intent.putExtra(MODE, MODE_PEER);
         startActivity(intent);
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
     /** Hosts a game for a peer using the Nearby Connections API*/
     public void hostGame(View view){
-        Log.i(TAG, "new activity: TextFight.class passed in");
+        Log.i(TAG, "new activity: MODE_HOST passed in");
         Intent intent = new Intent(this, TextFight.class);
         intent.putExtra(MODE, MODE_HOST);
         startActivity(intent);

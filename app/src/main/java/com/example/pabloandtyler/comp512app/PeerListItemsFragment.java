@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.pabloandtyler.comp512app.dummy.PeerDataItem;
 
@@ -69,6 +70,7 @@ public class PeerListItemsFragment extends ListFragment {
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
 
+        //((TextView) getActivity().findViewById(R.id.)).setText("Search for peers");
     }
 
     @Override
