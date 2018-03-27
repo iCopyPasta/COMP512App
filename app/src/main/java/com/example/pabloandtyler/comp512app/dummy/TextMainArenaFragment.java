@@ -14,6 +14,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.pabloandtyler.comp512app.R;
 import com.example.pabloandtyler.comp512app.TextFight;
@@ -213,12 +214,15 @@ public class TextMainArenaFragment extends Fragment
             if (level == 16) {
                 victory();
             }
+            else {
+                updateValues();
+
+                getNewWord();
+            }
 
         }
 
-        updateValues();
 
-        getNewWord();
 
     }
 
@@ -239,7 +243,7 @@ public class TextMainArenaFragment extends Fragment
         //returns a new word based on current level, be sure level is correct before invoking
         Log.i(TAG,"getNewWord()");
         Resources res = getResources();
-        String[] words = {"AN ERROR OCCURRED, please report this bug to sukmoon@psu.edu."};
+        String[] words = {"AN ERROR OCCURRED, please report all bugs to sukmoon@psu.edu."};
 
         if (level ==4) {
             words = res.getStringArray(R.array.fourDigitList);
@@ -293,6 +297,12 @@ public class TextMainArenaFragment extends Fragment
 
         ((TextView) getActivity().findViewById(R.id.currentWord))
                 .setText("YOU WON! CONGRATULATIONS!");
+
+        TextFight.theState.setTypeOfGame("W");
+        mListener.onBroadcastState();
+
+        Toast.makeText(getActivity(), TextFight.myState.getFriendlyName() + " Has Won. That's you!", Toast.LENGTH_LONG).show();
+        //TODO: whatever happens after you win
 
     }
 

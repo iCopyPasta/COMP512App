@@ -180,7 +180,7 @@ public class TextFight extends AppCompatActivity
                             // local copy we have
                             //if not equal: else just skip
                             Log.i(TAG, "onPayloadReceived: comparing incomingGameContainer to our state");
-                            if (! incomingGameContainer.equals(theState)) { //TODO: this equality does not work
+                            if (! incomingGameContainer.equals(theState)) {
                                 Log.i(TAG, "onPayloadReceived: game containers they were not equal");
 
                                 //determine the game state, i.e. normal, bonus, win, etc.
@@ -223,7 +223,7 @@ public class TextFight extends AppCompatActivity
 
                                                 for (PeerState localPeer: theState.getPeersLevel()) {
                                                     if (localPeer.getEndpointId().equals(peer.getEndpointId())) {
-                                                        myLocalPeer = localPeer; //TODO: is this a copy or a reference?
+                                                        myLocalPeer = localPeer;
 
                                                         break;
                                                     }
@@ -263,6 +263,20 @@ public class TextFight extends AppCompatActivity
                                 //    if it is, update that value
 
                                 //  update GUI elements as necessary (i.e. progress)
+
+                                //If game state is a 'W', the player is declaring victory.
+
+                                if (incomingGameContainer.getTypeOfGame().equals("W")) {
+                                    String winnerName = incomingGameContainer.getPeerWithEndpointId(endpointId).getFriendlyName();
+
+                                    Toast.makeText(TextFight.this, winnerName + " Has Won.", Toast.LENGTH_LONG).show();
+
+                                    //TODO: whatever happens after you lose
+                                    finish();
+
+
+                                }
+
                                 Log.i(TAG, "onPayloadReceived: setting inject to values");
                                 // go through peers, match them to the correct GUI element, update the progress bar with some logic
                                 ((TextView) findViewById(R.id.opponent1TextView2)).setText(gson.toJson(theState));
