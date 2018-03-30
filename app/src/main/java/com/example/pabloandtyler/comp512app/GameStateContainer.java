@@ -1,5 +1,7 @@
 package com.example.pabloandtyler.comp512app;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 import com.google.gson.annotations.Expose;
@@ -56,7 +58,7 @@ public class GameStateContainer {
 
     public boolean contains(PeerState peer) {
         for (PeerState element: peersLevel) {
-            if (element.getEndpointId().equals(peer.getEndpointId())) {
+            if (element.equals(peer)) {
                 return true;
             }
         }
@@ -65,14 +67,22 @@ public class GameStateContainer {
 
     @Override
     public boolean equals(Object other) {
-        if (this.getTypeOfGame() == ((GameStateContainer) other).getTypeOfGame()) {
-            for (PeerState peer: this.peersLevel) {
-                if (! ((GameStateContainer) other).contains(peer)) {
-                    return false;
+        String TAG = "2FT: equals GameState";
+        if( other instanceof GameStateContainer ){
+
+            if (this.getTypeOfGame().equals( ((GameStateContainer) other).getTypeOfGame())) {
+                
+                for (PeerState peer: this.peersLevel) {
+                    Log.i(TAG, "equals: iterating in equality");
+                    if(! ((GameStateContainer) other).contains(peer)){
+                        return false;
+                    }
+
                 }
-                return true;
             }
+            return true;
         }
+
         return false;
     }
 

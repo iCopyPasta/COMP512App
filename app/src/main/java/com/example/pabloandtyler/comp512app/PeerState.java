@@ -53,9 +53,16 @@ public class PeerState {
                 + " levelOfPeer = " + levelOfPeer;
     }
 
-    public boolean equals(PeerState peerState){
-        return this.getLevelOfPeer().equals(peerState.getLevelOfPeer())
-                && this.getFriendlyName().equals(peerState.getFriendlyName())
-                && this.getEndpointId().equals(peerState.getEndpointId());
+    @Override
+    public boolean equals(Object peerState){
+
+        if(peerState instanceof PeerState){
+            return this.getLevelOfPeer().equals( ((PeerState) peerState).getLevelOfPeer())
+                    && this.getFriendlyName().equals(((PeerState) peerState).getFriendlyName())
+                    && this.getEndpointId().equals(((PeerState) peerState).getEndpointId());
+        }
+
+        return false;
+
     }
 }
