@@ -2,6 +2,7 @@ package com.example.pabloandtyler.comp512app.dummy;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
@@ -16,10 +17,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.pabloandtyler.comp512app.PeerState;
 import com.example.pabloandtyler.comp512app.R;
 import com.example.pabloandtyler.comp512app.TextFight;
 
+import org.w3c.dom.Text;
+
 import java.security.Key;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -131,6 +137,11 @@ public class TextMainArenaFragment extends Fragment
         getNewWord();
         updateValues();
 
+        if(TextFight.isBonusRoundTokenHolder()){
+            Log.i(TAG, "onResume: executing background task");
+            new TextFight.BonusRoundAsyncTask().execute();
+        }
+
     }
 
     @Override
@@ -166,7 +177,6 @@ public class TextMainArenaFragment extends Fragment
                 incorrectEntry();
             }
 
-
             return true;
 
         }
@@ -184,8 +194,8 @@ public class TextMainArenaFragment extends Fragment
 
         Log.i(TAG,"we received: " + message);
 
-        ((TextView) getActivity().findViewById(R.id.debug_message))
-                .setText(message);
+        //((TextView) getActivity().findViewById(R.id.debug_message))
+        //        .setText(message);
     }
 
     public void updateValues() {
@@ -217,7 +227,13 @@ public class TextMainArenaFragment extends Fragment
             else {
                 updateValues();
 
-                getNewWord();
+                if(TextFight.isMakeNextWordBonusInitiator()){
+                    //upon a correct spelling of a bonus-round initiator, we should start the bonus round
+                    Toast.makeText(getContext(), "BONUS ROUND INITIATE", Toast.LENGTH_SHORT).show();
+                } else{ //get a normal word
+                    getNewWord();
+                }
+
             }
 
         }
@@ -234,6 +250,15 @@ public class TextMainArenaFragment extends Fragment
     private void incorrectEntry() {
         //called after the user submits the incorrect word
         Log.i(TAG,"incorrectEntry()");
+
+        if(TextFight.isMakeNextWordBonusInitiator()){
+            //upon an incorrect spelling of a bonus-round initiator,
+            // we should pass along the token holder roll
+            Toast.makeText(getContext(), "PASS ALONG WORD", Toast.LENGTH_SHORT).show();
+            TextFight.setBonusRoundTokenHolder(false);
+            TextFight.setMakeNextWordBonusInitiator(false);
+            //TODO: send message saying somebody else is now the token holder
+        }
 
         ((TextView) getActivity().findViewById(R.id.passOrFail))
                 .setText("Incorrect!");
@@ -282,13 +307,17 @@ public class TextMainArenaFragment extends Fragment
             words = res.getStringArray(R.array.fifteenDigitList);
         }
 
-
-
         int randomIndex = new Random().nextInt(words.length);
         currentWord = words[randomIndex];
 
         ((TextView) getActivity().findViewById(R.id.currentWord))
                 .setText(currentWord);
+
+        if(TextFight.isMakeNextWordBonusInitiator()){
+            //SET THE COLOR TO GOLD FOR A BONUS-ROUND CREATOR
+            ((TextView) getActivity().findViewById(R.id.currentWord))
+                    .setTextColor(Color.parseColor("#FFFF22"));
+        }
     }
 
     public void victory() {
@@ -303,6 +332,13 @@ public class TextMainArenaFragment extends Fragment
 
         Toast.makeText(getActivity(), TextFight.myState.getFriendlyName() + " Has Won. That's you!", Toast.LENGTH_LONG).show();
         //TODO: whatever happens after you win
+
+    }
+
+    public void updateProgressBars(){
+        List<PeerState> temp = TextFight.theState.getPeersLevel();
+        //TODO: update the GUI based on enemy progress
+
 
     }
 

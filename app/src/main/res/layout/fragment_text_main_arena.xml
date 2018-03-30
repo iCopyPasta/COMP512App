@@ -78,30 +78,7 @@
             app:layout_constraintTop_toBottomOf="@+id/currentWord"
             tools:labelFor="@+id/current_word" />
 
-        <TextView
-            android:id="@+id/debug_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.501"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/type_word" />
-
-        <Button
-            android:id="@+id/button3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:onClick="onBonus"
-            android:text="Bonus"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/passOrFail" />
+        <!--android:onClick="onBonus"-->
 
         <TextView
             android:id="@+id/currentWord"
@@ -121,9 +98,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            app:layout_constraintHorizontal_bias="0.501"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/debug_message" />
+            app:layout_constraintTop_toBottomOf="@+id/type_word" />
 
         <TextView
             android:id="@+id/currentPlayerLevel"
@@ -131,7 +109,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:layout_editor_absoluteY="80dp" />
+            app:layout_constraintTop_toBottomOf="@+id/currentTier" />
 
         <TextView
             android:id="@+id/currentTierText"
@@ -153,15 +131,7 @@
             app:layout_constraintStart_toEndOf="@+id/currentTierText"
             app:layout_constraintTop_toTopOf="@+id/currentTierText" />
 
-        <Button
-            android:id="@+id/button4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:onClick="onDisconnectTest"
-            android:text="Disconnect-Test"
-            app:layout_constraintStart_toEndOf="@+id/button3"
-            app:layout_constraintTop_toTopOf="@+id/button3" />
+        <!--android:onClick="onDisconnectTest" -->
 
     </android.support.constraint.ConstraintLayout>
 

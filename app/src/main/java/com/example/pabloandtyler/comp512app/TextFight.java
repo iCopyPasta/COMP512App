@@ -1,6 +1,7 @@
 package com.example.pabloandtyler.comp512app;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -47,6 +48,7 @@ public class TextFight extends AppCompatActivity
     private static final String TAG = "2FT: TextFight";
 
     private static String mode = null;
+    private static boolean shouldBeFirstTokenHolder = false;
     private PeerListItemsFragment peerListItemsFragment = null;
     private TextMainArenaFragment textMainArenaFragment = null;
     private BonusRoundFragment bonusRoundFragment = null;
@@ -59,8 +61,29 @@ public class TextFight extends AppCompatActivity
 
     public static GameStateContainer theState;
     public static PeerState myState;
+
+    public static synchronized boolean isBonusRoundTokenHolder() {
+        return bonusRoundTokenHolder;
+    }
+
+    public static synchronized void setBonusRoundTokenHolder(boolean result) {
+        bonusRoundTokenHolder = result;
+    }
+
+    public static synchronized boolean isMakeNextWordBonusInitiator() {
+        return makeNextWordBonusInitiator;
+    }
+
+    public static synchronized void setMakeNextWordBonusInitiator(boolean result) {
+        makeNextWordBonusInitiator = result;
+    }
+
+    private static boolean bonusRoundTokenHolder = false;
+    private static boolean makeNextWordBonusInitiator = false;
+
     // Our handle to Nearby Connections
     private ConnectionsClient connectionsClient;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +109,8 @@ public class TextFight extends AppCompatActivity
             Bundle info = callerIntent.getExtras();
             if(info != null){
                 mode = info.getString(MainActivity.MODE);
+                shouldBeFirstTokenHolder = info.getBoolean("FIRST_NODE");
+                TextFight.setBonusRoundTokenHolder(shouldBeFirstTokenHolder);
             }
             else{
                 mode = "";
@@ -178,14 +203,48 @@ public class TextFight extends AppCompatActivity
 
                             //check equality of the incoming game container with the
                             // local copy we have
+
+
+                            // if game state is normal, do the following:
+                            // Connection Tasks
+                            // 1. iterating over the PeerState elements
+                            //  if we don't have them in our map
+                            //   if the peer's friendly name does not match our's
+                            //    attempt to connect
+                            //   if it does match our's, simply update our local copy of PeerState with the endpointId
+
+
+                            //Game Logic Tasks
+                            //1. iterate through all peers
+                            //  check if the entry exists in our local copy
+                            //  if not in our copy: add
+                            //  else: check if their new incoming level is higher than our copy
+                            //    if it is, update that value
+
+                            //  update GUI elements as necessary (i.e. progress)
+
+
                             //if not equal: else just skip
+
+
+
                             Log.i(TAG, "onPayloadReceived: comparing incomingGameContainer to our state");
                             if (! incomingGameContainer.equals(theState)) {
                                 Log.i(TAG, "onPayloadReceived: game containers they were not equal");
 
                                 //determine the game state, i.e. normal, bonus, win, etc.
-                                if (incomingGameContainer.getTypeOfGame().equals("N")) {
+                                if (incomingGameContainer.getTypeOfGame().equals("N") ||
+                                        incomingGameContainer.getTypeOfGame().equals("T")) {
                                     Log.i(TAG, "onPayloadReceived: the type of incoming game is " + incomingGameContainer.getTypeOfGame());
+
+
+                                    // T is for token holder update
+                                    // if we aren't the token holder and it's our turn, set our internal flag to represent that
+                                    if(!TextFight.isBonusRoundTokenHolder() && incomingGameContainer.getTypeOfGame().equals("T")){
+                                        TextFight.setBonusRoundTokenHolder(true);
+                                        new BonusRoundAsyncTask().execute();
+                                    }
+
                                     //CONNECTION TASKS
                                     List<PeerState> incomingPeers = incomingGameContainer.getPeersLevel();
                                     Log.i(TAG, "onPayloadReceived: starting for-each incoming peers");
@@ -245,28 +304,21 @@ public class TextFight extends AppCompatActivity
                                             }
                                         }
                                     }
+
+                                    //UPDATE THE GUI
+                                    textMainArenaFragment.updateProgressBars();
+
                                 }
-                                // if game state is normal, do the following:
-                                // Connection Tasks
-                                // 1. iterating over the PeerState elements
-                                //  if we don't have them in our map
-                                //   if the peer's friendly name does not match our's
-                                //    attempt to connect
-                                //   if it does match our's, simply update our local copy of PeerState with the endpointId
 
 
-                                //Game Logic Tasks
-                                //1. iterate through all peers
-                                //  check if the entry exists in our local copy
-                                //  if not in our copy: add
-                                //  else: check if their new incoming level is higher than our copy
-                                //    if it is, update that value
 
-                                //  update GUI elements as necessary (i.e. progress)
 
                                 //If game state is a 'W', the player is declaring victory.
 
                                 if (incomingGameContainer.getTypeOfGame().equals("W")) {
+                                    //TODO: UPDATE THE GUI
+
+
                                     String winnerName = incomingGameContainer.getPeerWithEndpointId(endpointId).getFriendlyName();
 
                                     Toast.makeText(TextFight.this, winnerName + " Has Won.", Toast.LENGTH_LONG).show();
@@ -280,6 +332,9 @@ public class TextFight extends AppCompatActivity
                                 Log.i(TAG, "onPayloadReceived: setting inject to values");
                                 // go through peers, match them to the correct GUI element, update the progress bar with some logic
                                 ((TextView) findViewById(R.id.opponent1TextView2)).setText(gson.toJson(theState));
+
+
+
 
                                 //at the end, sendBroadcast
                                 Log.i(TAG, "onPayloadReceived: sending brodcast after having our local game container updated");
@@ -622,46 +677,6 @@ public class TextFight extends AppCompatActivity
                 .addToBackStack("TextFightArenaFragment")
                 .commit();
     }
-/*
-    private class PeerBattleInfo{
-        private String peerColor;
-        private String peerFriendlyName;
-        private String peerLevel;
-        private String endpointId;
-
-        public String getPeerColor() {
-            return peerColor;
-        }
-
-        public void setPeerColor(String peerColor) {
-            this.peerColor = peerColor;
-        }
-
-        public String getPeerFriendlyName() {
-            return peerFriendlyName;
-        }
-
-        public void setPeerFriendlyName(String peerFriendlyName) {
-            this.peerFriendlyName = peerFriendlyName;
-        }
-
-        public String getPeerLevel() {
-            return peerLevel;
-        }
-
-        public void setPeerLevel(String peerLevel) {
-            this.peerLevel = peerLevel;
-        }
-
-        public String getEndpointId() {
-            return endpointId;
-        }
-
-        public void setEndpointId(String endpointId) {
-            this.endpointId = endpointId;
-        }
-
-    }*/
 
     private void attemptReconnection(String endpointId){
 
@@ -722,8 +737,38 @@ public class TextFight extends AppCompatActivity
 
         Log.i(TAG, "onBroadcastState: finished sending to all peers");
 
+    }
 
-        //connectionsClient.sendPayload(list, Payload.fromBytes(send.getBytes()));
+    public static class BonusRoundAsyncTask extends AsyncTask<String,Void,Boolean>{
 
+        @Override
+        protected Boolean doInBackground(String... strings) {
+
+            try{
+                //sleep for a 45secs to minute before allowing a bonus word
+                Thread.sleep(45000);
+                Log.i(TAG, "doInBackground: done sleeping, should return true");
+
+            } catch(InterruptedException e){
+                Log.e(TAG, "doInBackground: " + e.getMessage() );
+                return false;
+
+            } catch(Exception e){
+                Log.e(TAG, "doInBackground: GENERAL EXCEPTION:  " + e.getMessage() );
+                return false;
+
+            }
+
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result){
+            if (result){
+                Log.i(TAG, "onPostExecute: setting the next word as the bonus round creator");
+                setMakeNextWordBonusInitiator(result);
+            }
+
+        }
     }
 }

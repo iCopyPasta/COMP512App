@@ -121,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, "new activity: MODE_PEER passed in");
         Intent intent = new Intent(this, TextFight.class);
         intent.putExtra(MODE, MODE_PEER);
+        intent.putExtra("FIRST_NODE", false);
         startActivity(intent);
 
     }
@@ -130,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, "new activity: MODE_HOST passed in");
         Intent intent = new Intent(this, TextFight.class);
         intent.putExtra(MODE, MODE_HOST);
+        intent.putExtra("FIRST_NODE", true);
         startActivity(intent);
 
     }
