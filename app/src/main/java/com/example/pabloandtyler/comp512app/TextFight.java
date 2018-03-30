@@ -196,10 +196,9 @@ public class TextFight extends AppCompatActivity
                                     gson.fromJson(messageString, GameStateContainer.class
                                     );
 
-                            for(PeerState el: incomingGameContainer.getPeersLevel()){
+                            /*for(PeerState el: incomingGameContainer.getPeersLevel()){
                                 Log.i(TAG, "onPayloadReceived: " + el.toString());
-                            }
-
+                            }*/
 
                             //check equality of the incoming game container with the
                             // local copy we have
@@ -337,9 +336,13 @@ public class TextFight extends AppCompatActivity
 
 
                                 //at the end, sendBroadcast
-                                Log.i(TAG, "onPayloadReceived: sending brodcast after having our local game container updated");
+                                Log.i(TAG, "onPayloadReceived: sending broadcast after having our local game container updated");
                                 onBroadcastState();
 
+                            }
+                            else{
+                                Log.i(TAG, "onPayloadReceived: CONTAINERS ARE EQUAL");
+                                ((TextView) findViewById(R.id.opponent1TextView2)).setText(gson.toJson(theState));
                             }
                         }
 
@@ -746,7 +749,7 @@ public class TextFight extends AppCompatActivity
 
             try{
                 //sleep for a 45secs to minute before allowing a bonus word
-                Thread.sleep(45000);
+                Thread.sleep(120000);
                 Log.i(TAG, "doInBackground: done sleeping, should return true");
 
             } catch(InterruptedException e){
@@ -756,7 +759,6 @@ public class TextFight extends AppCompatActivity
             } catch(Exception e){
                 Log.e(TAG, "doInBackground: GENERAL EXCEPTION:  " + e.getMessage() );
                 return false;
-
             }
 
             return true;

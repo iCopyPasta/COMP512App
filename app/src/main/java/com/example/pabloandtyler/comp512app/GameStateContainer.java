@@ -56,9 +56,18 @@ public class GameStateContainer {
         return null;
     }
 
-    public boolean contains(PeerState peer) {
+    public boolean trueCompare(PeerState peer) {
         for (PeerState element: peersLevel) {
             if (element.equals(peer)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean contains(PeerState peer) {
+        for (PeerState element: peersLevel) {
+            if (element.getFriendlyName().equals(peer.getFriendlyName())) {
                 return true;
             }
         }
@@ -74,7 +83,7 @@ public class GameStateContainer {
                 
                 for (PeerState peer: this.peersLevel) {
                     Log.i(TAG, "equals: iterating in equality");
-                    if(! ((GameStateContainer) other).contains(peer)){
+                    if(! ((GameStateContainer) other).trueCompare(peer)){
                         return false;
                     }
 
