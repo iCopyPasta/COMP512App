@@ -322,9 +322,9 @@ public class TextFight extends AppCompatActivity
 
                                 if (incomingGameContainer.getTypeOfGame().equals("B")) {
 
-                                    TextFight.theState.setTypeOfGame("B");
-
                                     onBonusRoundTransition();
+                                    //TODO: endpointId's may never have been set, and an "XD" storm my occur
+                                    //TODO: additional logic for the bonus round
 
                                 }
 
@@ -332,7 +332,6 @@ public class TextFight extends AppCompatActivity
 
                                 if (incomingGameContainer.getTypeOfGame().equals("W")) {
                                     //TODO: UPDATE THE GUI
-
 
                                     String winnerName = incomingGameContainer.getPeerWithEndpointId(endpointId).getFriendlyName();
 
@@ -346,12 +345,6 @@ public class TextFight extends AppCompatActivity
 
                                 Log.i(TAG, "onPayloadReceived: setting inject to values");
                                 // go through peers, match them to the correct GUI element, update the progress bar with some logic
-
-                                //TODO: uncomment if you wish to see debugging put straight to screen
-                                //((TextView) findViewById(R.id.opponent1TextView2)).setText(gson.toJson(theState));
-
-
-
 
                                 //at the end, sendBroadcast
                                 Log.i(TAG, "onPayloadReceived: sending broadcast after having our local game container updated");
@@ -701,6 +694,11 @@ public class TextFight extends AppCompatActivity
 
         if(!inBonus){
             inBonus = true;
+
+            theState.setTypeOfGame("B");
+
+            onBroadcastState();
+
 
             fragmentManager.beginTransaction()
                     .replace(R.id.multi_fragments,
