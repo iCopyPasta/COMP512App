@@ -63,6 +63,7 @@ public class TextFight extends AppCompatActivity
 
     public static GameStateContainer theState;
     public static PeerState myState;
+    public static boolean inBonus = false;
 
     public static synchronized boolean isBonusRoundTokenHolder() {
         return bonusRoundTokenHolder;
@@ -319,8 +320,13 @@ public class TextFight extends AppCompatActivity
 
                                 }
 
+                                if (incomingGameContainer.getTypeOfGame().equals("B")) {
 
+                                    TextFight.theState.setTypeOfGame("B");
 
+                                    onBonusRoundTransition();
+
+                                }
 
                                 //If game state is a 'W', the player is declaring victory.
 
@@ -340,7 +346,9 @@ public class TextFight extends AppCompatActivity
 
                                 Log.i(TAG, "onPayloadReceived: setting inject to values");
                                 // go through peers, match them to the correct GUI element, update the progress bar with some logic
-                                ((TextView) findViewById(R.id.opponent1TextView2)).setText(gson.toJson(theState));
+
+                                //TODO: uncomment if you wish to see debugging put straight to screen
+                                //((TextView) findViewById(R.id.opponent1TextView2)).setText(gson.toJson(theState));
 
 
 
@@ -352,17 +360,17 @@ public class TextFight extends AppCompatActivity
                             }
                             else{
                                 Log.i(TAG, "onPayloadReceived: CONTAINERS ARE EQUAL");
-                                ((TextView) findViewById(R.id.opponent1TextView2)).setText(gson.toJson(theState));
+                                //((TextView) findViewById(R.id.opponent1TextView2)).setText(gson.toJson(theState));
                             }
                         }
 
                     } catch(NullPointerException e){
-                        Log.e(TAG, e.getMessage());
-                        Toast.makeText(TextFight.this, "Null PTE", Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "NULL POINTER EXCEPTION" + e.getMessage());
+                        //Toast.makeText(TextFight.this, "Null PTE", Toast.LENGTH_SHORT).show();
 
                     }catch (Exception e){
-                        Log.e(TAG, e.getMessage());
-                        Toast.makeText(TextFight.this, "We died?", Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "GENERAL EXCEPTION " + e.getMessage());
+                        //Toast.makeText(TextFight.this, "We died?", Toast.LENGTH_SHORT).show();
                     }
 
                 }
@@ -678,11 +686,28 @@ public class TextFight extends AppCompatActivity
             Log.i(TAG, "sending " + send + " to " + peersMap.get(endpointId));
             sendPayload(endpointId, send);
         }
-        Gson gson = new Gson();
+        //Gson gson = new Gson();
 
-        ((TextView) findViewById(R.id.opponent1TextView2)).setText(gson.toJson(theState));
+        //((TextView) findViewById(R.id.opponent1TextView2)).setText(gson.toJson(theState));
 
         Log.i(TAG, "onBroadcastState: finished sending to all peers");
+
+    }
+
+    @Override
+    public void onBonusRoundTransition() {
+        Log.i(TAG, "onPayloadReceived: MOVING OVER TO BONUS ROUND SCREEN");
+        //Toast.makeText(TextFight.this, "BR-BROADCAST", Toast.LENGTH_SHORT).show();
+
+        if(!inBonus){
+            inBonus = true;
+
+            fragmentManager.beginTransaction()
+                    .replace(R.id.multi_fragments,
+                            bonusRoundFragment)
+                    .addToBackStack("textMainFrag?")
+                    .commit();
+        }
 
     }
 
@@ -713,14 +738,6 @@ public class TextFight extends AppCompatActivity
         }
 
         peersColorMap.put(endpointId, assignedColor);
-    }
-
-    public void onBonus(View view) {
-        fragmentManager.beginTransaction()
-                .replace(R.id.multi_fragments,
-                        bonusRoundFragment)
-                .addToBackStack("TextFightArenaFragment")
-                .commit();
     }
 
     private void attemptReconnection(String endpointId){
@@ -758,13 +775,6 @@ public class TextFight extends AppCompatActivity
                         }
                 );
 
-    }
-
-    public void onDisconnectTest(View view) {
-        for(String el: peersMap.keySet()){
-            Log.i(TAG, "onDisconnectTest: " + el);
-            connectionsClient.disconnectFromEndpoint(el);
-        }
     }
 
     public static class BonusRoundAsyncTask extends AsyncTask<String,Void,Boolean>{

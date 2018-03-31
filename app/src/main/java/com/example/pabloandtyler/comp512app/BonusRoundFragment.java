@@ -42,9 +42,16 @@ public class BonusRoundFragment extends Fragment
     }
 
     private BonusRoundFragmentListener mListener;
-    private ProgressBar opponent1ProgressBar = null;
-    private ProgressBar opponent2ProgressBar = null;
-    private ProgressBar opponent3ProgressBar = null;
+    private ProgressBar ENEMY1PB = null;
+    private ProgressBar ENEMY2PB = null;
+    private ProgressBar ENEMY3PB = null;
+
+
+    private TextView ENEMY1TV = null;
+    private TextView ENEMY2TV = null;
+    private TextView ENEMY3YV = null;
+
+
     private Map<String, Integer> opponentMap = null;
     private EditText type_word = null;
 
@@ -70,12 +77,14 @@ public class BonusRoundFragment extends Fragment
         super.onActivityCreated(savedInstanceState);
 
         TextView opponent1TextView = getActivity().findViewById(R.id.opponent1TextView);
-        opponent1ProgressBar = getActivity().findViewById(R.id.progressBarOpponent1);
+        ENEMY1PB = getActivity().findViewById(R.id.progressBarOpponent1);
         TextView opponent2TextView = getActivity().findViewById(R.id.opponent2TextView);
-        opponent2ProgressBar = getActivity().findViewById(R.id.progressBarOpponent2);
+        ENEMY2PB = getActivity().findViewById(R.id.progressBarOpponent2);
         TextView opponent3TextView = getActivity().findViewById(R.id.opponent3TextView);
-        opponent3ProgressBar = getActivity().findViewById(R.id.progressBarOpponent3);
+        ENEMY3PB = getActivity().findViewById(R.id.progressBarOpponent3);
 
+        //TODO: set colors if we have time
+        /*
         // populate the TextViews with colors
         List<String> peers = mListener.getPeerEndpointIds();
 
@@ -112,11 +121,11 @@ public class BonusRoundFragment extends Fragment
 
             opponentMap.put(tmp_opponent, 3);
 
-        }
+        }*/
 
         //set our listener for the bonus round keyboard
         //TODO: wire up UI with appropriate callbacks, properties, and other elements
-        type_word = getActivity().findViewById(R.id.bonusRoundTypeSpace);
+        type_word = getActivity().findViewById(R.id.type_sentence);
         type_word.setOnKeyListener(BonusRoundFragment.this); //feedback will be handled within the app as an intermediate step
         type_word.setInputType(
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD); //disable auto-correct
@@ -138,23 +147,6 @@ public class BonusRoundFragment extends Fragment
 
     }
 
-    public void updateOpponentProgressBar(String endpointId, int progress){
-        int i = opponentMap.get(endpointId);
-        switch(i){
-            case 1:
-                opponent1ProgressBar.setProgress(progress);
-                break;
-            case 2:
-                opponent2ProgressBar.setProgress(progress);
-                break;
-            case 3:
-                opponent3ProgressBar.setProgress(progress);
-                break;
-            default:
-                Log.e(TAG, "Unexpected switch statement position passed");
-                break;
-        }
-    }
 
     @Override
     public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
@@ -176,25 +168,7 @@ public class BonusRoundFragment extends Fragment
 
         }
 
-        if(keyCode == KeyEvent.KEYCODE_SPACE &&
-                keyEvent.getAction() == KeyEvent.ACTION_DOWN){
 
-            Log.i(TAG, "onKey if called");
-
-            //TODO: ensure the sentence is correct
-            //TODO: have logic if the sentence is not correct
-            String tmp = type_word.getText().toString();
-
-            int progress = 100;
-
-            Log.i(TAG, "back to TextFight with progress: " + progress);
-            mListener.onBonusRoundProgressUpdate(progress);
-
-            //TODO: disable user input only if their sentence is fully spelled and is correct
-
-            return true;
-
-        }
 
         return false;
     }

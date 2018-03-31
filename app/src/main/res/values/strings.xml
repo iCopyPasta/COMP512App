@@ -11,6 +11,7 @@
     <string name="boundRoundOpponentHeader">Enemy Progress</string>
     <string name="yourCurrentLevel">Your Current Level:</string>
     <string name="currentTierText">Current Tier:</string>
+    <string name="your_progress">Your Progress</string>
 
     <string-array name="opponentColors">
         <item>#ffbb00</item> <!-- bright orange -->
