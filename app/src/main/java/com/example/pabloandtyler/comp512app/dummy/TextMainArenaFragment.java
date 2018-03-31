@@ -261,7 +261,10 @@ public class TextMainArenaFragment extends Fragment
 
                 if(TextFight.isMakeNextWordBonusInitiator()){
                     //upon a correct spelling of a bonus-round initiator, we should start the bonus round
-                    Toast.makeText(getContext(), "BONUS ROUND INITIATE", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "BONUS ROUND INITIATE", Toast.LENGTH_SHORT).show();
+
+                    mListener.onBonusRoundTransition();
+
                 } else{ //get a normal word
                     getNewWord();
                 }
@@ -425,5 +428,6 @@ public class TextMainArenaFragment extends Fragment
     public interface OnTextMainFragmentInteractionListener {
         void onSendToken();
         void onBroadcastState();
+        void onBonusRoundTransition();
     }
 }
