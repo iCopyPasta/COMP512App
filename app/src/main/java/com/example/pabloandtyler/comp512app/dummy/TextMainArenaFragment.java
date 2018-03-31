@@ -2,6 +2,7 @@ package com.example.pabloandtyler.comp512app.dummy;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
@@ -13,13 +14,19 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.pabloandtyler.comp512app.PeerState;
 import com.example.pabloandtyler.comp512app.R;
 import com.example.pabloandtyler.comp512app.TextFight;
 
+import org.w3c.dom.Text;
+
 import java.security.Key;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -43,6 +50,19 @@ public class TextMainArenaFragment extends Fragment
     private String currentWord;
 
     private static final int MAX_TIER = 1; //the amount of words to complete for the level to increase
+
+    //enemy progress bars
+    private ProgressBar ENEMY1PB;
+    private ProgressBar ENEMY2PB;
+    private ProgressBar ENEMY3PB;
+
+    //enemy text views
+    private TextView ENEMY1TV;
+    private TextView ENEMY2TV;
+    private TextView ENEMY3TV;
+
+
+
 
     public TextMainArenaFragment() {
         // Required empty public constructor
@@ -98,6 +118,8 @@ public class TextMainArenaFragment extends Fragment
         //display the keyboard if not already displayed
         type_word.callOnClick();
 
+
+
     }
 
     @Override
@@ -130,6 +152,24 @@ public class TextMainArenaFragment extends Fragment
         super.onResume();
         getNewWord();
         updateValues();
+
+        ENEMY1PB = getActivity().findViewById(R.id.ENEMY1PB);
+        ENEMY2PB = getActivity().findViewById(R.id.ENEMY2PB);
+        ENEMY3PB = getActivity().findViewById(R.id.ENEMY3PB);
+
+        ENEMY1TV = getActivity().findViewById(R.id.ENEMY1TV);
+        ENEMY2TV = getActivity().findViewById(R.id.ENEMY2TV);
+        ENEMY3TV = getActivity().findViewById(R.id.ENEMY3TV);
+
+
+        //default creation/progress
+        ((ProgressBar) getActivity().findViewById(R.id.YOURPB))
+                .setProgress( (int) (TextFight.myState.getLevelOfPeer() * 6.25));
+
+        if(TextFight.isBonusRoundTokenHolder()){
+            Log.i(TAG, "onResume: executing background task");
+            new TextFight.BonusRoundAsyncTask().execute();
+        }
 
     }
 
@@ -166,7 +206,6 @@ public class TextMainArenaFragment extends Fragment
                 incorrectEntry();
             }
 
-
             return true;
 
         }
@@ -184,24 +223,26 @@ public class TextMainArenaFragment extends Fragment
 
         Log.i(TAG,"we received: " + message);
 
-        ((TextView) getActivity().findViewById(R.id.debug_message))
-                .setText(message);
+        //((TextView) getActivity().findViewById(R.id.debug_message))
+        //        .setText(message);
     }
 
     public void updateValues() {
         //updates the displayed current tier and current level
         Log.i(TAG,"updateValues() setting current level to " + String.valueOf(level) + " and current tier to " +String.valueOf(tier));
 
-       // ((TextView) getActivity().findViewById(R.id.currentPlayerLevel))
-        //        .setText(String.valueOf(level));
-
-        ((TextView) getActivity().findViewById(R.id.currentTier))
-                .setText(String.valueOf(tier));
+        ((ProgressBar) getActivity().findViewById(R.id.YOURPB))
+              .setProgress( (int) (TextFight.myState.getLevelOfPeer() * 6.25));
     }
 
     public void correctEntry() {
         //updates the current word text view after incrementing tier, and level, if necessary
         //called after the user submits the correct word
+
+        if(TextFight.theState.getTypeOfGame().equals("W")){
+            return;
+        }
+
         Log.i(TAG,"correctEntry()");
         ((TextView) getActivity().findViewById(R.id.passOrFail))
                 .setText("");
@@ -212,12 +253,19 @@ public class TextMainArenaFragment extends Fragment
             level++;
             updateMyState();
             if (level == 16) {
+                updateValues();
                 victory();
             }
             else {
                 updateValues();
 
-                getNewWord();
+                if(TextFight.isMakeNextWordBonusInitiator()){
+                    //upon a correct spelling of a bonus-round initiator, we should start the bonus round
+                    Toast.makeText(getContext(), "BONUS ROUND INITIATE", Toast.LENGTH_SHORT).show();
+                } else{ //get a normal word
+                    getNewWord();
+                }
+
             }
 
         }
@@ -234,6 +282,17 @@ public class TextMainArenaFragment extends Fragment
     private void incorrectEntry() {
         //called after the user submits the incorrect word
         Log.i(TAG,"incorrectEntry()");
+
+        if(TextFight.isMakeNextWordBonusInitiator()){
+            //upon an incorrect spelling of a bonus-round initiator,
+            // we should pass along the token holder roll
+            //Toast.makeText(getContext(), "PASS ALONG WORD", Toast.LENGTH_SHORT).show();
+            TextFight.setBonusRoundTokenHolder(false);
+            TextFight.setMakeNextWordBonusInitiator(false);
+            //TODO: send message saying somebody else is now the token holder
+            mListener.onSendToken();
+
+        }
 
         ((TextView) getActivity().findViewById(R.id.passOrFail))
                 .setText("Incorrect!");
@@ -282,13 +341,17 @@ public class TextMainArenaFragment extends Fragment
             words = res.getStringArray(R.array.fifteenDigitList);
         }
 
-
-
         int randomIndex = new Random().nextInt(words.length);
         currentWord = words[randomIndex];
 
         ((TextView) getActivity().findViewById(R.id.currentWord))
                 .setText(currentWord);
+
+        if(TextFight.isMakeNextWordBonusInitiator()){
+            //SET THE COLOR TO GOLD FOR A BONUS-ROUND CREATOR
+            ((TextView) getActivity().findViewById(R.id.currentWord))
+                    .setTextColor(Color.parseColor("#FFFF22"));
+        }
     }
 
     public void victory() {
@@ -306,6 +369,52 @@ public class TextMainArenaFragment extends Fragment
 
     }
 
+    public void updateProgressBars(){
+        List<PeerState> temp = TextFight.theState.getPeersLevel();
+        //TODO: update the GUI based on enemy progress
+
+        for(PeerState el: temp){
+            //only update progress bars and text for other people
+            if(!el.equals(TextFight.myState)){
+                //only one other enemy
+                if(TextFight.theState.getPeersLevel().size() - 1 == 1 &&
+                        TextFight.peerHistory.contains(el.getFriendlyName())){
+
+                    //first slot is open
+                    ENEMY1PB.setVisibility(View.VISIBLE);
+                    ENEMY1TV.setText(el.getFriendlyName());
+                    ENEMY1PB.setProgress((int) (el.getLevelOfPeer() * 6.25));
+
+                }
+
+                //two enemies
+                else if(TextFight.theState.getPeersLevel().size() - 1 == 2 &&
+                        TextFight.peerHistory.contains(el.getFriendlyName())){
+
+                        //second slot is open
+                        ENEMY2PB.setVisibility(View.VISIBLE);
+                        ENEMY2TV.setText(el.getFriendlyName());
+                        ENEMY2PB.setProgress((int) (el.getLevelOfPeer() * 6.25));
+
+                }
+
+                //more than or equal to 3
+                else if(TextFight.theState.getPeersLevel().size() - 1 >= 3 &&
+                        TextFight.peerHistory.contains(el.getFriendlyName())){
+
+                        //third slot is open
+                        ENEMY3PB.setVisibility(View.VISIBLE);
+                        ENEMY3TV.setText(el.getFriendlyName());
+                        ENEMY3PB.setProgress((int) (el.getLevelOfPeer() * 6.25));
+
+                }
+
+            }
+
+
+        }
+    }
+
 
     /**
      * This interface must be implemented by activities that contain this
@@ -314,7 +423,7 @@ public class TextMainArenaFragment extends Fragment
      * activity.
      */
     public interface OnTextMainFragmentInteractionListener {
-        void onTextMainFragmentInteraction(String message);
+        void onSendToken();
         void onBroadcastState();
     }
 }

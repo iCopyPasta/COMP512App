@@ -1,9 +1,11 @@
 package com.example.pabloandtyler.comp512app;
 
+import android.support.annotation.NonNull;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class PeerState{
+public class PeerState {
 
     @SerializedName("friendlyName")
     @Expose
@@ -51,7 +53,16 @@ public class PeerState{
                 + " levelOfPeer = " + levelOfPeer;
     }
 
+    @Override
+    public boolean equals(Object peerState){
 
+        if(peerState instanceof PeerState){
+            return this.getLevelOfPeer().equals( ((PeerState) peerState).getLevelOfPeer())
+                    && this.getFriendlyName().equals(((PeerState) peerState).getFriendlyName())
+                    && this.getEndpointId().equals(((PeerState) peerState).getEndpointId());
+        }
 
+        return false;
 
+    }
 }
