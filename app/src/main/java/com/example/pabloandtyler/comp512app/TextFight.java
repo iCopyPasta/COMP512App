@@ -84,6 +84,9 @@ public class TextFight extends AppCompatActivity
     // Our handle to Nearby Connections
     private ConnectionsClient connectionsClient;
 
+    //array for ordering 'history' of incomers for GUI
+    public static ArrayList<String> peerHistory = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,6 +148,7 @@ public class TextFight extends AppCompatActivity
     @Override
     protected void onResume(){
         super.onResume();
+        peerHistory = new ArrayList<>();
 
 
         if(mode.equals(MainActivity.MODE_HOST)){
@@ -196,9 +200,6 @@ public class TextFight extends AppCompatActivity
                                     gson.fromJson(messageString, GameStateContainer.class
                                     );
 
-                            /*for(PeerState el: incomingGameContainer.getPeersLevel()){
-                                Log.i(TAG, "onPayloadReceived: " + el.toString());
-                            }*/
 
                             //check equality of the incoming game container with the
                             // local copy we have
@@ -240,6 +241,7 @@ public class TextFight extends AppCompatActivity
                                     // T is for token holder update
                                     // if we aren't the token holder and it's our turn, set our internal flag to represent that
                                     if(!TextFight.isBonusRoundTokenHolder() && incomingGameContainer.getTypeOfGame().equals("T")){
+                                        incomingGameContainer.setTypeOfGame("N");
                                         TextFight.setBonusRoundTokenHolder(true);
                                         new BonusRoundAsyncTask().execute();
                                     }
@@ -252,6 +254,12 @@ public class TextFight extends AppCompatActivity
                                         Log.i(TAG, "onPayloadReceived: peer.getFriendlyName() =  " + peer.getFriendlyName());
                                         if(! myState.getFriendlyName().equals(peer.getFriendlyName()) ){
                                             Log.i(TAG, "onPayloadReceived: the friendlyNames were not equal");
+
+                                            if(!peerHistory.contains(peer.getFriendlyName())){
+                                                peerHistory.add(peer.getFriendlyName());
+                                            }
+
+
 
                                             //if XD was found, don't dare connect to it lol
                                             if(peer.getEndpointId().equals("XD")){
@@ -289,7 +297,7 @@ public class TextFight extends AppCompatActivity
 
                                                 if (peer.getLevelOfPeer() > myLocalPeer.getLevelOfPeer()) {
                                                     myLocalPeer.setLevelOfPeer(peer.getLevelOfPeer());
-                                                    Log.e(TAG, "setting local peer to network level " + String.valueOf(peer.getLevelOfPeer()));
+                                                    Log.i(TAG, "setting local peer to network level " + String.valueOf(peer.getLevelOfPeer()));
                                                 }
 
                                             }
