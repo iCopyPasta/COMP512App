@@ -286,10 +286,12 @@ public class TextMainArenaFragment extends Fragment
         if(TextFight.isMakeNextWordBonusInitiator()){
             //upon an incorrect spelling of a bonus-round initiator,
             // we should pass along the token holder roll
-            Toast.makeText(getContext(), "PASS ALONG WORD", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getContext(), "PASS ALONG WORD", Toast.LENGTH_SHORT).show();
             TextFight.setBonusRoundTokenHolder(false);
             TextFight.setMakeNextWordBonusInitiator(false);
             //TODO: send message saying somebody else is now the token holder
+            mListener.onSendToken();
+
         }
 
         ((TextView) getActivity().findViewById(R.id.passOrFail))
@@ -411,10 +413,6 @@ public class TextMainArenaFragment extends Fragment
 
 
         }
-
-
-
-
     }
 
 
@@ -425,7 +423,7 @@ public class TextMainArenaFragment extends Fragment
      * activity.
      */
     public interface OnTextMainFragmentInteractionListener {
-        void onTextMainFragmentInteraction(String message);
+        void onSendToken();
         void onBroadcastState();
     }
 }

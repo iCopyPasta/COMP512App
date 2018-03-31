@@ -88,8 +88,8 @@ public class GameStateContainer {
                     }
 
                 }
+                return true;
             }
-            return true;
         }
 
         return false;

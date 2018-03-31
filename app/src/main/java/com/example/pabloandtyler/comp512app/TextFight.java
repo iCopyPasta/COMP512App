@@ -33,7 +33,9 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -639,17 +641,49 @@ public class TextFight extends AppCompatActivity
         Toast.makeText(this, "stay in fragment!", Toast.LENGTH_SHORT).show();
     }
 
-    //CALLBACKS FROM TextMainArenaFragment.java
-    @Override
-    public void onTextMainFragmentInteraction(String message) {
-        Log.i(TAG, "received callback: message: " + message);
+    //CALLBACKS FROM TextMainArenaFragment.java----------------------------------------------------
 
-        for(String endpointId: peersMap.keySet()){
-            Log.i(TAG, "sending " + message + " to " + peersMap.get(endpointId));
-            sendPayload(endpointId, message);
+    @Override
+    public void onSendToken() {
+        Log.i(TAG, "onSendToken, attempting to determine next");
+
+
+        Iterator<Map.Entry<String, String>> iter = peersMap.entrySet().iterator();
+        Map.Entry<String, String> endpointTarget = null;
+
+        while(iter.hasNext()) {
+            endpointTarget = iter.next();
+            if (!endpointTarget.getValue().equals(myFriendlyName)) {
+                break;
+            }
+
         }
 
-        Log.i(TAG, "onTextMainFragmentInteraction completed");
+        if(endpointTarget != null){
+            Log.i(TAG, "onSendToken: found a different peer to send over the token");
+            theState.setTypeOfGame("T");
+            Log.i(TAG, "onSendToken: broadcasting new state out");
+            sendPayload(endpointTarget.getKey(), new Gson().toJson(theState));
+            theState.setTypeOfGame("N");
+        }
+
+    }
+
+    public void onBroadcastState() {
+        String send = (new Gson()).toJson(theState);
+        //List<String> list = new ArrayList<String>(peersMap.keySet());
+
+
+        for(String endpointId: peersMap.keySet()){
+            Log.i(TAG, "sending " + send + " to " + peersMap.get(endpointId));
+            sendPayload(endpointId, send);
+        }
+        Gson gson = new Gson();
+
+        ((TextView) findViewById(R.id.opponent1TextView2)).setText(gson.toJson(theState));
+
+        Log.i(TAG, "onBroadcastState: finished sending to all peers");
+
     }
 
     //Local methods
@@ -733,23 +767,6 @@ public class TextFight extends AppCompatActivity
         }
     }
 
-    public void onBroadcastState() {
-        String send = (new Gson()).toJson(theState);
-        //List<String> list = new ArrayList<String>(peersMap.keySet());
-
-
-        for(String endpointId: peersMap.keySet()){
-            Log.i(TAG, "sending " + send + " to " + peersMap.get(endpointId));
-            sendPayload(endpointId, send);
-        }
-        Gson gson = new Gson();
-
-        ((TextView) findViewById(R.id.opponent1TextView2)).setText(gson.toJson(theState));
-
-        Log.i(TAG, "onBroadcastState: finished sending to all peers");
-
-    }
-
     public static class BonusRoundAsyncTask extends AsyncTask<String,Void,Boolean>{
 
         @Override
@@ -757,7 +774,7 @@ public class TextFight extends AppCompatActivity
 
             try{
                 //sleep for a 45secs to minute before allowing a bonus word
-                Thread.sleep(120000);
+                Thread.sleep(10000);
                 Log.i(TAG, "doInBackground: done sleeping, should return true");
 
             } catch(InterruptedException e){
