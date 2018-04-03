@@ -45,7 +45,7 @@ public class TextMainArenaFragment extends Fragment
     private EditText type_word;
     private static final String FRIENDLY_NAME = "FRIENDLY_NAME";
 
-    private int level = 15; //TODO: reset back to level 4
+    private int level = 4; //TODO: reset back to level 4
     private int tier = 0;
     private String currentWord;
 

@@ -136,8 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
-    public void randomWord(View view){ //how to use the random word arrays, use this code as template
+    /*public void randomWord(View view){ //how to use the random word arrays, use this code as template
 
         Resources res = getResources();
         String[] words = res.getStringArray(R.array.bonusDigitList); //change here to alter which wordset the random word comes from
@@ -146,5 +145,5 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i(TAG, "randomWord function invoked in main activity");
         ((TextView) view).setText(words[randomIndex]);
-    }
+    }*/
 }

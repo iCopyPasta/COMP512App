@@ -181,6 +181,7 @@ public class TextFight extends AppCompatActivity
     protected void onDestroy(){
         super.onDestroy();
 
+        connectionsClient.stopAllEndpoints();
         connectionsClient.stopDiscovery();
         connectionsClient.stopAdvertising();
         connectionsClient = null;
