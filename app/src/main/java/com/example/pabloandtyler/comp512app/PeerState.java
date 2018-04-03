@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class PeerState {
+public class PeerState implements Comparable<PeerState>{
 
     @SerializedName("friendlyName")
     @Expose
@@ -64,5 +64,10 @@ public class PeerState {
 
         return false;
 
+    }
+
+    @Override
+    public int compareTo(@NonNull PeerState peerState) {
+        return getFriendlyName().compareTo(peerState.getFriendlyName());
     }
 }

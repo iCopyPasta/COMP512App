@@ -8,8 +8,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.pabloandtyler.comp512app.dummy.PeerDataItem;
@@ -63,7 +61,15 @@ public class TextFight extends AppCompatActivity
 
     public static GameStateContainer theState;
     public static PeerState myState;
+
+    // BONUS ROUND VARIABLES
     public static boolean inBonus = false;
+
+    // NORMAL-ROUND VOTING VARIABLES
+    private static boolean alreadyLost = false;
+    public static boolean claimWinner = false;
+    public static int votesSnapshot = 0;
+    public static int runningVotes = 0;
 
     public static synchronized boolean isBonusRoundTokenHolder() {
         return bonusRoundTokenHolder;
@@ -175,6 +181,7 @@ public class TextFight extends AppCompatActivity
     protected void onDestroy(){
         super.onDestroy();
 
+        connectionsClient.stopAllEndpoints();
         connectionsClient.stopDiscovery();
         connectionsClient.stopAdvertising();
         connectionsClient = null;
@@ -317,6 +324,7 @@ public class TextFight extends AppCompatActivity
 
                                     //UPDATE THE GUI
                                     textMainArenaFragment.updateProgressBars();
+                                    onBroadcastState();
 
                                 }
 
@@ -328,8 +336,44 @@ public class TextFight extends AppCompatActivity
 
                                 }
 
-                                //If game state is a 'W', the player is declaring victory.
+                                if(incomingGameContainer.getTypeOfGame().equals("N-W-P")){
+                                    Log.i(TAG, "onPayloadReceived: GOT N-W-P");
+                                    if(alreadyLost){ //if we already lost from some prior, let the claimed winner have a vote
+                                        theState.setTypeOfGame("N-W-C");
+                                        Log.i(TAG, "onPayloadReceived: alreadyLost");
+                                        String send = (new Gson()).toJson(theState);
+                                        sendPayload(endpointId, send);
+                                        return;
+                                    }
 
+                                    if(claimWinner){
+                                        peerSelfSort(endpointId, peersMap.get(endpointId));
+                                    } else{
+                                        alreadyLost = true;
+                                        theState.setTypeOfGame("N-W-C");
+                                        String send = (new Gson()).toJson(theState);
+                                        sendPayload(endpointId, send);
+
+                                    }
+
+                                }
+
+                                if(incomingGameContainer.getTypeOfGame().equals("N-W-L")){
+                                    Log.i(TAG, "onPayloadReceived: GOT N-W-L");
+                                    alreadyLost = true;
+                                    theState.setTypeOfGame("N-W-C");
+                                    String send = (new Gson()).toJson(theState);
+                                    sendPayload(endpointId, send);
+
+                                }
+
+                                if(incomingGameContainer.getTypeOfGame().equals("N-W-C")){
+                                    Log.i(TAG, "onPayloadReceived: GOT N-W-C");
+                                    gatherVotes();
+                                }
+
+
+                                //If game state is a 'W', the player is declaring victory.
                                 if (incomingGameContainer.getTypeOfGame().equals("W")) {
                                     //TODO: UPDATE THE GUI
 
@@ -337,18 +381,8 @@ public class TextFight extends AppCompatActivity
 
                                     Toast.makeText(TextFight.this, winnerName + " Has Won.", Toast.LENGTH_LONG).show();
 
-                                    //TODO: whatever happens after you lose
                                     finish();
-
-
                                 }
-
-                                Log.i(TAG, "onPayloadReceived: setting inject to values");
-                                // go through peers, match them to the correct GUI element, update the progress bar with some logic
-
-                                //at the end, sendBroadcast
-                                Log.i(TAG, "onPayloadReceived: sending broadcast after having our local game container updated");
-                                onBroadcastState();
 
                             }
                             else{
@@ -359,11 +393,10 @@ public class TextFight extends AppCompatActivity
 
                     } catch(NullPointerException e){
                         Log.e(TAG, "NULL POINTER EXCEPTION" + e.getMessage());
-                        //Toast.makeText(TextFight.this, "Null PTE", Toast.LENGTH_SHORT).show();
 
                     }catch (Exception e){
                         Log.e(TAG, "GENERAL EXCEPTION " + e.getMessage());
-                        //Toast.makeText(TextFight.this, "We died?", Toast.LENGTH_SHORT).show();
+
                     }
 
                 }
@@ -385,6 +418,42 @@ public class TextFight extends AppCompatActivity
         theState = new GameStateContainer();
 
         theState.getPeersLevel().add(myState);
+    }
+
+    private void gatherVotes(){
+        Log.i(TAG, "GATHERING VOTES");
+        runningVotes++;
+
+        if(runningVotes >= votesSnapshot){
+            Log.i(TAG, "gatherVotes: WE WON");
+            textMainArenaFragment.victory();
+        }
+
+    }
+
+
+    private void peerSelfSort(String endpointId, String other){
+        int result = myFriendlyName.compareTo(other);
+        Log.i(TAG, "peerSelfSort: " + myFriendlyName + " compared to " + other + " = " + result);
+
+        //their endpointId is higher, so they get priority for winning
+        if(result < 0){
+            alreadyLost = true;
+            theState.setTypeOfGame("N-W-C");
+            String send = (new Gson()).toJson(theState);
+            sendPayload(endpointId, send);
+        }
+        else{ //we would win!
+            theState.setTypeOfGame("N-W-L");
+            String send = (new Gson()).toJson(theState);
+            sendPayload(endpointId, send);
+        }
+
+    }
+
+    private void confirmWinner(String endpointId, String friendlyName){
+        
+
     }
 
     // Broadcasts our presence using Nearby Connections so other players can find us.
@@ -709,6 +778,11 @@ public class TextFight extends AppCompatActivity
 
     }
 
+    @Override
+    public void onSetWinnerSnapshot() {
+        votesSnapshot = peersMap.size();
+    }
+
     //Local methods
     public void insertColorForPeer(String endpointId){
 
@@ -782,7 +856,7 @@ public class TextFight extends AppCompatActivity
 
             try{
                 //sleep for a 45secs to minute before allowing a bonus word
-                Thread.sleep(10000);
+                Thread.sleep(120_000L);
                 Log.i(TAG, "doInBackground: done sleeping, should return true");
 
             } catch(InterruptedException e){

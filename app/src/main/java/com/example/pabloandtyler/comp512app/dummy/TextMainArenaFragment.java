@@ -45,7 +45,7 @@ public class TextMainArenaFragment extends Fragment
     private EditText type_word;
     private static final String FRIENDLY_NAME = "FRIENDLY_NAME";
 
-    private int level = 4;
+    private int level = 4; //TODO: reset back to level 4
     private int tier = 0;
     private String currentWord;
 
@@ -164,7 +164,7 @@ public class TextMainArenaFragment extends Fragment
 
         //default creation/progress
         ((ProgressBar) getActivity().findViewById(R.id.YOURPB))
-                .setProgress( (int) (TextFight.myState.getLevelOfPeer() * 6.25));
+                .setProgress( (int) (level * 6.25));
 
         if(TextFight.isBonusRoundTokenHolder()){
             Log.i(TAG, "onResume: executing background task");
@@ -254,7 +254,7 @@ public class TextMainArenaFragment extends Fragment
             updateMyState();
             if (level == 16) {
                 updateValues();
-                victory();
+                claimVictory();
             }
             else {
                 updateValues();
@@ -351,14 +351,24 @@ public class TextMainArenaFragment extends Fragment
                 .setText(currentWord);
 
         if(TextFight.isMakeNextWordBonusInitiator()){
-            //SET THE COLOR TO GOLD FOR A BONUS-ROUND CREATOR
             ((TextView) getActivity().findViewById(R.id.currentWord))
                     .setTextColor(Color.parseColor("#FFFF22"));
+        } else{
+            ((TextView) getActivity().findViewById(R.id.currentWord))
+                    .setTextColor(Color.parseColor("#000000"));
         }
     }
 
+    public void claimVictory(){
+        ((EditText) getActivity().findViewById(R.id.type_word)).setEnabled(false);
+        TextFight.theState.setTypeOfGame("N-W-P");
+        TextFight.claimWinner = true;
+        mListener.onSetWinnerSnapshot();
+        mListener.onBroadcastState();
+
+    }
+
     public void victory() {
-        //this player has won, what should be done?
         Log.i(TAG,"victory()");
 
         ((TextView) getActivity().findViewById(R.id.currentWord))
@@ -366,9 +376,6 @@ public class TextMainArenaFragment extends Fragment
 
         TextFight.theState.setTypeOfGame("W");
         mListener.onBroadcastState();
-
-        Toast.makeText(getActivity(), TextFight.myState.getFriendlyName() + " Has Won. That's you!", Toast.LENGTH_LONG).show();
-        //TODO: whatever happens after you win
 
     }
 
@@ -429,5 +436,6 @@ public class TextMainArenaFragment extends Fragment
         void onSendToken();
         void onBroadcastState();
         void onBonusRoundTransition();
+        void onSetWinnerSnapshot();
     }
 }
