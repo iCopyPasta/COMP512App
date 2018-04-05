@@ -2,11 +2,14 @@ package com.example.pabloandtyler.comp512app;
 
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -16,6 +19,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,8 +33,7 @@ import java.util.Map;
  * {@link BonusRoundFragment.BonusRoundFragmentListener} interface
  * to handle interaction events.
  */
-public class BonusRoundFragment extends Fragment
-    implements View.OnKeyListener{
+public class BonusRoundFragment extends Fragment {
 
     private static final String TAG = "2FT: BonusRoundFrag";
 
@@ -38,7 +41,10 @@ public class BonusRoundFragment extends Fragment
     public interface BonusRoundFragmentListener{
         String getPeerColor(String endpointId);
         List<String> getPeerEndpointIds();
-        void onBonusRoundProgressUpdate(int progress);
+        void onBroadcastState();
+        void onClear();
+        void bonusRoundEnd();
+        void onDisableInput();
     }
 
     private BonusRoundFragmentListener mListener;
@@ -49,11 +55,15 @@ public class BonusRoundFragment extends Fragment
 
     private TextView ENEMY1TV = null;
     private TextView ENEMY2TV = null;
-    private TextView ENEMY3YV = null;
+    private TextView ENEMY3TV = null;
 
 
     private Map<String, Integer> opponentMap = null;
-    private EditText type_word = null;
+    public EditText type_word = null;
+
+    private TextView typeSentence;
+
+    private String battleWord;
 
 
 
@@ -76,12 +86,15 @@ public class BonusRoundFragment extends Fragment
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
 
-        TextView opponent1TextView = getActivity().findViewById(R.id.opponent1TextView);
+        ENEMY1TV = getActivity().findViewById(R.id.opponent1TextView);
         ENEMY1PB = getActivity().findViewById(R.id.progressBarOpponent1);
-        TextView opponent2TextView = getActivity().findViewById(R.id.opponent2TextView);
+        ENEMY1PB.setVisibility(View.INVISIBLE);
+        ENEMY2TV = getActivity().findViewById(R.id.opponent2TextView);
         ENEMY2PB = getActivity().findViewById(R.id.progressBarOpponent2);
-        TextView opponent3TextView = getActivity().findViewById(R.id.opponent3TextView);
+        ENEMY2PB.setVisibility(View.INVISIBLE);
+        ENEMY3TV = getActivity().findViewById(R.id.opponent3TextView);
         ENEMY3PB = getActivity().findViewById(R.id.progressBarOpponent3);
+        ENEMY3PB.setVisibility(View.INVISIBLE);
 
         //TODO: set colors if we have time
         /*
@@ -123,10 +136,51 @@ public class BonusRoundFragment extends Fragment
 
         }*/
 
+        Resources res = getResources();
+
+        typeSentence = getActivity().findViewById(R.id.type_sentence);
+        battleWord = res.getStringArray(R.array.bonusDigitList)[TextFight.theState.getBonusRoundArrayIndex()];
+        typeSentence.setText(battleWord);
+
         //set our listener for the bonus round keyboard
-        //TODO: wire up UI with appropriate callbacks, properties, and other elements
-        type_word = getActivity().findViewById(R.id.type_sentence);
-        type_word.setOnKeyListener(BonusRoundFragment.this); //feedback will be handled within the app as an intermediate step
+        type_word = (EditText) getActivity().findViewById(R.id.bonusRoundTypeSpace);
+        type_word.addTextChangedListener(new TextWatcher() {
+                                             @Override
+                                             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                                                 //Toast.makeText(getContext(), "BEFORE TEXT CHANGED", Toast.LENGTH_SHORT).show();
+
+                                             }
+
+                                             @Override
+                                             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                                                 //Toast.makeText(getContext(), "ON TEXT CHANGED", Toast.LENGTH_SHORT).show();
+                                                 String tmp = type_word.getText().toString();
+                                                 Log.i(TAG, "onTextChanged: onTextChanged: " + tmp);
+
+                                                 if (battleWord.substring(0,tmp.length()).equals(tmp)) {
+
+                                                     if(tmp.equals(battleWord)) {
+                                                         Log.i(TAG, "string complete. Victory claimed.");
+                                                         claimVictory();
+                                                     }
+                                                     else {
+                                                         correctSoFar((int) ((tmp.length() / (float) battleWord.length()) * 100));
+                                                     }
+                                                 }
+                                                 else {
+                                                     incorrectSoFar();
+                                                 }
+
+                                             }
+
+                                             @Override
+                                             public void afterTextChanged(Editable editable) {
+                                                 //Toast.makeText(getContext(), "AFTER TEXT CHANGED", Toast.LENGTH_SHORT).show();
+
+                                             }
+                                         }
+        );
+        //type_word.setOnKeyListener(BonusRoundFragment.this); //feedback will be handled within the fragment as an intermediate step
         type_word.setInputType(
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD); //disable auto-correct
         type_word.requestFocus();
@@ -148,29 +202,117 @@ public class BonusRoundFragment extends Fragment
     }
 
 
-    @Override
+    /*@Override
     public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
+        Log.i(TAG, "onKey CALL FROM BONUS ROUND FRAGMENT ");
+        Log.i(TAG, "onKey: KEY CODE + " + keyCode);
+        Log.i(TAG, "onKey: KEY EVENT ACTION = " + keyEvent.getAction());
 
         if(keyCode == KeyEvent.KEYCODE_SPACE &&
                 keyEvent.getAction() == KeyEvent.ACTION_DOWN){
 
             Log.i(TAG, "onKey if called");
 
-            //TODO: determine the progress for the current sentence here
-            String tmp = type_word.getText().toString();
-
-            int progress = 20;
-
-            Log.i(TAG, "back to TextFight with progress: " + progress);
-            mListener.onBonusRoundProgressUpdate(progress);
-
             return true;
 
         }
 
-
-
         return false;
+    }*/
+
+
+    public void correctSoFar(int progress) {
+        Log.i(TAG, "correct so far with progress: " + progress);
+        updateMyBar(progress);
+        updateMyState(progress);
+        mListener.onBroadcastState();
+        ((TextView)getActivity().findViewById(R.id.NOTIFY)).setText("");
+    }
+
+    public void incorrectSoFar() {
+        ((TextView)getActivity().findViewById(R.id.NOTIFY)).setText("There is a typo in your sentence!");
+    }
+
+    public void updateMyState(int progress) {
+        Log.i(TAG, "Updating my state with: " + progress);
+        TextFight.myState.setPositionInBonusRound(progress);
+    }
+
+    public void updateProgressBars() {
+        List<PeerState> temp = TextFight.theState.getPeersLevel();
+
+
+        for(PeerState el: temp){
+            //only update progress bars and text for other people
+            if(!el.equals(TextFight.myState)){
+                //only one other enemy
+                if(TextFight.theState.getPeersLevel().size() - 1 == 1 &&
+                        TextFight.peerHistory.contains(el.getFriendlyName())){
+
+                    //first slot is open
+                    ENEMY1PB.setVisibility(View.VISIBLE);
+                    ENEMY1TV.setText(el.getFriendlyName());
+                    ENEMY1PB.setProgress(el.getPositionInBonusRound());
+
+                }
+
+                //two enemies
+                else if(TextFight.theState.getPeersLevel().size() - 1 == 2 &&
+                        TextFight.peerHistory.contains(el.getFriendlyName())){
+
+                    //second slot is open
+                    ENEMY2PB.setVisibility(View.VISIBLE);
+                    ENEMY2TV.setText(el.getFriendlyName());
+                    ENEMY2PB.setProgress(el.getPositionInBonusRound());
+
+                }
+
+                //more than or equal to 3
+                else if(TextFight.theState.getPeersLevel().size() - 1 >= 3 &&
+                        TextFight.peerHistory.contains(el.getFriendlyName())){
+
+                    //third slot is open
+                    ENEMY3PB.setVisibility(View.VISIBLE);
+                    ENEMY3TV.setText(el.getFriendlyName());
+                    ENEMY3PB.setProgress(el.getPositionInBonusRound());
+
+                }
+
+            }
+
+
+        }
+    }
+
+
+
+    public void claimVictory() {
+        mListener.onDisableInput();
+        TextFight.claimWinner = true;
+        TextFight.theState.setTypeOfGame("N-W-P");
+        mListener.onBroadcastState();
+        TextFight.theState.setTypeOfGame("B");
+
+    }
+
+    public void Victory() {
+        Log.i(TAG, "Victory: FROM BONUS ROUND FRAGMENT");
+        TextFight.theState.setTypeOfGame("BD");
+        TextFight.myState.setLevelOfPeer(TextFight.myState.getLevelOfPeer()+1);
+        TextFight.setBonusRoundTokenHolder(true);
+        mListener.bonusRoundEnd();
+    }
+
+    public void updateMyBar(int progress) {
+        Log.i(TAG,"updateMyBar() setting current BR progress to " + progress );
+
+        ((ProgressBar) getActivity().findViewById(R.id.BYOURPB))
+                .setProgress(progress);
+    }
+
+    public void resetVictoryParams() {
+        Log.i(TAG,"resetting victory parameters");
+        mListener.onClear();
     }
 
 

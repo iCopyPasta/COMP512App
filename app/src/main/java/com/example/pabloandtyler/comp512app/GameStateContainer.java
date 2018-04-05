@@ -17,9 +17,22 @@ public class GameStateContainer {
     @Expose
     private List<PeerState> peersLevel = null;
 
+    @SerializedName("bonusRoundArrayIndex")
+    @Expose
+    private int bonusRoundArrayIndex;
+
     public GameStateContainer(){
         this.typeOfGame = "N";
         this.peersLevel = new ArrayList<>();
+        bonusRoundArrayIndex = 0;
+    }
+
+    public int getBonusRoundArrayIndex() {
+        return bonusRoundArrayIndex;
+    }
+
+    public void setBonusRoundArrayIndex(int bonusRoundArrayIndex) {
+        this.bonusRoundArrayIndex = bonusRoundArrayIndex;
     }
 
     public String getTypeOfGame() {
@@ -79,8 +92,8 @@ public class GameStateContainer {
         String TAG = "2FT: equals GameState";
         if( other instanceof GameStateContainer ){
 
-            if (this.getTypeOfGame().equals( ((GameStateContainer) other).getTypeOfGame())) {
-                
+            if (this.getTypeOfGame().equals( ((GameStateContainer) other).getTypeOfGame()) && this.getBonusRoundArrayIndex() == ((GameStateContainer) other).getBonusRoundArrayIndex() ) {
+
                 for (PeerState peer: this.peersLevel) {
                     Log.i(TAG, "equals: iterating in equality");
                     if(! ((GameStateContainer) other).trueCompare(peer)){

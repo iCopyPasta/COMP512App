@@ -360,7 +360,7 @@ public class TextMainArenaFragment extends Fragment
     }
 
     public void claimVictory(){
-        ((EditText) getActivity().findViewById(R.id.type_word)).setEnabled(false);
+        mListener.onDisableInput();
         TextFight.theState.setTypeOfGame("N-W-P");
         TextFight.claimWinner = true;
         mListener.onSetWinnerSnapshot();
@@ -381,7 +381,7 @@ public class TextMainArenaFragment extends Fragment
 
     public void updateProgressBars(){
         List<PeerState> temp = TextFight.theState.getPeersLevel();
-        //TODO: update the GUI based on enemy progress
+
 
         for(PeerState el: temp){
             //only update progress bars and text for other people
@@ -437,5 +437,6 @@ public class TextMainArenaFragment extends Fragment
         void onBroadcastState();
         void onBonusRoundTransition();
         void onSetWinnerSnapshot();
+        void onDisableInput();
     }
 }

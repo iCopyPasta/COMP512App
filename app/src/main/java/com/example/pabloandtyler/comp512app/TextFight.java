@@ -1,6 +1,7 @@
 package com.example.pabloandtyler.comp512app;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
@@ -8,6 +9,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.pabloandtyler.comp512app.dummy.PeerDataItem;
@@ -62,6 +64,7 @@ public class TextFight extends AppCompatActivity
     public static GameStateContainer theState;
     public static PeerState myState;
 
+
     // BONUS ROUND VARIABLES
     public static boolean inBonus = false;
 
@@ -104,7 +107,6 @@ public class TextFight extends AppCompatActivity
 
         myFriendlyName = CodenameGenerator.generate();
         initializeState(); //TODO: save state and maybe put this somewhere else
-
         connectionsClient = Nearby.getConnectionsClient(this);
 
         Log.i(TAG, "onCreate: myFriendlyName = " + myFriendlyName);
@@ -244,9 +246,20 @@ public class TextFight extends AppCompatActivity
 
                                 //determine the game state, i.e. normal, bonus, win, etc.
                                 if (incomingGameContainer.getTypeOfGame().equals("N") ||
-                                        incomingGameContainer.getTypeOfGame().equals("T")) {
+                                        incomingGameContainer.getTypeOfGame().equals("T") ||incomingGameContainer.getTypeOfGame().equals("BD")) {
                                     Log.i(TAG, "onPayloadReceived: the type of incoming game is " + incomingGameContainer.getTypeOfGame());
+                                    Log.i(TAG, "onPayloadReceived: the type of our current game is " + theState.getTypeOfGame());
 
+                                    //logic for BD, bonus round end
+                                    if (theState.getTypeOfGame().equals("B") && incomingGameContainer.getTypeOfGame().equals("BD")) { //we are in bonus round, end the bonus round
+                                        Log.i(TAG, "onPayloadReceived: IS B and GOT BD");
+                                        bonusRoundEnd();
+                                        theState.setTypeOfGame("BD");
+                                    }
+                                    else if (theState.getTypeOfGame().equals("BD") && incomingGameContainer.getTypeOfGame().equals("BD")) { //bonus round end buffer switching game state back to normal
+                                        Log.i(TAG, "onPayloadReceived: IS BD and GOT BD");
+                                        theState.setTypeOfGame("N");
+                                    }
 
                                     // T is for token holder update
                                     // if we aren't the token holder and it's our turn, set our internal flag to represent that
@@ -328,11 +341,83 @@ public class TextFight extends AppCompatActivity
 
                                 }
 
-                                if (incomingGameContainer.getTypeOfGame().equals("B")) {
+                                if (incomingGameContainer.getTypeOfGame().equals("B") && !theState.getTypeOfGame().equals("BD")) {
+                                    if (!inBonus)
+                                        onBonusRoundTransition();
 
-                                    onBonusRoundTransition();
-                                    //TODO: endpointId's may never have been set, and an "XD" storm my occur
-                                    //TODO: additional logic for the bonus round
+                                    if (! isBonusRoundTokenHolder()) //if we're not the token holder, sync our bonus round index
+                                        theState.setBonusRoundArrayIndex(incomingGameContainer.getBonusRoundArrayIndex());
+
+                                    //CONNECTION TASKS
+                                    List<PeerState> incomingPeers = incomingGameContainer.getPeersLevel();
+                                    Log.i(TAG, "onPayloadReceived: starting for-each incoming peers");
+                                    for (PeerState peer: incomingPeers) {
+                                        Log.i(TAG, "onPayloadReceived: in iteration of peers");
+                                        Log.i(TAG, "onPayloadReceived: peer.getFriendlyName() =  " + peer.getFriendlyName());
+                                        if(! myState.getFriendlyName().equals(peer.getFriendlyName()) ){
+                                            Log.i(TAG, "onPayloadReceived: the friendlyNames were not equal");
+
+                                            if(!peerHistory.contains(peer.getFriendlyName())){
+                                                peerHistory.add(peer.getFriendlyName());
+                                            }
+
+
+
+                                            //if XD was found, don't dare connect to it lol
+                                            if(peer.getEndpointId().equals("XD")){
+
+                                                peer.setEndpointId(endpointId);
+                                            }
+
+
+                                            if(! peersMap.containsKey(peer.getEndpointId()) )  {
+
+                                                Log.i(TAG, "onPayloadReceived: we did not find the peer in our map, should try to connect and then add");
+                                                //the peer isn't in my list, attempt to connect and add to list
+                                                connectionsClient.requestConnection(myFriendlyName,
+                                                        peer.getEndpointId(),
+                                                        connectionLifecycleCallback);
+
+                                            }
+                                            if ( (! theState.contains(peer))) {
+                                                Log.i(TAG, "Adding new peer: "+peer.getEndpointId());
+
+                                                theState.getPeersLevel().add(peer);
+                                            }
+                                            else { //peer is already in my list, check if there is truly an update
+                                                //GAME LOGIC TASKS
+                                                Log.i(TAG, "onPayloadReceived: peer is already in my list, check if there is truly an update");
+                                                PeerState myLocalPeer = null;
+
+                                                for (PeerState localPeer: theState.getPeersLevel()) {
+                                                    if (localPeer.getEndpointId().equals(peer.getEndpointId())) {
+                                                        myLocalPeer = localPeer;
+
+                                                        break;
+                                                    }
+                                                }
+
+                                                if (peer.getPositionInBonusRound() != myLocalPeer.getPositionInBonusRound()) {
+                                                    myLocalPeer.setPositionInBonusRound(peer.getPositionInBonusRound());
+                                                    Log.i(TAG, "setting local peer to bonus round progress " + peer.getLevelOfPeer());
+                                                }
+
+                                            }
+
+                                        }
+                                        else{
+                                            if ( (! theState.getPeersLevel().contains(peer))) {
+
+                                                Log.i(TAG, "Adding myself to my peer state from received message: "+peer.getEndpointId());
+                                                myState.setEndpointId(peer.getEndpointId());
+                                            }
+                                        }
+                                    }
+
+                                    //UPDATE THE GUI
+                                    bonusRoundFragment.updateProgressBars();
+                                    onBroadcastState();
+
 
                                 }
 
@@ -343,6 +428,9 @@ public class TextFight extends AppCompatActivity
                                         Log.i(TAG, "onPayloadReceived: alreadyLost");
                                         String send = (new Gson()).toJson(theState);
                                         sendPayload(endpointId, send);
+
+                                        if (inBonus)
+                                            theState.setTypeOfGame("B");
                                         return;
                                     }
 
@@ -350,9 +438,13 @@ public class TextFight extends AppCompatActivity
                                         peerSelfSort(endpointId, peersMap.get(endpointId));
                                     } else{
                                         alreadyLost = true;
+                                        onDisableInput();
                                         theState.setTypeOfGame("N-W-C");
                                         String send = (new Gson()).toJson(theState);
                                         sendPayload(endpointId, send);
+
+                                        if (inBonus)
+                                            theState.setTypeOfGame("B");
 
                                     }
 
@@ -361,9 +453,13 @@ public class TextFight extends AppCompatActivity
                                 if(incomingGameContainer.getTypeOfGame().equals("N-W-L")){
                                     Log.i(TAG, "onPayloadReceived: GOT N-W-L");
                                     alreadyLost = true;
+                                    onDisableInput();
                                     theState.setTypeOfGame("N-W-C");
                                     String send = (new Gson()).toJson(theState);
                                     sendPayload(endpointId, send);
+
+                                    if (inBonus)
+                                        theState.setTypeOfGame("B");
 
                                 }
 
@@ -420,13 +516,40 @@ public class TextFight extends AppCompatActivity
         theState.getPeersLevel().add(myState);
     }
 
+    public void onDisableInput() {
+        if (inBonus) {
+            ((EditText) findViewById(R.id.bonusRoundTypeSpace)).setEnabled(false);
+        }
+        else {
+            ((EditText) findViewById(R.id.type_word)).setEnabled(false);
+        }
+    }
+
+    public void bonusRoundEnd() {
+        Log.i(TAG, "Bonus round terminated");
+        TextFight.myState.setPositionInBonusRound(0);
+        TextFight.inBonus = false;
+        bonusRoundFragment.type_word.setText("");
+        onBroadcastState();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.multi_fragments, textMainArenaFragment)
+                .commit();
+        Toast.makeText(TextFight.this,"Bonus round over!",Toast.LENGTH_LONG);
+    }
+
     private void gatherVotes(){
         Log.i(TAG, "GATHERING VOTES");
         runningVotes++;
 
         if(runningVotes >= votesSnapshot){
             Log.i(TAG, "gatherVotes: WE WON");
-            textMainArenaFragment.victory();
+            if (theState.getTypeOfGame().equals("N") || theState.getTypeOfGame().equals("N-W-P"))
+                textMainArenaFragment.victory();
+
+            else if (theState.getTypeOfGame().equals("B")) {
+                bonusRoundFragment.Victory();
+            }
+
         }
 
     }
@@ -451,10 +574,6 @@ public class TextFight extends AppCompatActivity
 
     }
 
-    private void confirmWinner(String endpointId, String friendlyName){
-        
-
-    }
 
     // Broadcasts our presence using Nearby Connections so other players can find us.
     private void startAdvertising() { // let someone else connect to me
@@ -629,6 +748,19 @@ public class TextFight extends AppCompatActivity
 
                 Log.i(TAG, "onDisconnected: disconnected from the opponent");
                 Toast.makeText(TextFight.this, "disconnected", Toast.LENGTH_SHORT).show();
+                if(votesSnapshot > 0){
+                    votesSnapshot--;
+
+                    if (claimWinner){
+                        if(runningVotes >= votesSnapshot){
+                            if(inBonus)
+                                bonusRoundFragment.Victory();
+                            else{
+                                textMainArenaFragment.victory();
+                            }
+                        }
+                    }
+                }
 
                 attemptReconnection(endpointId);
             }
@@ -644,9 +776,11 @@ public class TextFight extends AppCompatActivity
     }
 
     // CALLBACKS FROM BonusRoundFragment.java-------------------------------------------------------
-    public void onBonusRoundProgressUpdate(int progress){
-        Log.i(TAG, "sending message to all peers");
-        Toast.makeText(this, "to implement, yet!", Toast.LENGTH_SHORT).show();
+    public void onClear() {
+        votesSnapshot = 0;
+        runningVotes = 0;
+        alreadyLost = false;
+        claimWinner = false;
     }
 
     public String getPeerColor(String endpointId){
@@ -699,7 +833,6 @@ public class TextFight extends AppCompatActivity
         fragmentManager.beginTransaction()
                 .replace(R.id.multi_fragments,
                         textMainArenaFragment)
-
                 .commit();
 
         //.addToBackStack("PeersListFragment")
@@ -766,13 +899,22 @@ public class TextFight extends AppCompatActivity
 
             theState.setTypeOfGame("B");
 
+            if (isBonusRoundTokenHolder()) {
+
+                Resources res = getResources();
+
+                int randomIndex = new Random().nextInt(res.getStringArray(R.array.bonusDigitList).length);
+
+                Log.i(TAG, "We are the token holder. Setting the bonus round string index to: " +randomIndex);
+                theState.setBonusRoundArrayIndex(randomIndex);
+            }
+
             onBroadcastState();
 
 
             fragmentManager.beginTransaction()
                     .replace(R.id.multi_fragments,
                             bonusRoundFragment)
-                    .addToBackStack("textMainFrag?")
                     .commit();
         }
 
@@ -856,7 +998,7 @@ public class TextFight extends AppCompatActivity
 
             try{
                 //sleep for a 45secs to minute before allowing a bonus word
-                Thread.sleep(120_000L);
+                Thread.sleep(1_000L);
                 Log.i(TAG, "doInBackground: done sleeping, should return true");
 
             } catch(InterruptedException e){

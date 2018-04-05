@@ -17,10 +17,15 @@ public class PeerState implements Comparable<PeerState>{
     @Expose
     private String endpointId;
 
+    @SerializedName("positionInBonusRound")
+    @Expose
+    private int positionInBonusRound;
+
     public PeerState(){
         this.friendlyName = "";
         this.levelOfPeer = 4;
         this.endpointId = "";
+        positionInBonusRound = 0;
     }
 
     public String getFriendlyName() {
@@ -47,6 +52,14 @@ public class PeerState implements Comparable<PeerState>{
         this.endpointId = endpointId;
     }
 
+    public int getPositionInBonusRound() {
+        return positionInBonusRound;
+    }
+
+    public void setPositionInBonusRound(int positionInBonusRound) {
+        this.positionInBonusRound = positionInBonusRound;
+    }
+
     @Override
     public String toString(){
         return "endpointId: " + endpointId + " friendly_name = " + friendlyName
@@ -59,7 +72,8 @@ public class PeerState implements Comparable<PeerState>{
         if(peerState instanceof PeerState){
             return this.getLevelOfPeer().equals( ((PeerState) peerState).getLevelOfPeer())
                     && this.getFriendlyName().equals(((PeerState) peerState).getFriendlyName())
-                    && this.getEndpointId().equals(((PeerState) peerState).getEndpointId());
+                    && this.getEndpointId().equals(((PeerState) peerState).getEndpointId())
+                    && this.getPositionInBonusRound() == ((PeerState) peerState).getPositionInBonusRound();
         }
 
         return false;
