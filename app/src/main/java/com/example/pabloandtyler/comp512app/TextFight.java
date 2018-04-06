@@ -196,7 +196,7 @@ public class TextFight extends AppCompatActivity
         new PayloadCallback() {
             @Override
             public void onPayloadReceived(String endpointId, Payload payload) {
-                Log.i(TAG, "onPayloadReceived called");
+                //Log.i(TAG, "onPayloadReceived called");
                 if(payload == null){
                     Log.e(TAG, "payload is null");
                 }
@@ -240,9 +240,9 @@ public class TextFight extends AppCompatActivity
 
 
 
-                            Log.i(TAG, "onPayloadReceived: comparing incomingGameContainer to our state");
+                            //Log.i(TAG, "onPayloadReceived: comparing incomingGameContainer to our state");
                             if (! incomingGameContainer.equals(theState)) {
-                                Log.i(TAG, "onPayloadReceived: game containers they were not equal");
+                                //Log.i(TAG, "onPayloadReceived: game containers they were not equal");
 
                                 //determine the game state, i.e. normal, bonus, win, etc.
                                 if (incomingGameContainer.getTypeOfGame().equals("N") ||
@@ -264,6 +264,12 @@ public class TextFight extends AppCompatActivity
                                             bonusRoundEnd();
 
                                         theState.setTypeOfGame("N");
+                                    } else if(theState.getTypeOfGame().equals("BD") && incomingGameContainer.getTypeOfGame().equals("N")){
+                                        Log.i(TAG, "onPayloadReceived: IS BD and GOT N");
+                                        if(inBonus)
+                                            bonusRoundEnd();
+
+                                        theState.setTypeOfGame("N");
                                     }
 
                                     // T is for token holder update
@@ -276,12 +282,12 @@ public class TextFight extends AppCompatActivity
 
                                     //CONNECTION TASKS
                                     List<PeerState> incomingPeers = incomingGameContainer.getPeersLevel();
-                                    Log.i(TAG, "onPayloadReceived: starting for-each incoming peers");
+                                    //Log.i(TAG, "onPayloadReceived: starting for-each incoming peers");
                                     for (PeerState peer: incomingPeers) {
-                                        Log.i(TAG, "onPayloadReceived: in iteration of peers");
-                                        Log.i(TAG, "onPayloadReceived: peer.getFriendlyName() =  " + peer.getFriendlyName());
+                                        //Log.i(TAG, "onPayloadReceived: in iteration of peers");
+                                        //Log.i(TAG, "onPayloadReceived: peer.getFriendlyName() =  " + peer.getFriendlyName());
                                         if(! myState.getFriendlyName().equals(peer.getFriendlyName()) ){
-                                            Log.i(TAG, "onPayloadReceived: the friendlyNames were not equal");
+                                            //Log.i(TAG, "onPayloadReceived: the friendlyNames were not equal");
 
                                             if(!peerHistory.contains(peer.getFriendlyName())){
                                                 peerHistory.add(peer.getFriendlyName());
@@ -298,7 +304,7 @@ public class TextFight extends AppCompatActivity
 
                                             if(! peersMap.containsKey(peer.getEndpointId()) )  {
 
-                                                Log.i(TAG, "onPayloadReceived: we did not find the peer in our map, should try to connect and then add");
+                                                //Log.i(TAG, "onPayloadReceived: we did not find the peer in our map, should try to connect and then add");
                                                 //the peer isn't in my list, attempt to connect and add to list
                                                 connectionsClient.requestConnection(myFriendlyName,
                                                         peer.getEndpointId(),
@@ -306,13 +312,13 @@ public class TextFight extends AppCompatActivity
 
                                             }
                                             if ( (! theState.contains(peer))) {
-                                                Log.i(TAG, "Adding new peer: "+peer.getEndpointId());
+                                               // Log.i(TAG, "Adding new peer: "+peer.getEndpointId());
 
                                                 theState.getPeersLevel().add(peer);
                                             }
                                             else { //peer is already in my list, check if there is truly an update
                                                 //GAME LOGIC TASKS
-                                                Log.i(TAG, "onPayloadReceived: peer is already in my list, check if there is truly an update");
+                                               // Log.i(TAG, "onPayloadReceived: peer is already in my list, check if there is truly an update");
                                                 PeerState myLocalPeer = null;
 
                                                 for (PeerState localPeer: theState.getPeersLevel()) {
@@ -323,9 +329,9 @@ public class TextFight extends AppCompatActivity
                                                     }
                                                 }
 
-                                                if (peer.getLevelOfPeer() > myLocalPeer.getLevelOfPeer()) {
+                                                if (peer.getLevelOfPeer() >= myLocalPeer.getLevelOfPeer()) {
                                                     myLocalPeer.setLevelOfPeer(peer.getLevelOfPeer());
-                                                    Log.i(TAG, "setting local peer to network level " + String.valueOf(peer.getLevelOfPeer()));
+                                                    //Log.i(TAG, "setting local peer to network level " + String.valueOf(peer.getLevelOfPeer()));
                                                 }
 
                                             }
@@ -334,7 +340,7 @@ public class TextFight extends AppCompatActivity
                                         else{
                                             if ( (! theState.getPeersLevel().contains(peer))) {
 
-                                                Log.i(TAG, "Adding myself to my peer state from received message: "+peer.getEndpointId());
+                                                //Log.i(TAG, "Adding myself to my peer state from received message: "+peer.getEndpointId());
                                                 myState.setEndpointId(peer.getEndpointId());
                                             }
                                         }
@@ -347,26 +353,29 @@ public class TextFight extends AppCompatActivity
                                 }
 
                                 if (incomingGameContainer.getTypeOfGame().equals("B") && !theState.getTypeOfGame().equals("BD")) {
-                                    if (!inBonus)
+                                    Log.i(TAG, "onPayloadReceived: INCOMING IS B AND WE DON'T HAVE BD");
+                                    if (!inBonus){
                                         onBonusRoundTransition();
+                                        //if we're not the token holder, sync our bonus round index
+                                        if (! isBonusRoundTokenHolder()){
+                                            Log.i(TAG, "onPayloadReceived: SETTING INCOMING ARRAY INDEX");
+                                            theState.setBonusRoundArrayIndex(incomingGameContainer.getBonusRoundArrayIndex());
 
-                                    if (! isBonusRoundTokenHolder()) //if we're not the token holder, sync our bonus round index
-                                        theState.setBonusRoundArrayIndex(incomingGameContainer.getBonusRoundArrayIndex());
+                                        }
+                                    }
 
                                     //CONNECTION TASKS
                                     List<PeerState> incomingPeers = incomingGameContainer.getPeersLevel();
-                                    Log.i(TAG, "onPayloadReceived: starting for-each incoming peers");
+                                    //Log.i(TAG, "onPayloadReceived: starting for-each incoming peers");
                                     for (PeerState peer: incomingPeers) {
-                                        Log.i(TAG, "onPayloadReceived: in iteration of peers");
-                                        Log.i(TAG, "onPayloadReceived: peer.getFriendlyName() =  " + peer.getFriendlyName());
+                                        //Log.i(TAG, "onPayloadReceived: in iteration of peers");
+                                        //Log.i(TAG, "onPayloadReceived: peer.getFriendlyName() =  " + peer.getFriendlyName());
                                         if(! myState.getFriendlyName().equals(peer.getFriendlyName()) ){
-                                            Log.i(TAG, "onPayloadReceived: the friendlyNames were not equal");
+                                            //Log.i(TAG, "onPayloadReceived: the friendlyNames were not equal");
 
                                             if(!peerHistory.contains(peer.getFriendlyName())){
                                                 peerHistory.add(peer.getFriendlyName());
                                             }
-
-
 
                                             //if XD was found, don't dare connect to it lol
                                             if(peer.getEndpointId().equals("XD")){
@@ -374,10 +383,9 @@ public class TextFight extends AppCompatActivity
                                                 peer.setEndpointId(endpointId);
                                             }
 
-
                                             if(! peersMap.containsKey(peer.getEndpointId()) )  {
 
-                                                Log.i(TAG, "onPayloadReceived: we did not find the peer in our map, should try to connect and then add");
+                                                //Log.i(TAG, "onPayloadReceived: we did not find the peer in our map, should try to connect and then add");
                                                 //the peer isn't in my list, attempt to connect and add to list
                                                 connectionsClient.requestConnection(myFriendlyName,
                                                         peer.getEndpointId(),
@@ -385,28 +393,31 @@ public class TextFight extends AppCompatActivity
 
                                             }
                                             if ( (! theState.contains(peer))) {
-                                                Log.i(TAG, "Adding new peer: "+peer.getEndpointId());
+                                                //Log.i(TAG, "Adding new peer: "+peer.getEndpointId());
 
                                                 theState.getPeersLevel().add(peer);
                                             }
                                             else { //peer is already in my list, check if there is truly an update
                                                 //GAME LOGIC TASKS
-                                                Log.i(TAG, "onPayloadReceived: peer is already in my list, check if there is truly an update");
+                                                //Log.i(TAG, "onPayloadReceived: peer is already in my list, check if there is truly an update");
+                                                Log.i(TAG, "onPayloadReceived: GAME LOGIC TASKS");
                                                 PeerState myLocalPeer = null;
 
                                                 for (PeerState localPeer: theState.getPeersLevel()) {
                                                     if (localPeer.getEndpointId().equals(peer.getEndpointId())) {
                                                         myLocalPeer = localPeer;
-
                                                         break;
                                                     }
                                                 }
 
-                                                if (peer.getPositionInBonusRound() >= myLocalPeer.getPositionInBonusRound()) {
+                                                if (peer.getLevelOfPeer() > myLocalPeer.getLevelOfPeer()) {
+                                                    myLocalPeer.setLevelOfPeer(peer.getLevelOfPeer());
+                                                    Log.i(TAG, "setting local peer to level " + String.valueOf(peer.getLevelOfPeer()));
+                                                }
+
+                                                if (peer.getPositionInBonusRound() > myLocalPeer.getPositionInBonusRound()) {
                                                     myLocalPeer.setPositionInBonusRound(peer.getPositionInBonusRound());
-                                                    Log.i(TAG, "setting local peer to bonus round progress " + peer.getLevelOfPeer());
-                                                } else if(peer.getPositionInBonusRound() == 0 || myLocalPeer.getPositionInBonusRound() == 0){ //to avoid unncessary sending
-                                                    myLocalPeer.setPositionInBonusRound(0);
+                                                    Log.i(TAG, "setting local peer to bonus round progress " + peer.getPositionInBonusRound());
                                                 }
 
                                             }
@@ -415,8 +426,13 @@ public class TextFight extends AppCompatActivity
                                         else{
                                             if ( (! theState.getPeersLevel().contains(peer))) {
 
-                                                Log.i(TAG, "Adding myself to my peer state from received message: "+peer.getEndpointId());
+                                                //Log.i(TAG, "Adding myself to my peer state from received message: "+peer.getEndpointId());
                                                 myState.setEndpointId(peer.getEndpointId());
+                                            }
+
+                                            //TODO: confirm this bug is the reason for endless storm?
+                                            if(peer.getLevelOfPeer() > myState.getLevelOfPeer()){
+                                                myState.setLevelOfPeer(peer.getLevelOfPeer());
                                             }
                                         }
                                     }
@@ -781,7 +797,7 @@ public class TextFight extends AppCompatActivity
 
 
     private void sendPayload(String endpointId, String message){
-        Log.i(TAG, "sendPayload called");
+        //Log.i(TAG, "sendPayload called");
         connectionsClient.sendPayload(
                 endpointId,
                 Payload.fromBytes(message.getBytes())
@@ -790,7 +806,7 @@ public class TextFight extends AppCompatActivity
 
     // CALLBACKS FROM BonusRoundFragment.java-------------------------------------------------------
     public void onClear() {
-        TextFight.myState.setPositionInBonusRound(0);
+        Log.i(TAG, "onClear: BONUS ROUND INDEX" + theState.getBonusRoundArrayIndex());
         TextFight.theState.setBonusRoundArrayIndex(0);
         TextFight.setMakeNextWordBonusInitiator(false);
         TextFight.inBonus = false;
@@ -798,6 +814,11 @@ public class TextFight extends AppCompatActivity
         claimWinner = false;
         votesSnapshot = 0;
         runningVotes = 0;
+
+        //0-out all values for all peers
+        for (PeerState el: theState.getPeersLevel()){
+            el.setPositionInBonusRound(0);
+        }
     }
 
     public String getPeerColor(String endpointId){
@@ -902,7 +923,7 @@ public class TextFight extends AppCompatActivity
 
         //((TextView) findViewById(R.id.opponent1TextView2)).setText(gson.toJson(theState));
 
-        Log.i(TAG, "onBroadcastState: finished sending to all peers");
+        //Log.i(TAG, "onBroadcastState: finished sending to all peers");
 
     }
 

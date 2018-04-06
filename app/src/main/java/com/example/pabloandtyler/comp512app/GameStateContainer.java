@@ -95,7 +95,7 @@ public class GameStateContainer {
             if (this.getTypeOfGame().equals( ((GameStateContainer) other).getTypeOfGame()) && this.getBonusRoundArrayIndex() == ((GameStateContainer) other).getBonusRoundArrayIndex() ) {
 
                 for (PeerState peer: this.peersLevel) {
-                    Log.i(TAG, "equals: iterating in equality");
+                   // Log.i(TAG, "equals: iterating in equality");
                     if(! ((GameStateContainer) other).trueCompare(peer)){
                         return false;
                     }

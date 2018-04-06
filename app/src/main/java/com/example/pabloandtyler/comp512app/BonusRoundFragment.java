@@ -137,9 +137,11 @@ public class BonusRoundFragment extends Fragment {
         Resources res = getResources();
 
         typeSentence = getActivity().findViewById(R.id.type_sentence);
+        Log.i(TAG, "onActivityCreated: " +  TextFight.theState.getBonusRoundArrayIndex());
         battleWord = res.getStringArray(R.array.bonusDigitList)[TextFight.theState.getBonusRoundArrayIndex()];
         typeSentence.setText(battleWord);
 
+        
         //set our listener for the bonus round keyboard
         type_word = (EditText) getActivity().findViewById(R.id.bonusRoundTypeSpace);
         type_word.addTextChangedListener(new TextWatcher() {
@@ -281,8 +283,6 @@ public class BonusRoundFragment extends Fragment {
 
         }
     }
-
-
 
     public void claimVictory() {
         mListener.onDisableInput();

@@ -118,6 +118,7 @@ public class TextMainArenaFragment extends Fragment
         //display the keyboard if not already displayed
         type_word.callOnClick();
 
+        updateProgressBars();
 
 
     }
@@ -252,7 +253,7 @@ public class TextMainArenaFragment extends Fragment
             tier = 0;
             level++;
             updateMyState();
-            if (level == 16) {
+            if (level >= 16) {
                 updateValues();
                 claimVictory();
             }
