@@ -39,8 +39,6 @@ public class BonusRoundFragment extends Fragment {
 
 
     public interface BonusRoundFragmentListener{
-        String getPeerColor(String endpointId);
-        List<String> getPeerEndpointIds();
         void onBroadcastState();
         void onClear();
         void bonusRoundEnd();
@@ -298,7 +296,8 @@ public class BonusRoundFragment extends Fragment {
     public void Victory() {
         Log.i(TAG, "Victory: FROM BONUS ROUND FRAGMENT");
         TextFight.theState.setTypeOfGame("BD");
-        TextFight.myState.setLevelOfPeer(TextFight.myState.getLevelOfPeer()+1);
+        TextFight.myState.setLevelOfPeer(TextFight.myState.getLevelOfPeer()+2);
+        resetVictoryParams();
         TextFight.setBonusRoundTokenHolder(true);
         mListener.bonusRoundEnd();
     }
@@ -310,7 +309,7 @@ public class BonusRoundFragment extends Fragment {
                 .setProgress(progress);
     }
 
-    public void resetVictoryParams() {
+    public void resetVictoryParams(){
         Log.i(TAG,"resetting victory parameters");
         mListener.onClear();
     }

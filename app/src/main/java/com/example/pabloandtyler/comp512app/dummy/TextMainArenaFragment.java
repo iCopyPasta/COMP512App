@@ -259,7 +259,7 @@ public class TextMainArenaFragment extends Fragment
             else {
                 updateValues();
 
-                if(TextFight.isMakeNextWordBonusInitiator()){
+                if(TextFight.isMakeNextWordBonusInitiator() && TextFight.isBonusRoundTokenHolder()){
                     //upon a correct spelling of a bonus-round initiator, we should start the bonus round
                     Toast.makeText(getActivity(), "BONUS ROUND INITIATE", Toast.LENGTH_SHORT).show();
 
@@ -350,7 +350,7 @@ public class TextMainArenaFragment extends Fragment
         ((TextView) getActivity().findViewById(R.id.currentWord))
                 .setText(currentWord);
 
-        if(TextFight.isMakeNextWordBonusInitiator()){
+        if(TextFight.isMakeNextWordBonusInitiator() && TextFight.isBonusRoundTokenHolder()){
             ((TextView) getActivity().findViewById(R.id.currentWord))
                     .setTextColor(Color.parseColor("#FFFF22"));
         } else{
