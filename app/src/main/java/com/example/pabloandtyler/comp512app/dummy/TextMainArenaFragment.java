@@ -45,7 +45,7 @@ public class TextMainArenaFragment extends Fragment
     private EditText type_word;
     private static final String FRIENDLY_NAME = "FRIENDLY_NAME";
 
-    private int level = 4; //TODO: reset back to level 4
+    public int level = 4; //TODO: reset back to level 4
     private int tier = 0;
     private String currentWord;
 
@@ -91,11 +91,8 @@ public class TextMainArenaFragment extends Fragment
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
 
-        if (getArguments() != null) {
-            //TODO: set up important information on UI from arguments
-            ((TextView) getActivity().findViewById(R.id.friendly_name))
-                    .setText(getArguments().getString(FRIENDLY_NAME));
-        }
+        //display our local name when coming to this fragment
+        ((TextView) getActivity().findViewById(R.id.friendly_name)).setText(TextFight.myState.getFriendlyName());
 
         //TODO: wire up UI with appropriate callbacks, properties, and other elements
         type_word = getActivity().findViewById(R.id.type_word);
@@ -118,7 +115,7 @@ public class TextMainArenaFragment extends Fragment
         //display the keyboard if not already displayed
         type_word.callOnClick();
 
-        updateProgressBars();
+
 
 
     }
@@ -154,6 +151,8 @@ public class TextMainArenaFragment extends Fragment
         getNewWord();
         updateValues();
 
+
+
         ENEMY1PB = getActivity().findViewById(R.id.ENEMY1PB);
         ENEMY2PB = getActivity().findViewById(R.id.ENEMY2PB);
         ENEMY3PB = getActivity().findViewById(R.id.ENEMY3PB);
@@ -172,6 +171,14 @@ public class TextMainArenaFragment extends Fragment
             new TextFight.BonusRoundAsyncTask().execute();
         }
 
+        updateProgressBars();
+
+
+        if (level >= 16) {
+            claimVictory();
+        }
+
+        ((EditText) getActivity().findViewById(R.id.type_word)).setEnabled(true);
     }
 
     @Override
@@ -383,46 +390,41 @@ public class TextMainArenaFragment extends Fragment
     public void updateProgressBars(){
         List<PeerState> temp = TextFight.theState.getPeersLevel();
 
+        int counter = 1;
 
         for(PeerState el: temp){
             //only update progress bars and text for other people
             if(!el.equals(TextFight.myState)){
                 //only one other enemy
-                if(TextFight.theState.getPeersLevel().size() - 1 == 1 &&
-                        TextFight.peerHistory.contains(el.getFriendlyName())){
+                if(counter ==1){
 
                     //first slot is open
                     ENEMY1PB.setVisibility(View.VISIBLE);
                     ENEMY1TV.setText(el.getFriendlyName());
                     ENEMY1PB.setProgress((int) (el.getLevelOfPeer() * 6.25));
+                    counter++;
 
                 }
 
                 //two enemies
-                else if(TextFight.theState.getPeersLevel().size() - 1 == 2 &&
-                        TextFight.peerHistory.contains(el.getFriendlyName())){
+                else if(counter == 2){
 
                         //second slot is open
                         ENEMY2PB.setVisibility(View.VISIBLE);
                         ENEMY2TV.setText(el.getFriendlyName());
                         ENEMY2PB.setProgress((int) (el.getLevelOfPeer() * 6.25));
-
+                        counter++;
                 }
 
                 //more than or equal to 3
-                else if(TextFight.theState.getPeersLevel().size() - 1 >= 3 &&
-                        TextFight.peerHistory.contains(el.getFriendlyName())){
-
+                else if(counter >=3){
                         //third slot is open
                         ENEMY3PB.setVisibility(View.VISIBLE);
                         ENEMY3TV.setText(el.getFriendlyName());
                         ENEMY3PB.setProgress((int) (el.getLevelOfPeer() * 6.25));
 
                 }
-
             }
-
-
         }
     }
 

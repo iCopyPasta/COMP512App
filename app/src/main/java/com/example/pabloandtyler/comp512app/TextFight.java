@@ -205,7 +205,7 @@ public class TextFight extends AppCompatActivity
                         byte[] message = payload.asBytes();
                         if(message != null){
                             String messageString = (new String(message, UTF_8));
-                            Log.i(TAG, "onPayloadReceived: messageString is: " + messageString);
+                            Log.i(TAG, "onPayloadReceived: messageString is: " + messageString + " from " + peersMap.get(endpointId));
 
                             Gson gson = new Gson();
                             GameStateContainer incomingGameContainer =
@@ -253,23 +253,29 @@ public class TextFight extends AppCompatActivity
                                     //logic for BD, bonus round end
                                     if (theState.getTypeOfGame().equals("B") && incomingGameContainer.getTypeOfGame().equals("BD")) { //we are in bonus round, end the bonus round
                                         Log.i(TAG, "onPayloadReceived: IS B and GOT BD");
+                                        theState.setTypeOfGame("BD");
                                         if(inBonus)
                                             bonusRoundEnd();
 
-                                        theState.setTypeOfGame("BD");
+
+                                        return;
                                     }
                                     else if (theState.getTypeOfGame().equals("BD") && incomingGameContainer.getTypeOfGame().equals("BD")) { //bonus round end buffer switching game state back to normal
                                         Log.i(TAG, "onPayloadReceived: IS BD and GOT BD");
+                                        theState.setTypeOfGame("N");
                                         if(inBonus)
                                             bonusRoundEnd();
 
-                                        theState.setTypeOfGame("N");
+
+                                        return;
                                     } else if(theState.getTypeOfGame().equals("BD") && incomingGameContainer.getTypeOfGame().equals("N")){
                                         Log.i(TAG, "onPayloadReceived: IS BD and GOT N");
+                                        theState.setTypeOfGame("N");
                                         if(inBonus)
                                             bonusRoundEnd();
 
-                                        theState.setTypeOfGame("N");
+
+                                        return;
                                     }
 
                                     // T is for token holder update
@@ -348,20 +354,31 @@ public class TextFight extends AppCompatActivity
 
                                     //UPDATE THE GUI
                                     textMainArenaFragment.updateProgressBars();
-                                    onBroadcastState();
+
 
                                 }
 
                                 if (incomingGameContainer.getTypeOfGame().equals("B") && !theState.getTypeOfGame().equals("BD")) {
                                     Log.i(TAG, "onPayloadReceived: INCOMING IS B AND WE DON'T HAVE BD");
                                     if (!inBonus){
-                                        onBonusRoundTransition();
-                                        //if we're not the token holder, sync our bonus round index
+
+
                                         if (! isBonusRoundTokenHolder()){
                                             Log.i(TAG, "onPayloadReceived: SETTING INCOMING ARRAY INDEX");
                                             theState.setBonusRoundArrayIndex(incomingGameContainer.getBonusRoundArrayIndex());
 
                                         }
+
+                                        onBonusRoundTransition();
+                                        //if we're not the token holder, sync our bonus round index
+
+                                    }
+
+                                    if (claimWinner) {
+                                        theState.setTypeOfGame("N-W-P");
+                                        onBroadcastState();
+                                        theState.setTypeOfGame("BD");
+                                        return;
                                     }
 
                                     //CONNECTION TASKS
@@ -453,7 +470,7 @@ public class TextFight extends AppCompatActivity
                                         sendPayload(endpointId, send);
 
                                         if (inBonus)
-                                            theState.setTypeOfGame("B");
+                                            theState.setTypeOfGame("BD");
                                         return;
                                     }
 
@@ -461,13 +478,15 @@ public class TextFight extends AppCompatActivity
                                         peerSelfSort(endpointId, peersMap.get(endpointId));
                                     } else{
                                         alreadyLost = true;
+                                        setBonusRoundTokenHolder(false);
+                                        setMakeNextWordBonusInitiator(false);
                                         onDisableInput();
                                         theState.setTypeOfGame("N-W-C");
                                         String send = (new Gson()).toJson(theState);
                                         sendPayload(endpointId, send);
 
                                         if (inBonus)
-                                            theState.setTypeOfGame("B");
+                                            theState.setTypeOfGame("BD");
 
                                     }
 
@@ -476,19 +495,22 @@ public class TextFight extends AppCompatActivity
                                 if(incomingGameContainer.getTypeOfGame().equals("N-W-L")){
                                     Log.i(TAG, "onPayloadReceived: GOT N-W-L");
                                     alreadyLost = true;
+                                    setBonusRoundTokenHolder(false);
+                                    setMakeNextWordBonusInitiator(false);
                                     onDisableInput();
                                     theState.setTypeOfGame("N-W-C");
                                     String send = (new Gson()).toJson(theState);
                                     sendPayload(endpointId, send);
 
                                     if (inBonus)
-                                        theState.setTypeOfGame("B");
+                                        theState.setTypeOfGame("BD");
 
                                 }
 
                                 if(incomingGameContainer.getTypeOfGame().equals("N-W-C")){
                                     Log.i(TAG, "onPayloadReceived: GOT N-W-C");
-                                    gatherVotes();
+                                    if (claimWinner)
+                                        gatherVotes();
                                 }
 
 
@@ -550,6 +572,8 @@ public class TextFight extends AppCompatActivity
 
     public void bonusRoundEnd() {
         Log.i(TAG, "Bonus round terminated");
+        Log.i(TAG, "Current level:" + myState.getLevelOfPeer());
+        textMainArenaFragment.level = myState.getLevelOfPeer();
         onClear();
         bonusRoundFragment.type_word.setText("");
         onBroadcastState();
@@ -568,7 +592,7 @@ public class TextFight extends AppCompatActivity
             if (theState.getTypeOfGame().equals("N") || theState.getTypeOfGame().equals("N-W-P"))
                 textMainArenaFragment.victory();
 
-            else if (theState.getTypeOfGame().equals("B")) {
+            else if (theState.getTypeOfGame().equals("B") || theState.getTypeOfGame().equals("BD")) {
                 bonusRoundFragment.Victory();
             }
 
@@ -584,12 +608,14 @@ public class TextFight extends AppCompatActivity
         //their endpointId is higher, so they get priority for winning
         if(result < 0){
             alreadyLost = true;
+            setBonusRoundTokenHolder(false);
+            setMakeNextWordBonusInitiator(false);
             theState.setTypeOfGame("N-W-C");
             String send = (new Gson()).toJson(theState);
             sendPayload(endpointId, send);
 
             if(inBonus){
-                theState.setTypeOfGame("B");
+                theState.setTypeOfGame("BD");
             }
         }
         else{ //we would win!
@@ -597,7 +623,7 @@ public class TextFight extends AppCompatActivity
             String send = (new Gson()).toJson(theState);
             sendPayload(endpointId, send);
             if(inBonus){
-                theState.setTypeOfGame("B");
+                theState.setTypeOfGame("BD");
             }
         }
 
@@ -1036,7 +1062,7 @@ public class TextFight extends AppCompatActivity
 
             try{
                 //sleep for a 45secs to minute before allowing a bonus word
-                Thread.sleep(1_000L);
+                Thread.sleep(30_000L);
                 Log.i(TAG, "doInBackground: done sleeping, should return true");
 
             } catch(InterruptedException e){

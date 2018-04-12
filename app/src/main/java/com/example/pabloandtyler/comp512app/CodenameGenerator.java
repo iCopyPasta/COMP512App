@@ -26,7 +26,13 @@ public final class CodenameGenerator {
                     "Plum",
                     "Orchid",
                     "Magenta",
-                    "Blum"
+                    "Jeremy",
+                    "Linda",
+                    "Sukmoon",
+                    "Omar",
+                    "Thang",
+                    "Hexi"
+
 
             };
 
@@ -51,7 +57,12 @@ public final class CodenameGenerator {
                     "Oreo",
                     "Hexi",
                     "Leader",
-                    "Mutex"
+                    "Mutex",
+                    "Blum",
+                    "Null",
+                    "Chang",
+                    "El Ariss",
+                    "Bui"
             };
 
     private static final Random generator = new Random();

@@ -199,6 +199,8 @@ public class BonusRoundFragment extends Fragment {
         //display the keyboard if not already displayed
         type_word.callOnClick();
 
+        updateProgressBars();
+
     }
 
 
@@ -241,48 +243,42 @@ public class BonusRoundFragment extends Fragment {
     public void updateProgressBars() {
         List<PeerState> temp = TextFight.theState.getPeersLevel();
 
+        int counter = 1;
 
         for(PeerState el: temp){
             //only update progress bars and text for other people
             if(!el.equals(TextFight.myState)){
                 //only one other enemy
-                if(TextFight.theState.getPeersLevel().size() - 1 == 1 &&
-                        TextFight.peerHistory.contains(el.getFriendlyName())){
-
+                if(counter == 1){
                     //first slot is open
                     ENEMY1PB.setVisibility(View.VISIBLE);
                     ENEMY1TV.setText(el.getFriendlyName());
                     ENEMY1PB.setProgress(el.getPositionInBonusRound());
-
+                    counter++;
                 }
 
                 //two enemies
-                else if(TextFight.theState.getPeersLevel().size() - 1 == 2 &&
-                        TextFight.peerHistory.contains(el.getFriendlyName())){
-
+                else if(counter == 2){
                     //second slot is open
                     ENEMY2PB.setVisibility(View.VISIBLE);
                     ENEMY2TV.setText(el.getFriendlyName());
                     ENEMY2PB.setProgress(el.getPositionInBonusRound());
-
+                    counter++;
                 }
 
                 //more than or equal to 3
-                else if(TextFight.theState.getPeersLevel().size() - 1 >= 3 &&
-                        TextFight.peerHistory.contains(el.getFriendlyName())){
-
+                else if(counter >= 3){
                     //third slot is open
                     ENEMY3PB.setVisibility(View.VISIBLE);
                     ENEMY3TV.setText(el.getFriendlyName());
                     ENEMY3PB.setProgress(el.getPositionInBonusRound());
-
+                    counter++;
                 }
-
             }
-
-
         }
     }
+
+
 
     public void claimVictory() {
         mListener.onDisableInput();
@@ -296,7 +292,10 @@ public class BonusRoundFragment extends Fragment {
     public void Victory() {
         Log.i(TAG, "Victory: FROM BONUS ROUND FRAGMENT");
         TextFight.theState.setTypeOfGame("BD");
+        Log.i(TAG, "Victory: Bonus Round setting level to "+TextFight.myState.getLevelOfPeer()+ "To " + TextFight.myState.getLevelOfPeer()+2);
         TextFight.myState.setLevelOfPeer(TextFight.myState.getLevelOfPeer()+2);
+
+        Log.i(TAG, "New level:" +TextFight.myState.getLevelOfPeer());
         resetVictoryParams();
         TextFight.setBonusRoundTokenHolder(true);
         mListener.bonusRoundEnd();
