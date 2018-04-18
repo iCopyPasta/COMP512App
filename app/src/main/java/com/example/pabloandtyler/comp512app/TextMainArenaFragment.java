@@ -1,4 +1,4 @@
-package com.example.pabloandtyler.comp512app.dummy;
+package com.example.pabloandtyler.comp512app;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -11,21 +11,12 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.pabloandtyler.comp512app.PeerState;
-import com.example.pabloandtyler.comp512app.R;
-import com.example.pabloandtyler.comp512app.TextFight;
-
-import org.w3c.dom.Text;
-
-import java.security.Key;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -60,9 +51,6 @@ public class TextMainArenaFragment extends Fragment
     private TextView ENEMY1TV;
     private TextView ENEMY2TV;
     private TextView ENEMY3TV;
-
-
-
 
     public TextMainArenaFragment() {
         // Required empty public constructor
@@ -168,7 +156,7 @@ public class TextMainArenaFragment extends Fragment
 
         if(TextFight.isBonusRoundTokenHolder()){
             Log.i(TAG, "onResume: executing background task");
-            new TextFight.BonusRoundAsyncTask().execute();
+            mListener.startBToken();
         }
 
         updateProgressBars();
@@ -179,6 +167,8 @@ public class TextMainArenaFragment extends Fragment
         }
 
         ((EditText) getActivity().findViewById(R.id.type_word)).setEnabled(true);
+        ((TextView) getActivity().findViewById(R.id.currentWord))
+                .setTextColor(Color.parseColor("#000000"));
     }
 
     @Override
@@ -357,14 +347,6 @@ public class TextMainArenaFragment extends Fragment
 
         ((TextView) getActivity().findViewById(R.id.currentWord))
                 .setText(currentWord);
-
-        if(TextFight.isMakeNextWordBonusInitiator() && TextFight.isBonusRoundTokenHolder()){
-            ((TextView) getActivity().findViewById(R.id.currentWord))
-                    .setTextColor(Color.parseColor("#FFFF22"));
-        } else{
-            ((TextView) getActivity().findViewById(R.id.currentWord))
-                    .setTextColor(Color.parseColor("#000000"));
-        }
     }
 
     public void claimVictory(){
@@ -441,5 +423,6 @@ public class TextMainArenaFragment extends Fragment
         void onBonusRoundTransition();
         void onSetWinnerSnapshot();
         void onDisableInput();
+        void startBToken();
     }
 }

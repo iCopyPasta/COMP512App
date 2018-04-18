@@ -5,9 +5,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-
-import com.example.pabloandtyler.comp512app.dummy.PeerDataItem;
 
 import java.util.List;
 

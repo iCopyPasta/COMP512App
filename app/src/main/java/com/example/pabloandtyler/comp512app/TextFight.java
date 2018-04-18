@@ -1,7 +1,9 @@
 package com.example.pabloandtyler.comp512app;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
@@ -10,10 +12,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.pabloandtyler.comp512app.dummy.PeerDataItem;
-import com.example.pabloandtyler.comp512app.dummy.TextMainArenaFragment;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
@@ -283,7 +284,7 @@ public class TextFight extends AppCompatActivity
                                     if(!TextFight.isBonusRoundTokenHolder() && incomingGameContainer.getTypeOfGame().equals("T")){
                                         incomingGameContainer.setTypeOfGame("N");
                                         TextFight.setBonusRoundTokenHolder(true);
-                                        new BonusRoundAsyncTask().execute();
+                                        startBToken();
                                     }
 
                                     //CONNECTION TASKS
@@ -528,7 +529,6 @@ public class TextFight extends AppCompatActivity
                             }
                             else{
                                 Log.i(TAG, "onPayloadReceived: CONTAINERS ARE EQUAL");
-                                //((TextView) findViewById(R.id.opponent1TextView2)).setText(gson.toJson(theState));
                             }
                         }
 
@@ -964,11 +964,6 @@ public class TextFight extends AppCompatActivity
             Log.i(TAG, "sending " + send + " to " + peersMap.get(endpointId));
             sendPayload(endpointId, send);
         }
-        //Gson gson = new Gson();
-
-        //((TextView) findViewById(R.id.opponent1TextView2)).setText(gson.toJson(theState));
-
-        //Log.i(TAG, "onBroadcastState: finished sending to all peers");
 
     }
 
@@ -1079,14 +1074,20 @@ public class TextFight extends AppCompatActivity
 
     }
 
-    public static class BonusRoundAsyncTask extends AsyncTask<String,Void,Boolean>{
+    public void startBToken(){
+        new BonusRoundAsyncTask().execute();
+    }
+
+
+    @SuppressLint("StaticFieldLeak")
+    public class BonusRoundAsyncTask extends AsyncTask<String,Void,Boolean>{
 
         @Override
         protected Boolean doInBackground(String... strings) {
 
             try{
                 //sleep for a 45secs to minute before allowing a bonus word
-                Thread.sleep(45_000L);
+                Thread.sleep(2_000L);
                 Log.i(TAG, "doInBackground: done sleeping, should return true");
 
             } catch(InterruptedException e){
@@ -1105,7 +1106,10 @@ public class TextFight extends AppCompatActivity
         protected void onPostExecute(Boolean result){
             if (result){
                 Log.i(TAG, "onPostExecute: setting the next word as the bonus round creator");
-                setMakeNextWordBonusInitiator(result);
+                setMakeNextWordBonusInitiator(true);
+
+                ((TextView) findViewById(R.id.currentWord))
+                        .setTextColor(Color.parseColor("#ffb900"));
             }
 
         }

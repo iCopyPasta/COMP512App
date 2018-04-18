@@ -1,4 +1,4 @@
-package com.example.pabloandtyler.comp512app.dummy;
+package com.example.pabloandtyler.comp512app;
 
 import java.util.ArrayList;
 import java.util.HashMap;

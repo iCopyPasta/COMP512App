@@ -21,6 +21,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -69,9 +71,7 @@ public class BonusRoundFragment extends Fragment {
     private String battleWord;
     public int highestProgress = 0;
     public int thresholdPercentage = 0;
-
-
-
+    
     public BonusRoundFragment() {
         // Required empty public constructor
     }
@@ -146,6 +146,7 @@ public class BonusRoundFragment extends Fragment {
         typeSentence = getActivity().findViewById(R.id.type_sentence);
         Log.i(TAG, "onActivityCreated: " +  TextFight.theState.getBonusRoundArrayIndex());
         battleWord = res.getStringArray(R.array.bonusDigitList)[TextFight.theState.getBonusRoundArrayIndex()];
+        ((TextView) getActivity().findViewById(R.id.BFriendlyName)).setText(TextFight.myState.getFriendlyName());
         typeSentence.setText(battleWord);
 
         
@@ -222,26 +223,6 @@ public class BonusRoundFragment extends Fragment {
         updateProgressBars();
 
     }
-
-
-    /*@Override
-    public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
-        Log.i(TAG, "onKey CALL FROM BONUS ROUND FRAGMENT ");
-        Log.i(TAG, "onKey: KEY CODE + " + keyCode);
-        Log.i(TAG, "onKey: KEY EVENT ACTION = " + keyEvent.getAction());
-
-        if(keyCode == KeyEvent.KEYCODE_SPACE &&
-                keyEvent.getAction() == KeyEvent.ACTION_DOWN){
-
-            Log.i(TAG, "onKey if called");
-
-            return true;
-
-        }
-
-        return false;
-    }*/
-
 
     public void correctSoFar(int progress) {
         Log.i(TAG, "correct so far with progress: " + progress);
