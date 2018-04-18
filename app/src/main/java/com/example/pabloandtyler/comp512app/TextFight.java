@@ -187,6 +187,7 @@ public class TextFight extends AppCompatActivity
         connectionsClient.stopDiscovery();
         connectionsClient.stopAdvertising();
         connectionsClient = null;
+
     }
 
     //CALLBACKS FOR THE NEARBY CONNECTIONS API-----------------------------------------------------
@@ -456,7 +457,7 @@ public class TextFight extends AppCompatActivity
 
                                     //UPDATE THE GUI
                                     bonusRoundFragment.updateProgressBars();
-                                    onBroadcastState();
+                                    //onBroadcastState();
 
 
                                 }
@@ -577,10 +578,11 @@ public class TextFight extends AppCompatActivity
         onClear();
         bonusRoundFragment.type_word.setText("");
         onBroadcastState();
+
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.multi_fragments, textMainArenaFragment)
                 .commit();
-        Toast.makeText(TextFight.this,"Bonus round over!",Toast.LENGTH_LONG);
+        Toast.makeText(TextFight.this,"Bonus round over!",Toast.LENGTH_LONG).show();
     }
 
     private void gatherVotes(){
@@ -800,6 +802,8 @@ public class TextFight extends AppCompatActivity
 
             @Override
             public void onDisconnected(String endpointId) {
+                peersMap.remove(endpointId);
+                onSetWinnerSnapshot();
 
                 Log.i(TAG, "onDisconnected: disconnected from the opponent");
                 Toast.makeText(TextFight.this, "disconnected", Toast.LENGTH_SHORT).show();
@@ -817,7 +821,7 @@ public class TextFight extends AppCompatActivity
                     }
                 }
 
-                peersMap.remove(endpointId);
+
 
                 attemptReconnection(endpointId);
             }
@@ -1045,6 +1049,12 @@ public class TextFight extends AppCompatActivity
     }
 
     private void attemptReconnection(String endpointId){
+
+
+        if(inBonus){
+            bonusRoundEnd();
+        }
+
         //reattempt connection only once
         Nearby.getConnectionsClient(getApplicationContext()).requestConnection(
                 myFriendlyName,
@@ -1105,7 +1115,7 @@ public class TextFight extends AppCompatActivity
         protected void onPostExecute(Boolean result){
             if (result){
                 Log.i(TAG, "onPostExecute: setting the next word as the bonus round creator");
-                setMakeNextWordBonusInitiator(result);
+                setMakeNextWordBonusInitiator(true);
             }
 
         }
