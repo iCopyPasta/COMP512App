@@ -230,6 +230,7 @@ public class BonusRoundFragment extends Fragment {
         updateMyState(progress);
         //limit messages sent in bonus round for faster computation/efficiency
         if(progress > thresholdPercentage + THRESHOLD){
+            Log.i(TAG, "correctSoFar: PROGRESS IS: " + progress + " > " + thresholdPercentage + THRESHOLD);
             thresholdPercentage += THRESHOLD;
             mListener.onBroadcastState();
         }
@@ -292,16 +293,16 @@ public class BonusRoundFragment extends Fragment {
         TextFight.theState.setTypeOfGame("N-W-P");
         mListener.onSetWinnerSnapshot();
         mListener.onBroadcastState();
-        TextFight.theState.setTypeOfGame("B");
+        TextFight.theState.setTypeOfGame("BD");
 
     }
 
     public void Victory() {
         Log.i(TAG, "Victory: FROM BONUS ROUND FRAGMENT");
+        Toast.makeText(getActivity(), "BONUS WINNER", Toast.LENGTH_SHORT).show();
         TextFight.theState.setTypeOfGame("BD");
         Log.i(TAG, "Victory: Bonus Round setting level to "+TextFight.myState.getLevelOfPeer()+ "To " + TextFight.myState.getLevelOfPeer()+2);
-        TextFight.myState.setLevelOfPeer(TextFight.myState.getLevelOfPeer()+2);
-
+        TextFight.myState.setLevelOfPeer(TextFight.myState.getLevelOfPeer()+3);
         Log.i(TAG, "New level:" +TextFight.myState.getLevelOfPeer());
         resetVictoryParams();
         TextFight.setBonusRoundTokenHolder(true);

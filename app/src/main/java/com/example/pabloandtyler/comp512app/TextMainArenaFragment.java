@@ -40,7 +40,7 @@ public class TextMainArenaFragment extends Fragment
     private int tier = 0;
     private String currentWord;
 
-    private static final int MAX_TIER = 1; //the amount of words to complete for the level to increase
+    private static final int MAX_TIER = 4; //the amount of words to complete for the level to increase
 
     //enemy progress bars
     private ProgressBar ENEMY1PB;
@@ -103,8 +103,7 @@ public class TextMainArenaFragment extends Fragment
         //display the keyboard if not already displayed
         type_word.callOnClick();
 
-
-
+        ((EditText) getActivity().findViewById(R.id.type_word)).setEnabled(true);
 
     }
 
@@ -260,16 +259,23 @@ public class TextMainArenaFragment extends Fragment
                 if(TextFight.isMakeNextWordBonusInitiator() && TextFight.isBonusRoundTokenHolder()){
                     //upon a correct spelling of a bonus-round initiator, we should start the bonus round
                     Toast.makeText(getActivity(), "BONUS ROUND INITIATE", Toast.LENGTH_SHORT).show();
-
                     mListener.onBonusRoundTransition();
 
-                } else{ //get a normal word
-
-                    getNewWord();
                 }
+                getNewWord();
 
             }
 
+        }
+        else{ //get a normal word
+            if(TextFight.isMakeNextWordBonusInitiator() && TextFight.isBonusRoundTokenHolder()){
+                //upon a correct spelling of a bonus-round initiator, we should start the bonus round
+                Toast.makeText(getActivity(), "BONUS ROUND INITIATE", Toast.LENGTH_SHORT).show();
+
+                mListener.onBonusRoundTransition();
+
+            }
+            getNewWord();
         }
 
 
@@ -288,7 +294,7 @@ public class TextMainArenaFragment extends Fragment
         if(TextFight.isMakeNextWordBonusInitiator()){
             //upon an incorrect spelling of a bonus-round initiator,
             // we should pass along the token holder roll
-
+            //Toast.makeText(getContext(), "PASS ALONG WORD", Toast.LENGTH_SHORT).show();
             TextFight.setBonusRoundTokenHolder(false);
             TextFight.setMakeNextWordBonusInitiator(false);
             mListener.onSendToken();
