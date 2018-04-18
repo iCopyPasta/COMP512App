@@ -71,7 +71,7 @@ public class BonusRoundFragment extends Fragment {
     private String battleWord;
     public int highestProgress = 0;
     public int thresholdPercentage = 0;
-    
+
     public BonusRoundFragment() {
         // Required empty public constructor
     }

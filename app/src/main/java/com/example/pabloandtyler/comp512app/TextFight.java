@@ -1005,9 +1005,16 @@ public class TextFight extends AppCompatActivity
         Log.i(TAG, "onSetWinnerSnapshot: peersMap size is: " + peersMap.size());
         Log.i(TAG, "onSetWinnerSnapshot: peers map contains: ");
         for(String el: peersMap.values()){
-            Log.i(TAG, el.toString());
+            Log.i(TAG, el);
         }
         votesSnapshot = peersMap.size();
+
+        if(votesSnapshot <= 0){ //should only occur when alone
+            if(inBonus)
+                bonusRoundFragment.Victory();
+            else
+                textMainArenaFragment.victory();
+        }
     }
 
     //Local methods
