@@ -99,7 +99,13 @@ public class GameStateContainer {
                     if(! ((GameStateContainer) other).trueCompare(peer)){
                         return false;
                     }
+                }
 
+                for (PeerState peer: ((GameStateContainer) other).getPeersLevel()) {
+                    // Log.i(TAG, "equals: iterating in equality");
+                    if(! this.trueCompare(peer)){
+                        return false;
+                    }
                 }
                 return true;
             }

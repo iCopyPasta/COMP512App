@@ -391,6 +391,7 @@ public class TextFight extends AppCompatActivity
                                             //Log.i(TAG, "onPayloadReceived: the friendlyNames were not equal");
 
                                             if(!peerHistory.contains(peer.getFriendlyName())){
+                                                //Log.i(TAG, "onPayloadReceived: peerHistory did not contain the friendly name " + peer.getFriendlyName());
                                                 peerHistory.add(peer.getFriendlyName());
                                             }
 
@@ -410,8 +411,7 @@ public class TextFight extends AppCompatActivity
 
                                             }
                                             if ( (! theState.contains(peer))) {
-                                                //Log.i(TAG, "Adding new peer: "+peer.getEndpointId());
-
+                                                Log.i(TAG, "Adding new peer: "+peer.getEndpointId());
                                                 theState.getPeersLevel().add(peer);
                                             }
                                             else { //peer is already in my list, check if there is truly an update
@@ -755,7 +755,7 @@ public class TextFight extends AppCompatActivity
 
                     peersMap.put(endpointId, connectionInfo.getEndpointName());
 
-                    insertColorForPeer(endpointId);
+                    //insertColorForPeer(endpointId);
                     Log.d(TAG, "onConnectedInitiated, MODE = HOST");
                 }
 
@@ -778,7 +778,7 @@ public class TextFight extends AppCompatActivity
                     case ConnectionsStatusCodes.STATUS_OK:
                         //we're connected! can now start sending and receiving data
                         Log.i(TAG, "onConnectionResult: connection successful");
-                        insertColorForPeer(endpointId);
+                        //insertColorForPeer(endpointId);
 
                         Toast.makeText(TextFight.this, "accepted peer!", Toast.LENGTH_SHORT).show();
                         break;
@@ -817,6 +817,8 @@ public class TextFight extends AppCompatActivity
                     }
                 }
 
+                peersMap.remove(endpointId);
+
                 attemptReconnection(endpointId);
             }
         };
@@ -836,6 +838,23 @@ public class TextFight extends AppCompatActivity
         TextFight.theState.setBonusRoundArrayIndex(0);
         TextFight.setMakeNextWordBonusInitiator(false);
         TextFight.inBonus = false;
+        bonusRoundFragment.highestProgress = 0;
+        bonusRoundFragment.thresholdPercentage = 0;
+        alreadyLost = false;
+        claimWinner = false;
+        votesSnapshot = 0;
+        runningVotes = 0;
+
+        //0-out all values for all peers
+        for (PeerState el: theState.getPeersLevel()){
+            el.setPositionInBonusRound(0);
+        }
+    }
+
+    public void onBStart() {
+        TextFight.theState.setBonusRoundArrayIndex(0);
+        TextFight.setMakeNextWordBonusInitiator(false);
+        bonusRoundFragment.highestProgress = 0;
         alreadyLost = false;
         claimWinner = false;
         votesSnapshot = 0;
@@ -988,6 +1007,11 @@ public class TextFight extends AppCompatActivity
 
     @Override
     public void onSetWinnerSnapshot() {
+        Log.i(TAG, "onSetWinnerSnapshot: peersMap size is: " + peersMap.size());
+        Log.i(TAG, "onSetWinnerSnapshot: peers map contains: ");
+        for(String el: peersMap.values()){
+            Log.i(TAG, el.toString());
+        }
         votesSnapshot = peersMap.size();
     }
 
@@ -1062,7 +1086,7 @@ public class TextFight extends AppCompatActivity
 
             try{
                 //sleep for a 45secs to minute before allowing a bonus word
-                Thread.sleep(30_000L);
+                Thread.sleep(45_000L);
                 Log.i(TAG, "doInBackground: done sleeping, should return true");
 
             } catch(InterruptedException e){

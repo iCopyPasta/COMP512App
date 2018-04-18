@@ -26,6 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.Math.max;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -36,13 +38,16 @@ import java.util.Map;
 public class BonusRoundFragment extends Fragment {
 
     private static final String TAG = "2FT: BonusRoundFrag";
+    private static final int THRESHOLD = 10;
 
 
     public interface BonusRoundFragmentListener{
         void onBroadcastState();
         void onClear();
+        void onBStart();
         void bonusRoundEnd();
         void onDisableInput();
+        void onSetWinnerSnapshot();
     }
 
     private BonusRoundFragmentListener mListener;
@@ -62,6 +67,8 @@ public class BonusRoundFragment extends Fragment {
     private TextView typeSentence;
 
     private String battleWord;
+    public int highestProgress = 0;
+    public int thresholdPercentage = 0;
 
 
 
@@ -164,7 +171,8 @@ public class BonusRoundFragment extends Fragment {
                                                          claimVictory();
                                                      }
                                                      else {
-                                                         correctSoFar((int) ((tmp.length() / (float) battleWord.length()) * 100));
+                                                         highestProgress = max(highestProgress,(int) ((tmp.length() / (float) battleWord.length()) * 100));
+                                                         correctSoFar(highestProgress);
                                                      }
                                                  }
                                                  else {
@@ -196,8 +204,20 @@ public class BonusRoundFragment extends Fragment {
 
         }
 
+        mListener.onBStart();
+
         //display the keyboard if not already displayed
         type_word.callOnClick();
+
+        //clear out initial redisplay
+
+        ENEMY1TV.setText("");
+        ENEMY2TV.setText("");
+        ENEMY3TV.setText("");
+
+        ENEMY1PB.setProgress(0);
+        ENEMY2PB.setProgress(0);
+        ENEMY3PB.setProgress(0);
 
         updateProgressBars();
 
@@ -227,7 +247,12 @@ public class BonusRoundFragment extends Fragment {
         Log.i(TAG, "correct so far with progress: " + progress);
         updateMyBar(progress);
         updateMyState(progress);
-        mListener.onBroadcastState();
+        //limit messages sent in bonus round for faster computation/efficiency
+        if(progress > thresholdPercentage + THRESHOLD){
+            thresholdPercentage += THRESHOLD;
+            mListener.onBroadcastState();
+        }
+
         ((TextView)getActivity().findViewById(R.id.NOTIFY)).setText("");
     }
 
@@ -284,6 +309,7 @@ public class BonusRoundFragment extends Fragment {
         mListener.onDisableInput();
         TextFight.claimWinner = true;
         TextFight.theState.setTypeOfGame("N-W-P");
+        mListener.onSetWinnerSnapshot();
         mListener.onBroadcastState();
         TextFight.theState.setTypeOfGame("B");
 
