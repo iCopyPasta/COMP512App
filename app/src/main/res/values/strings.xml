@@ -14,6 +14,7 @@
     <string name="your_progress">Your Progress</string>
     <string name="win_message">YOU WON! CONGRATULATIONS!</string>
     <string name="incorrect_entry">Incorrect!</string>
+    <string name="typo_in_sentence">There is a typo in your sentence!</string>
 
     <string-array name="opponentColors">
         <item>#ffbb00</item> <!-- bright orange -->

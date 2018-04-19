@@ -33,14 +33,14 @@ public class TextMainArenaFragment extends Fragment
 
     private static final String TAG = "2FT: TextMainFrag";
     private OnTextMainFragmentInteractionListener mListener;
-    private EditText type_word;
+    public EditText type_word;
     private static final String FRIENDLY_NAME = "FRIENDLY_NAME";
 
     public int level = 4; //TODO: reset back to level 4
     private int tier = 0;
     private String currentWord;
 
-    private static final int MAX_TIER = 4; //the amount of words to complete for the level to increase
+    private static final int MAX_TIER = 3; //the amount of words to complete for the level to increase
 
     //enemy progress bars
     private ProgressBar ENEMY1PB;
@@ -87,6 +87,7 @@ public class TextMainArenaFragment extends Fragment
         type_word.setOnKeyListener(this); //feedback will be handled within the app as an intermediate step
         type_word.setInputType(
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD); //disable auto-correct
+        type_word.setText(""); //clear out the composed text thus far
         type_word.requestFocus();
 
         InputMethodManager imm = (InputMethodManager) getActivity()
@@ -97,13 +98,11 @@ public class TextMainArenaFragment extends Fragment
                     InputMethodManager.SHOW_FORCED,
                     InputMethodManager.HIDE_IMPLICIT_ONLY
             );
-
         }
 
-        //display the keyboard if not already displayed
+        //display the keyboard if not already displayed again
         type_word.callOnClick();
-
-        ((EditText) getActivity().findViewById(R.id.type_word)).setEnabled(true);
+        type_word.setEnabled(true);
 
     }
 
@@ -137,8 +136,6 @@ public class TextMainArenaFragment extends Fragment
         super.onResume();
         getNewWord();
         updateValues();
-
-
 
         ENEMY1PB = getActivity().findViewById(R.id.ENEMY1PB);
         ENEMY2PB = getActivity().findViewById(R.id.ENEMY2PB);
@@ -179,17 +176,12 @@ public class TextMainArenaFragment extends Fragment
     @Override
     public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
 
-        //TODO: have additional logic for display/retrieval of words in the future
-        //TODO: ensure the word is correct
-        //TODO: have logic if the word is not correct upon enter
-
         Log.i(TAG, "onKey called");
 
         if(keyCode == KeyEvent.KEYCODE_ENTER &&
                 keyEvent.getAction() == KeyEvent.ACTION_DOWN){
             //send a message to our parent activity
             String message = type_word.getText().toString();
-            //TODO: test these methods to ensure proper behavior
             type_word.setText(""); //clear out the composed text thus far
             ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
                     .showSoftInput(type_word, InputMethodManager.SHOW_FORCED);
@@ -263,7 +255,6 @@ public class TextMainArenaFragment extends Fragment
 
                 }
                 getNewWord();
-
             }
 
         }
@@ -352,6 +343,8 @@ public class TextMainArenaFragment extends Fragment
         else if (level == 15) {
             words = res.getStringArray(R.array.fifteenDigitList);
         }
+        else if(level >= 16)
+            words = new String[]{""};
 
         int randomIndex = new Random().nextInt(words.length);
         currentWord = words[randomIndex];
@@ -366,7 +359,6 @@ public class TextMainArenaFragment extends Fragment
         TextFight.claimWinner = true;
         mListener.onSetWinnerSnapshot();
         mListener.onBroadcastState();
-
     }
 
     public void victory() {
@@ -374,6 +366,9 @@ public class TextMainArenaFragment extends Fragment
 
         ((TextView) getActivity().findViewById(R.id.currentWord))
                 .setText(R.string.win_message);
+
+        ((TextView) getActivity().findViewById(R.id.currentWord))
+                .setTextColor(Color.parseColor("#ffb900"));
 
         TextFight.theState.setTypeOfGame("W");
         mListener.onBroadcastState();

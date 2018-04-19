@@ -35,7 +35,8 @@ public class PeerDataItem{
 
     @Override
     public String toString(){
-        return getEndpointId() + "," + getAuthToken() + "," + getFriendlyName();
+        return getFriendlyName();
+        //return getEndpointId() + "," + getAuthToken() + "," + getFriendlyName();
     }
 
 
