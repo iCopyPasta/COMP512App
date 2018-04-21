@@ -164,6 +164,7 @@ public class TextMainArenaFragment extends Fragment
         }
 
         ((EditText) getActivity().findViewById(R.id.type_word)).setEnabled(true);
+        ((EditText) getActivity().findViewById(R.id.type_word)).setText("");
         ((TextView) getActivity().findViewById(R.id.currentWord))
                 .setTextColor(Color.parseColor("#000000"));
     }
