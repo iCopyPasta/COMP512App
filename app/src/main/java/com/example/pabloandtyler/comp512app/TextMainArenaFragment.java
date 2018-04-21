@@ -40,7 +40,8 @@ public class TextMainArenaFragment extends Fragment
     private int tier = 0;
     private String currentWord;
 
-    private static final int MAX_TIER = 3; //the amount of words to complete for the level to increase
+    //TODO: toggle for presentation and Null demonstration
+    private static final int MAX_TIER = 1; //the amount of words to complete for the level to increase
 
     //enemy progress bars
     private ProgressBar ENEMY1PB;
