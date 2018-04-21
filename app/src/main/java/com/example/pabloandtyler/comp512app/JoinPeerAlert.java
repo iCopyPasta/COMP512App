@@ -6,8 +6,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
-import com.example.pabloandtyler.comp512app.dummy.PeerDataItem;
-
 
 /**
  * Created by peo5032 on 3/2/18.

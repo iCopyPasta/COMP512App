@@ -3,15 +3,12 @@ package com.example.pabloandtyler.comp512app;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Color;
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,12 +17,8 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import static java.lang.Math.max;
 
 
@@ -70,8 +63,6 @@ public class BonusRoundFragment extends Fragment {
     public int highestProgress = 0;
     public int thresholdPercentage = 0;
 
-
-
     public BonusRoundFragment() {
         // Required empty public constructor
     }
@@ -88,8 +79,8 @@ public class BonusRoundFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState){
-        super.onActivityCreated(savedInstanceState);
+    public void onResume(){
+        super.onResume();
 
         ENEMY1TV = getActivity().findViewById(R.id.opponent1TextView);
         ENEMY1PB = getActivity().findViewById(R.id.progressBarOpponent1);
@@ -100,6 +91,15 @@ public class BonusRoundFragment extends Fragment {
         ENEMY3TV = getActivity().findViewById(R.id.opponent3TextView);
         ENEMY3PB = getActivity().findViewById(R.id.progressBarOpponent3);
         ENEMY3PB.setVisibility(View.INVISIBLE);
+
+        //clear out initial redisplay
+        ENEMY1TV.setText("");
+        ENEMY2TV.setText("");
+        ENEMY3TV.setText("");
+
+        ENEMY1PB.setProgress(0);
+        ENEMY2PB.setProgress(0);
+        ENEMY3PB.setProgress(0);
 
         //TODO: set colors if we have time
         /*
@@ -146,6 +146,7 @@ public class BonusRoundFragment extends Fragment {
         typeSentence = getActivity().findViewById(R.id.type_sentence);
         Log.i(TAG, "onActivityCreated: " +  TextFight.theState.getBonusRoundArrayIndex());
         battleWord = res.getStringArray(R.array.bonusDigitList)[TextFight.theState.getBonusRoundArrayIndex()];
+        ((TextView) getActivity().findViewById(R.id.BFriendlyName)).setText(TextFight.myState.getFriendlyName());
         typeSentence.setText(battleWord);
 
         
@@ -208,40 +209,9 @@ public class BonusRoundFragment extends Fragment {
 
         //display the keyboard if not already displayed
         type_word.callOnClick();
-
-        //clear out initial redisplay
-
-        ENEMY1TV.setText("");
-        ENEMY2TV.setText("");
-        ENEMY3TV.setText("");
-
-        ENEMY1PB.setProgress(0);
-        ENEMY2PB.setProgress(0);
-        ENEMY3PB.setProgress(0);
-
         updateProgressBars();
 
     }
-
-
-    /*@Override
-    public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
-        Log.i(TAG, "onKey CALL FROM BONUS ROUND FRAGMENT ");
-        Log.i(TAG, "onKey: KEY CODE + " + keyCode);
-        Log.i(TAG, "onKey: KEY EVENT ACTION = " + keyEvent.getAction());
-
-        if(keyCode == KeyEvent.KEYCODE_SPACE &&
-                keyEvent.getAction() == KeyEvent.ACTION_DOWN){
-
-            Log.i(TAG, "onKey if called");
-
-            return true;
-
-        }
-
-        return false;
-    }*/
-
 
     public void correctSoFar(int progress) {
         Log.i(TAG, "correct so far with progress: " + progress);
@@ -258,7 +228,7 @@ public class BonusRoundFragment extends Fragment {
     }
 
     public void incorrectSoFar() {
-        ((TextView)getActivity().findViewById(R.id.NOTIFY)).setText("There is a typo in your sentence!");
+        ((TextView)getActivity().findViewById(R.id.NOTIFY)).setText(R.string.typo_in_sentence);
     }
 
     public void updateMyState(int progress) {

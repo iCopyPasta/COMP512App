@@ -1,4 +1,4 @@
-package com.example.pabloandtyler.comp512app.dummy;
+package com.example.pabloandtyler.comp512app;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +35,8 @@ public class PeerDataItem{
 
     @Override
     public String toString(){
-        return getEndpointId() + "," + getAuthToken() + "," + getFriendlyName();
+        return getFriendlyName();
+        //return getEndpointId() + "," + getAuthToken() + "," + getFriendlyName();
     }
 
 

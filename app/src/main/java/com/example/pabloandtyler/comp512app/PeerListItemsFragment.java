@@ -4,28 +4,21 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.ListViewCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
-
-import com.example.pabloandtyler.comp512app.dummy.PeerDataItem;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A fragment representing a list of Items.
  * Activities containing this fragment MUST implement the {@link OnPeerClickedListener}
  * interface.
  */
-public class PeerListItemsFragment extends ListFragment {
+public class PeerListItemsFragment extends Fragment {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
     private static final String TAG = "2FT: PeerListFragment";
@@ -76,15 +69,7 @@ public class PeerListItemsFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.peers_list_fragment_item_list, container, false);
-
-        // Set the adapter
-        peersAdapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_list_item_activated_1);
-
-        setListAdapter(peersAdapter);
-
-        return view;
+        return inflater.inflate(R.layout.peers_list_fragment_item_list, container, false);
     }
 
 
@@ -102,15 +87,26 @@ public class PeerListItemsFragment extends ListFragment {
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
+    public void onResume(){
+        super.onResume();
+        // Set the adapter
+        peersAdapter = new ArrayAdapter<>(getActivity(),
+                android.R.layout.simple_list_item_activated_1);
+
+        ((ListViewCompat) getActivity().findViewById(R.id.list)).setAdapter(peersAdapter);
+        ((ListViewCompat) getActivity().findViewById(R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.i(TAG, "onListItemClick");
+                mListener.onPeerClicked(peersAdapter.getItem(i));
+            }
+        });
     }
 
     @Override
-    public void onListItemClick(ListView listView, View v, int position, long id){
-        Log.i(TAG, "onListItemClick");
-        mListener.onPeerClicked(peersAdapter.getItem(position));
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
     }
 
     /**

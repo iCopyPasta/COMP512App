@@ -1,7 +1,9 @@
 package com.example.pabloandtyler.comp512app;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
@@ -10,10 +12,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.pabloandtyler.comp512app.dummy.PeerDataItem;
-import com.example.pabloandtyler.comp512app.dummy.TextMainArenaFragment;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
@@ -31,6 +32,9 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.gson.Gson;
 
+import org.w3c.dom.Text;
+
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -98,6 +102,9 @@ public class TextFight extends AppCompatActivity
 
     //array for ordering 'history' of incomers for GUI
     public static ArrayList<String> peerHistory = null;
+
+    //our handler to our asyncTask
+    private BonusRoundAsyncTask task;
 
 
     @Override
@@ -174,7 +181,6 @@ public class TextFight extends AppCompatActivity
     @Override
     protected void onStop(){
         super.onStop();
-
         connectionsClient.stopAdvertising();
         connectionsClient.stopDiscovery();
     }
@@ -182,17 +188,26 @@ public class TextFight extends AppCompatActivity
     @Override
     protected void onDestroy(){
         super.onDestroy();
-
+        setBonusRoundTokenHolder(false);
+        setMakeNextWordBonusInitiator(false);
+        theState = null;
+        myState = null;
+        textMainArenaFragment = null;
+        bonusRoundFragment = null;
+        peerListItemsFragment = null;
+        peersMap = null;
+        if(task != null)
+            task.cancel(true);
         connectionsClient.stopAllEndpoints();
         connectionsClient.stopDiscovery();
         connectionsClient.stopAdvertising();
         connectionsClient = null;
-
+        System.gc();
+        Log.i(TAG, "ON DESTROY CALLED");
     }
 
     //CALLBACKS FOR THE NEARBY CONNECTIONS API-----------------------------------------------------
     // Callbacks for receiving payloads
-    //TODO: Incoporate architecture for different type of messages
     private final PayloadCallback payloadCallback =
         new PayloadCallback() {
             @Override
@@ -284,7 +299,7 @@ public class TextFight extends AppCompatActivity
                                     if(!TextFight.isBonusRoundTokenHolder() && incomingGameContainer.getTypeOfGame().equals("T")){
                                         incomingGameContainer.setTypeOfGame("N");
                                         TextFight.setBonusRoundTokenHolder(true);
-                                        new BonusRoundAsyncTask().execute();
+                                        startBToken();
                                     }
 
                                     //CONNECTION TASKS
@@ -355,6 +370,8 @@ public class TextFight extends AppCompatActivity
 
                                     //UPDATE THE GUI
                                     textMainArenaFragment.updateProgressBars();
+                                    //TODO: ensure this line does not f*** stuff up again
+                                    onBroadcastState();
 
 
                                 }
@@ -529,7 +546,6 @@ public class TextFight extends AppCompatActivity
                             }
                             else{
                                 Log.i(TAG, "onPayloadReceived: CONTAINERS ARE EQUAL");
-                                //((TextView) findViewById(R.id.opponent1TextView2)).setText(gson.toJson(theState));
                             }
                         }
 
@@ -712,9 +728,9 @@ public class TextFight extends AppCompatActivity
                                         public void onSuccess(Void aVoid) {
                                             //We successfully requested a connection. Now both
                                             // sides must accept before the connection is established
-                                            Toast.makeText(TextFight.this,
-                                                    "requested connection",
-                                                    Toast.LENGTH_SHORT).show();
+                                            //Toast.makeText(TextFight.this,
+                                             //       "requested connection",
+                                             //       Toast.LENGTH_SHORT).show();
                                             Log.i(TAG, "requested connection: both must accept");
                                         }
                                     }
@@ -783,6 +799,13 @@ public class TextFight extends AppCompatActivity
                         //insertColorForPeer(endpointId);
 
                         Toast.makeText(TextFight.this, "accepted peer!", Toast.LENGTH_SHORT).show();
+                        if(!inBonus){
+                            Log.i(TAG, "not in bonus, update progress bars ");
+                            textMainArenaFragment.updateProgressBars();
+
+                            //TODO: ensure that this does not mess up the natural game
+                            onBroadcastState();
+                        }
                         break;
 
                     case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
@@ -802,28 +825,28 @@ public class TextFight extends AppCompatActivity
 
             @Override
             public void onDisconnected(String endpointId) {
-                peersMap.remove(endpointId);
-                onSetWinnerSnapshot();
+                if(peersMap != null){
+                    peersMap.remove(endpointId);
+                    onSetWinnerSnapshot();
 
-                Log.i(TAG, "onDisconnected: disconnected from the opponent");
-                Toast.makeText(TextFight.this, "disconnected", Toast.LENGTH_SHORT).show();
-                if(votesSnapshot > 0){
-                    votesSnapshot--;
-
-                    if (claimWinner){
-                        if(runningVotes >= votesSnapshot){
-                            if(inBonus)
-                                bonusRoundFragment.Victory();
-                            else{
-                                textMainArenaFragment.victory();
+                    Log.i(TAG, "onDisconnected: disconnected from the opponent");
+                    //Toast.makeText(TextFight.this, "disconnected", Toast.LENGTH_SHORT).show();
+                    if(votesSnapshot > 0){
+                        if (claimWinner){
+                            if(runningVotes >= votesSnapshot){
+                                if(inBonus)
+                                    bonusRoundFragment.Victory();
+                                else{
+                                    textMainArenaFragment.victory();
+                                }
                             }
                         }
                     }
+
+
+
+                    attemptReconnection(endpointId);
                 }
-
-
-
-                attemptReconnection(endpointId);
             }
         };
 
@@ -968,11 +991,6 @@ public class TextFight extends AppCompatActivity
             Log.i(TAG, "sending " + send + " to " + peersMap.get(endpointId));
             sendPayload(endpointId, send);
         }
-        //Gson gson = new Gson();
-
-        //((TextView) findViewById(R.id.opponent1TextView2)).setText(gson.toJson(theState));
-
-        //Log.i(TAG, "onBroadcastState: finished sending to all peers");
 
     }
 
@@ -1014,9 +1032,13 @@ public class TextFight extends AppCompatActivity
         Log.i(TAG, "onSetWinnerSnapshot: peersMap size is: " + peersMap.size());
         Log.i(TAG, "onSetWinnerSnapshot: peers map contains: ");
         for(String el: peersMap.values()){
-            Log.i(TAG, el.toString());
+            Log.i(TAG, el);
         }
         votesSnapshot = peersMap.size();
+
+        if(votesSnapshot <= 0){ //should only occur when alone
+            Toast.makeText(TextFight.this,"Lost all players!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     //Local methods
@@ -1066,9 +1088,9 @@ public class TextFight extends AppCompatActivity
                             public void onSuccess(Void aVoid) {
                                 //We successfully requested a connection. Now both
                                 // sides must accept before the connection is established
-                                Toast.makeText(TextFight.this,
-                                        "attemptReconnection: requested connection",
-                                        Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(TextFight.this,
+                                  //      "attemptReconnection: requested connection",
+                                    //    Toast.LENGTH_SHORT).show();
                                 Log.i(TAG, "attemptReconnection: both must accept");
                                 Toast.makeText(getApplicationContext(), "reconnect!", Toast.LENGTH_SHORT).show();
                             }
@@ -1079,7 +1101,6 @@ public class TextFight extends AppCompatActivity
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 Toast.makeText(getApplicationContext(), "stop reconnect!", Toast.LENGTH_SHORT).show();
-
                                 Log.e(TAG, "attemptReconnection: " + e.getClass() + " " + e.getMessage());
                                 Log.e(TAG, "attemptReconnection: will stop trying action of reattempts");
 
@@ -1089,14 +1110,22 @@ public class TextFight extends AppCompatActivity
 
     }
 
-    public static class BonusRoundAsyncTask extends AsyncTask<String,Void,Boolean>{
+    public void startBToken(){
+        task = new BonusRoundAsyncTask();
+        task.execute();
+    }
+
+
+    @SuppressLint("StaticFieldLeak")
+    public class BonusRoundAsyncTask extends AsyncTask<String,Void,Boolean>{
+
 
         @Override
         protected Boolean doInBackground(String... strings) {
 
             try{
                 //sleep for a 45secs to minute before allowing a bonus word
-                Thread.sleep(45_000L);
+                Thread.sleep(25_000L);
                 Log.i(TAG, "doInBackground: done sleeping, should return true");
 
             } catch(InterruptedException e){
@@ -1114,10 +1143,17 @@ public class TextFight extends AppCompatActivity
         @Override
         protected void onPostExecute(Boolean result){
             if (result){
-                Log.i(TAG, "onPostExecute: setting the next word as the bonus round creator");
-                setMakeNextWordBonusInitiator(true);
-            }
 
+                if( findViewById(R.id.currentWord) != null){
+                    Log.i(TAG, "onPostExecute: setting the next word as the bonus round creator");
+                    setMakeNextWordBonusInitiator(true);
+                    ((TextView) findViewById(R.id.currentWord)).setTextColor(Color.parseColor("#ffb900"));
+
+                } else{
+                    Log.i(TAG, "onPostExecute: no null pointer exception here!");
+                }
+            }
+            task = null;
         }
     }
 }
