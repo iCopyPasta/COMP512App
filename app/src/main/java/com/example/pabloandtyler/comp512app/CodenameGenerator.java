@@ -31,7 +31,10 @@ public final class CodenameGenerator {
                     "Sukmoon",
                     "Omar",
                     "Thang",
-                    "Hexi"
+                    "Hexi",
+                    "Mukunda",
+                    "Pablo",
+                    "Tyler"
 
 
             };
@@ -48,7 +51,7 @@ public final class CodenameGenerator {
                     "Froyo",
                     "Gingerbread",
                     "Honeycomb",
-                    "Ice Cream Sandwich",
+                    "Sandwich",
                     "Jellybean",
                     "Kit Kat",
                     "Lollipop",
@@ -62,7 +65,11 @@ public final class CodenameGenerator {
                     "Null",
                     "Chang",
                     "El Ariss",
-                    "Bui"
+                    "Bui",
+                    "Mukunda",
+                    "HUGHes",
+                    "Orellana",
+                    "Ruch"
             };
 
     private static final Random generator = new Random();

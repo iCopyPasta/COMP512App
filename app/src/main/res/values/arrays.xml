@@ -3,6 +3,10 @@
 
 
     <array name="fourDigitList">
+        <item>hexi</item>
+        <item>hexi</item>
+        <item>hexi</item>
+        <item>hexi</item>
         <item>aahs</item>
         <item>abet</item>
         <item>able</item>
@@ -23651,7 +23655,12 @@
     </array>
 
     <array name="bonusDigitList">
-        <item>The birch canoe slid on the smooth planks.</item>
+        <item>Blum says Do NOT roll your own crypto</item>
+        <item>Dont let this man distract you from the fact that in 1998, The Undertaker threw Mankind off Hell In A Cell.</item>
+        <item>Computer Science is Googling Stack Overflow</item>
+        <item>DROP TABLE finals WHERE class LIKE COMP512</item>
+        <item>BACI has detected deadlock at line 2</item>
+        <!--<item>The birch canoe slid on the smooth planks.</item>
         <item>Glue the sheet to the dark blue background.</item>
         <item>These days a chicken leg is a rare dish.</item>
         <item>Rice is often served in round bowls.</item>
@@ -24341,7 +24350,7 @@
         <item>The bombs left most of the town in ruins.</item>
         <item>Stop and stare at the hard working man.</item>
         <item>The streets are narrow and full of sharp turns.</item>
-        <item>The pup jerked the leash as he saw a feline shape.</item>
+        <item>The pup jerked the leash as he saw a feline shape.</item>-->
 
     </array>
 
