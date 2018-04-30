@@ -1,3 +1,4 @@
+
 package com.example.pabloandtyler.comp512app;
 
 import java.util.Random;
@@ -6,8 +7,7 @@ import java.util.Random;
  * Citation for reference on generating a semi-unique name for peer discovery
  */
 
-/** Utility class to generate random Android names */
-public final class CodenameGenerator {
+final class CodenameGenerator {
     private static final String[] COLORS =
             new String[] {
                     "Amazon",
@@ -69,8 +69,8 @@ public final class CodenameGenerator {
 
     private CodenameGenerator() {}
 
-    /** Generate a random Android agent codename */
-    public static String generate() {
+    /** Generate a random friendly name*/
+    static String generate() {
         String color = COLORS[generator.nextInt(COLORS.length)];
         String treat = TREATS[generator.nextInt(TREATS.length)];
         return color + " " + treat;

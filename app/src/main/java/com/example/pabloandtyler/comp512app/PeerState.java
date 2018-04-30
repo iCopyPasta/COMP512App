@@ -5,8 +5,13 @@ import android.support.annotation.NonNull;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * Helper class for the full representation of a peer in the game, containing all the information
+ * about a peer such as level and name.
+ */
 public class PeerState implements Comparable<PeerState>{
 
+    // local variables with annotation for Gson conversion
     @SerializedName("friendlyName")
     @Expose
     private String friendlyName;
@@ -21,6 +26,7 @@ public class PeerState implements Comparable<PeerState>{
     @Expose
     private int positionInBonusRound;
 
+    // constructor
     public PeerState(){
         this.friendlyName = "";
         this.levelOfPeer = 4;
@@ -28,6 +34,7 @@ public class PeerState implements Comparable<PeerState>{
         positionInBonusRound = 0;
     }
 
+    // getters and setters
     public String getFriendlyName() {
         return friendlyName;
     }
@@ -60,12 +67,21 @@ public class PeerState implements Comparable<PeerState>{
         this.positionInBonusRound = positionInBonusRound;
     }
 
+    /**
+     * toString is overridden to return custom information about a peer object
+     * @return a String with the information about the endpointId, friendlyName, and levelOfPeer
+     */
     @Override
     public String toString(){
         return "endpointId: " + endpointId + " friendly_name = " + friendlyName
                 + " levelOfPeer = " + levelOfPeer;
     }
 
+    /**
+     * check the equality of two peerState objects
+     * @param peerState peerState object to compared against
+     * @return returns true or false depending on exact informational equality
+     */
     @Override
     public boolean equals(Object peerState){
 
@@ -80,6 +96,11 @@ public class PeerState implements Comparable<PeerState>{
 
     }
 
+    /**
+     * lexicographical sorting based on names
+     * @param peerState peerState object to compare sort order
+     * @return int representing the order of this peer state and another
+     */
     @Override
     public int compareTo(@NonNull PeerState peerState) {
         return getFriendlyName().compareTo(peerState.getFriendlyName());

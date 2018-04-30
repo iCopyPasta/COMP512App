@@ -42,11 +42,15 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class MainActivity extends AppCompatActivity {
 
+    // constants for our application
     private static final String TAG = "2FT:MainActivity";
     public static final String MODE_HOST = "HOST";
     public static final String MODE_PEER = "PEER";
     public static final String MODE = "MODE";
+    private static final int REQUEST_CODE_REQUIRED_PERMISSIONS = 1;
+    public static final Strategy STRATEGY = Strategy.P2P_CLUSTER;
 
+    // Android specific permissions for use with Nearby Connections API
     private static final String[] REQUIRED_PERMISSIONS =
             new String[] {
                     Manifest.permission.BLUETOOTH,
@@ -56,16 +60,20 @@ public class MainActivity extends AppCompatActivity {
                     Manifest.permission.ACCESS_COARSE_LOCATION,
     };
 
-    private static final int REQUEST_CODE_REQUIRED_PERMISSIONS = 1;
-
-    public static final Strategy STRATEGY = Strategy.P2P_CLUSTER;
-
+    /**
+     * onCreate is called by Android when creating this activity for the first time
+     * @param savedInstanceState Bundle object containing information about a state to potentially revert
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
 
+    /**
+     * onStart is called by Android when the activity will be visible to the user.
+     * We check if we have permissions, and if not, request them
+     */
     @Override
     protected void onStart() {
         super.onStart();
@@ -79,6 +87,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * onStop is called by Android when the activity will no longer be visible to the user.
+     */
     @Override
     protected void onStop() {
         super.onStop();
@@ -135,15 +146,4 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
 
     }
-
-    /*public void randomWord(View view){ //how to use the random word arrays, use this code as template
-
-        Resources res = getResources();
-        String[] words = res.getStringArray(R.array.bonusDigitList); //change here to alter which wordset the random word comes from
-
-        int randomIndex = new Random().nextInt(words.length);
-
-        Log.i(TAG, "randomWord function invoked in main activity");
-        ((TextView) view).setText(words[randomIndex]);
-    }*/
 }

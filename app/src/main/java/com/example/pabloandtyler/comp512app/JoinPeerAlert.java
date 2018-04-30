@@ -4,17 +4,15 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 
-
 /**
- * Created by peo5032 on 3/2/18.
+ * Alert dialog to confirm if the user wishes to join another peer
  */
-
 public class JoinPeerAlert extends DialogFragment {
 
     JoinPeerAlertListener mListener = null;
-
 
     public interface JoinPeerAlertListener{
         void onAlertPositiveClick(PeerDataItem peer);
@@ -27,6 +25,12 @@ public class JoinPeerAlert extends DialogFragment {
         mListener = listener;
     }
 
+    /**
+     * Factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @return A new instance of fragment JoinPeerAlert.
+     */
     public static JoinPeerAlert newInstance(PeerDataItem item) {
 
         Bundle args = new Bundle();
@@ -38,6 +42,12 @@ public class JoinPeerAlert extends DialogFragment {
         return fragment;
     }
 
+    /**
+     * onCreateDialog is called by Android in order to create a copy of this dialog
+     * @param savedInstanceState Bundle object containing information about a state to potentially revert
+     * @return Dialog instance for reference within class
+     */
+    @NonNull
     @Override
     public Dialog onCreateDialog (Bundle savedInstanceState){
 
