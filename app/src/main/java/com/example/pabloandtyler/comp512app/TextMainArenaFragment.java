@@ -361,6 +361,9 @@ public class TextMainArenaFragment extends Fragment
         TextFight.claimWinner = true;
         mListener.onSetWinnerSnapshot();
         mListener.onBroadcastState();
+        if (TextFight.theState.getPeersLevel().size() == 1) { //this should only happen if we are the only player in the game, and have never had another player
+            mListener.gatherVotes();
+        }
     }
 
     public void victory() {
@@ -432,5 +435,6 @@ public class TextMainArenaFragment extends Fragment
         void onSetWinnerSnapshot();
         void onDisableInput();
         void startBToken();
+        void gatherVotes();
     }
 }
