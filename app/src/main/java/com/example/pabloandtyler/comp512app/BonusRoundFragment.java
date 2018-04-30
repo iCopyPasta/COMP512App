@@ -18,7 +18,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.List;
-import java.util.Map;
 import static java.lang.Math.max;
 
 
@@ -30,10 +29,14 @@ import static java.lang.Math.max;
  */
 public class BonusRoundFragment extends Fragment {
 
+    // constants for our application
     private static final String TAG = "2FT: BonusRoundFrag";
     private static final int THRESHOLD = 10;
 
 
+    /**
+     * public interface for callbacks
+     */
     public interface BonusRoundFragmentListener{
         void onBroadcastState();
         void onClear();
@@ -43,22 +46,21 @@ public class BonusRoundFragment extends Fragment {
         void onSetWinnerSnapshot();
     }
 
+    // our handle back to TextFight, for use with callbacks
     private BonusRoundFragmentListener mListener;
+
+    // variables regarding GUI
     private ProgressBar ENEMY1PB = null;
     private ProgressBar ENEMY2PB = null;
     private ProgressBar ENEMY3PB = null;
-
 
     private TextView ENEMY1TV = null;
     private TextView ENEMY2TV = null;
     private TextView ENEMY3TV = null;
 
-
-    private Map<String, Integer> opponentMap = null;
     public EditText type_word = null;
 
-    private TextView typeSentence;
-
+    // variables for a player's level
     private String battleWord;
     public int highestProgress = 0;
     public int thresholdPercentage = 0;
@@ -67,10 +69,23 @@ public class BonusRoundFragment extends Fragment {
         // Required empty public constructor
     }
 
+    /**
+     * Factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @return A new instance of fragment BonusRoundFragment.
+     */
     public static BonusRoundFragment newInstance() {
         return new BonusRoundFragment();
     }
 
+    /**
+     * onCreateView is called by Android to actually inflate the fragment with our predefined layout
+     * @param inflater - android provided callback variable
+     * @param container the ViewGroup container to store our layout in
+     * @param savedInstanceState variable to restore variables' contents in the fragment lifecycle
+     * @return View with updated elements
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -78,10 +93,15 @@ public class BonusRoundFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_bonus_round, container, false);
     }
 
+    /**
+     * onResume is called by Android to graphically display a fragment in the fragment lifecycle.
+     * We set appropriate variables instances here
+     */
     @Override
     public void onResume(){
         super.onResume();
 
+        // local variable reference
         ENEMY1TV = getActivity().findViewById(R.id.opponent1TextView);
         ENEMY1PB = getActivity().findViewById(R.id.progressBarOpponent1);
         ENEMY1PB.setVisibility(View.INVISIBLE);
@@ -92,7 +112,7 @@ public class BonusRoundFragment extends Fragment {
         ENEMY3PB = getActivity().findViewById(R.id.progressBarOpponent3);
         ENEMY3PB.setVisibility(View.INVISIBLE);
 
-        //clear out initial redisplay
+        // clear out initial redisplay
         ENEMY1TV.setText("");
         ENEMY2TV.setText("");
         ENEMY3TV.setText("");
@@ -101,67 +121,28 @@ public class BonusRoundFragment extends Fragment {
         ENEMY2PB.setProgress(0);
         ENEMY3PB.setProgress(0);
 
-        //TODO: set colors if we have time
-        /*
-        // populate the TextViews with colors
-        List<String> peers = mListener.getPeerEndpointIds();
-
-        Iterator<String> iterator = peers.iterator();
-        opponentMap = new HashMap<>();
-        String tmp_opponent;
-        String tmp_color;
-
-        if(iterator.hasNext()){
-            tmp_opponent = iterator.next();
-            tmp_color = mListener.getPeerColor(tmp_opponent);
-            opponent1TextView.setTextColor(Color.parseColor(
-                    tmp_color));
-
-            opponentMap.put(tmp_opponent, 1);
-        }
-
-        if(iterator.hasNext()){
-            tmp_opponent = iterator.next();
-            tmp_color = mListener.getPeerColor(tmp_opponent);
-            opponent2TextView.setTextColor(Color.parseColor(
-                    tmp_color));
-
-            opponentMap.put(tmp_opponent, 2);
-
-        }
-
-        if(iterator.hasNext()){
-            tmp_opponent = iterator.next();
-            tmp_color = mListener.getPeerColor(tmp_opponent);
-
-            opponent3TextView.setTextColor(Color.parseColor(
-                    tmp_color));
-
-            opponentMap.put(tmp_opponent, 3);
-
-        }*/
-
+        // user input management
         Resources res = getResources();
 
-        typeSentence = getActivity().findViewById(R.id.type_sentence);
-        Log.i(TAG, "onActivityCreated: " +  TextFight.theState.getBonusRoundArrayIndex());
+        // set the current sentence and appropriate references
+        TextView typeSentence = getActivity().findViewById(R.id.type_sentence);
+        Log.i(TAG, "onResume: " +  TextFight.theState.getBonusRoundArrayIndex());
         battleWord = res.getStringArray(R.array.bonusDigitList)[TextFight.theState.getBonusRoundArrayIndex()];
         ((TextView) getActivity().findViewById(R.id.BFriendlyName)).setText(TextFight.myState.getFriendlyName());
         typeSentence.setText(battleWord);
 
         
-        //set our listener for the bonus round keyboard
+        // set our listener for the bonus round keyboard
         type_word = (EditText) getActivity().findViewById(R.id.bonusRoundTypeSpace);
         type_word.addTextChangedListener(new TextWatcher() {
                                              @Override
                                              public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                                                 //Toast.makeText(getContext(), "BEFORE TEXT CHANGED", Toast.LENGTH_SHORT).show();
 
                                              }
 
                                              @Override
                                              public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                                                 //Toast.makeText(getContext(), "ON TEXT CHANGED", Toast.LENGTH_SHORT).show();
+
                                                  String tmp = type_word.getText().toString();
                                                  Log.i(TAG, "onTextChanged: onTextChanged: " + tmp);
 
@@ -184,7 +165,6 @@ public class BonusRoundFragment extends Fragment {
 
                                              @Override
                                              public void afterTextChanged(Editable editable) {
-                                                 //Toast.makeText(getContext(), "AFTER TEXT CHANGED", Toast.LENGTH_SHORT).show();
 
                                              }
                                          }
@@ -213,6 +193,10 @@ public class BonusRoundFragment extends Fragment {
 
     }
 
+    /**
+     * broadcast when appropriate and updates local values upon a substring's correct match to a correct sentence
+     * @param progress int representing percentage of completion
+     */
     public void correctSoFar(int progress) {
         Log.i(TAG, "correct so far with progress: " + progress);
         updateMyBar(progress);
@@ -227,15 +211,25 @@ public class BonusRoundFragment extends Fragment {
         ((TextView)getActivity().findViewById(R.id.NOTIFY)).setText("");
     }
 
+    /**
+     * upon misspelling a sentence, alert the user about a typo
+     */
     public void incorrectSoFar() {
         ((TextView)getActivity().findViewById(R.id.NOTIFY)).setText(R.string.typo_in_sentence);
     }
 
+    /**
+     * update our information regarding the progress in the bonus round
+     * @param progress int representing percentage of completion
+     */
     public void updateMyState(int progress) {
         Log.i(TAG, "Updating my state with: " + progress);
         TextFight.myState.setPositionInBonusRound(progress);
     }
 
+    /**
+     * graphically updates the GUI regarding enemy progress and text
+     */
     public void updateProgressBars() {
         List<PeerState> temp = TextFight.theState.getPeersLevel();
 
@@ -276,6 +270,9 @@ public class BonusRoundFragment extends Fragment {
 
 
 
+    /**
+     * start the voting process for this local peer in the game
+     */
     public void claimVictory() {
         mListener.onDisableInput();
         TextFight.claimWinner = true;
@@ -286,6 +283,11 @@ public class BonusRoundFragment extends Fragment {
 
     }
 
+    /**
+     * PRECONDITION: must have gathered all votes and be called in TextFight
+     * broadcasts to the network this peer has won the game;
+     * updates the local GUI to show victory
+     */
     public void Victory() {
         Log.i(TAG, "Victory: FROM BONUS ROUND FRAGMENT");
         Toast.makeText(getActivity(), "BONUS WINNER", Toast.LENGTH_SHORT).show();
@@ -298,6 +300,9 @@ public class BonusRoundFragment extends Fragment {
         mListener.bonusRoundEnd();
     }
 
+    /**
+     * update our local copy of the progress bar when correctly moving up a level
+     */
     public void updateMyBar(int progress) {
         Log.i(TAG,"updateMyBar() setting current BR progress to " + progress );
 
@@ -305,12 +310,19 @@ public class BonusRoundFragment extends Fragment {
                 .setProgress(progress);
     }
 
+    /**
+     * callback to TextFight to reset variables
+     */
     public void resetVictoryParams(){
         Log.i(TAG,"resetting victory parameters");
         mListener.onClear();
     }
 
 
+    /**
+     * onAttach is called by Android to attach a fragment to an activity in the fragment lifecycle
+     * @param context the activity who implements our interface for our fragment
+     */
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -322,6 +334,10 @@ public class BonusRoundFragment extends Fragment {
         }
     }
 
+    /**
+     * onDetach is called by Android to destroy the graphical fragment and remove it from an activity
+     * in the fragment lifecycle
+     */
     @Override
     public void onDetach() {
         super.onDetach();

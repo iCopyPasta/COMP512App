@@ -1,7 +1,5 @@
 package com.example.pabloandtyler.comp512app;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.List;
 import com.google.gson.annotations.Expose;
@@ -47,19 +45,6 @@ public class GameStateContainer {
         return peersLevel;
     }
 
-    public void setPeersLevel(List<PeerState> peersLevel) {
-        this.peersLevel = peersLevel;
-    }
-
-    public PeerState getPeerWithFriendlyName(String friendlyName) {
-        for (PeerState element: peersLevel) {
-            if (element.getFriendlyName().equals(friendlyName)) {
-                return element;
-            }
-        }
-        return null;
-    }
-
     public PeerState getPeerWithEndpointId(String endpointId) {
         for (PeerState element: peersLevel) {
             if (element.getEndpointId().equals(endpointId)) {
@@ -89,20 +74,17 @@ public class GameStateContainer {
 
     @Override
     public boolean equals(Object other) {
-        String TAG = "2FT: equals GameState";
         if( other instanceof GameStateContainer ){
 
             if (this.getTypeOfGame().equals( ((GameStateContainer) other).getTypeOfGame()) && this.getBonusRoundArrayIndex() == ((GameStateContainer) other).getBonusRoundArrayIndex() ) {
 
                 for (PeerState peer: this.peersLevel) {
-                   // Log.i(TAG, "equals: iterating in equality");
                     if(! ((GameStateContainer) other).trueCompare(peer)){
                         return false;
                     }
                 }
 
                 for (PeerState peer: ((GameStateContainer) other).getPeersLevel()) {
-                    // Log.i(TAG, "equals: iterating in equality");
                     if(! this.trueCompare(peer)){
                         return false;
                     }

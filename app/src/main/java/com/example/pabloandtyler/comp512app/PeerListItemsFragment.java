@@ -20,12 +20,21 @@ import android.widget.ListView;
  */
 public class PeerListItemsFragment extends Fragment {
 
+    // constants for our application
     private static final String ARG_COLUMN_COUNT = "column-count";
     private static final String TAG = "2FT: PeerListFragment";
+
+    // local variables for usage
     private int mColumnCount = 1;
     private OnPeerClickedListener mListener;
     private ArrayAdapter<PeerDataItem> peersAdapter;
 
+    /**
+     * update a new local peer into the ListView
+     * @param authToken String containing the authentication token belonging to a new peer
+     * @param endpointId String containing the endpointId token belonging to a new peer
+     * @param friendlyName String containing the friendlyName token belonging to a new peer
+     */
     public void insertPeer(String authToken, String endpointId, String friendlyName){
         Log.i(TAG, "insertPeer");
         PeerDataItem tmp = new PeerDataItem(authToken, endpointId, friendlyName);
