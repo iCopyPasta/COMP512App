@@ -614,10 +614,11 @@ public class TextFight extends AppCompatActivity
         Toast.makeText(TextFight.this,"Bonus round over!",Toast.LENGTH_LONG).show();
     }
 
+
     /**
      * accepts votes from other peers
      */
-    private void gatherVotes(){
+    public void gatherVotes(){
         Log.i(TAG, "GATHERING VOTES");
         runningVotes++;
 
@@ -1087,6 +1088,7 @@ public class TextFight extends AppCompatActivity
         if(votesSnapshot <= 0){ //should only occur when alone
             Toast.makeText(TextFight.this,"Lost all players!", Toast.LENGTH_SHORT).show();
         }
+
     }
 
 

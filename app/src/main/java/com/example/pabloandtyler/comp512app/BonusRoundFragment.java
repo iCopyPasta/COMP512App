@@ -44,6 +44,7 @@ public class BonusRoundFragment extends Fragment {
         void bonusRoundEnd();
         void onDisableInput();
         void onSetWinnerSnapshot();
+        void gatherVotes();
     }
 
     // our handle back to TextFight, for use with callbacks
@@ -280,6 +281,9 @@ public class BonusRoundFragment extends Fragment {
         mListener.onSetWinnerSnapshot();
         mListener.onBroadcastState();
         TextFight.theState.setTypeOfGame("BD");
+        if (TextFight.theState.getPeersLevel().size() == 1) { //this should only happen if we are the only player in the game, and have never had another player
+            mListener.gatherVotes();
+        }
 
     }
 
