@@ -36,9 +36,9 @@ public class PeerListItemsFragment extends Fragment {
      * @param friendlyName String containing the friendlyName token belonging to a new peer
      */
     public void insertPeer(String authToken, String endpointId, String friendlyName){
-        Log.i(TAG, "insertPeer");
+        //Log.i(TAG, "insertPeer");
         PeerDataItem tmp = new PeerDataItem(authToken, endpointId, friendlyName);
-        Log.i(TAG, tmp.toString());
+        //Log.i(TAG, tmp.toString());
         peersAdapter.add(tmp);
 
     }
@@ -106,7 +106,7 @@ public class PeerListItemsFragment extends Fragment {
         ((ListViewCompat) getActivity().findViewById(R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Log.i(TAG, "onListItemClick");
+                //Log.i(TAG, "onListItemClick");
                 mListener.onPeerClicked(peersAdapter.getItem(i));
             }
         });

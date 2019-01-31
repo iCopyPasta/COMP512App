@@ -121,7 +121,7 @@ public class TextFight extends AppCompatActivity
         initializeState();
         connectionsClient = Nearby.getConnectionsClient(this);
 
-        Log.i(TAG, "onCreate: myFriendlyName = " + myFriendlyName);
+        //Log.i(TAG, "onCreate: myFriendlyName = " + myFriendlyName);
 
         // determine which fragment to insert first
         fragmentManager = getSupportFragmentManager();
@@ -221,7 +221,7 @@ public class TextFight extends AppCompatActivity
         connectionsClient.stopAdvertising();
         connectionsClient = null;
         System.gc();
-        Log.i(TAG, "ON DESTROY CALLED");
+        //Log.i(TAG, "ON DESTROY CALLED");
     }
 
     //CALLBACKS FOR THE NEARBY CONNECTIONS API-----------------------------------------------------
@@ -237,14 +237,14 @@ public class TextFight extends AppCompatActivity
             public void onPayloadReceived(String endpointId, Payload payload) {
 
                 if(payload == null){
-                    Log.e(TAG, "payload is null");
+                    //Log.e(TAG, "payload is null");
                 }
                 else{
                     try{
                         byte[] message = payload.asBytes();
                         if(message != null){
                             String messageString = (new String(message, UTF_8));
-                            Log.i(TAG, "onPayloadReceived: messageString is: " + messageString + " from " + peersMap.get(endpointId));
+                            //Log.i(TAG, "onPayloadReceived: messageString is: " + messageString + " from " + peersMap.get(endpointId));
 
                             Gson gson = new Gson();
                             GameStateContainer incomingGameContainer =
@@ -283,12 +283,12 @@ public class TextFight extends AppCompatActivity
                                 //determine the game state, i.e. normal, bonus, win, etc.
                                 if (incomingGameContainer.getTypeOfGame().equals("N") ||
                                         incomingGameContainer.getTypeOfGame().equals("T") ||incomingGameContainer.getTypeOfGame().equals("BD")) {
-                                    Log.i(TAG, "onPayloadReceived: the type of incoming game is " + incomingGameContainer.getTypeOfGame());
-                                    Log.i(TAG, "onPayloadReceived: the type of our current game is " + theState.getTypeOfGame());
+                                    //Log.i(TAG, "onPayloadReceived: the type of incoming game is " + incomingGameContainer.getTypeOfGame());
+                                    //Log.i(TAG, "onPayloadReceived: the type of our current game is " + theState.getTypeOfGame());
 
                                     //logic for BD, bonus round end
                                     if (theState.getTypeOfGame().equals("B") && incomingGameContainer.getTypeOfGame().equals("BD")) { //we are in bonus round, end the bonus round
-                                        Log.i(TAG, "onPayloadReceived: IS B and GOT BD");
+                                        //Log.i(TAG, "onPayloadReceived: IS B and GOT BD");
                                         theState.setTypeOfGame("BD");
                                         if(inBonus)
                                             bonusRoundEnd();
@@ -297,7 +297,7 @@ public class TextFight extends AppCompatActivity
                                         return;
                                     }
                                     else if (theState.getTypeOfGame().equals("BD") && incomingGameContainer.getTypeOfGame().equals("BD")) { //bonus round end buffer switching game state back to normal
-                                        Log.i(TAG, "onPayloadReceived: IS BD and GOT BD");
+                                        //Log.i(TAG, "onPayloadReceived: IS BD and GOT BD");
                                         theState.setTypeOfGame("N");
                                         if(inBonus)
                                             bonusRoundEnd();
@@ -305,7 +305,7 @@ public class TextFight extends AppCompatActivity
 
                                         return;
                                     } else if(theState.getTypeOfGame().equals("BD") && incomingGameContainer.getTypeOfGame().equals("N")){
-                                        Log.i(TAG, "onPayloadReceived: IS BD and GOT N");
+                                        //Log.i(TAG, "onPayloadReceived: IS BD and GOT N");
                                         theState.setTypeOfGame("N");
                                         if(inBonus)
                                             bonusRoundEnd();
@@ -391,11 +391,11 @@ public class TextFight extends AppCompatActivity
                                 }
 
                                 if (incomingGameContainer.getTypeOfGame().equals("B") && !theState.getTypeOfGame().equals("BD")) {
-                                    Log.i(TAG, "onPayloadReceived: INCOMING IS B AND WE DON'T HAVE BD");
+                                    //Log.i(TAG, "onPayloadReceived: INCOMING IS B AND WE DON'T HAVE BD");
                                     if (!inBonus){
 
                                         if (! isBonusRoundTokenHolder()){
-                                            Log.i(TAG, "onPayloadReceived: SETTING INCOMING ARRAY INDEX");
+                                            //Log.i(TAG, "onPayloadReceived: SETTING INCOMING ARRAY INDEX");
                                             theState.setBonusRoundArrayIndex(incomingGameContainer.getBonusRoundArrayIndex());
                                         }
 
@@ -436,12 +436,12 @@ public class TextFight extends AppCompatActivity
 
                                             }
                                             if ( (! theState.contains(peer))) {
-                                                Log.i(TAG, "Adding new peer: "+peer.getEndpointId());
+                                                //Log.i(TAG, "Adding new peer: "+peer.getEndpointId());
                                                 theState.getPeersLevel().add(peer);
                                             }
                                             else { //peer is already in my list, check if there is truly an update
                                                 // GAME LOGIC TASKS
-                                                Log.i(TAG, "onPayloadReceived: GAME LOGIC TASKS");
+                                                //Log.i(TAG, "onPayloadReceived: GAME LOGIC TASKS");
                                                 PeerState myLocalPeer = null;
 
                                                 for (PeerState localPeer: theState.getPeersLevel()) {
@@ -453,12 +453,12 @@ public class TextFight extends AppCompatActivity
 
                                                 if (peer.getLevelOfPeer() > myLocalPeer.getLevelOfPeer()) {
                                                     myLocalPeer.setLevelOfPeer(peer.getLevelOfPeer());
-                                                    Log.i(TAG, "setting local peer to level " + String.valueOf(peer.getLevelOfPeer()));
+                                                    //Log.i(TAG, "setting local peer to level " + String.valueOf(peer.getLevelOfPeer()));
                                                 }
 
                                                 if (peer.getPositionInBonusRound() > myLocalPeer.getPositionInBonusRound()) {
                                                     myLocalPeer.setPositionInBonusRound(peer.getPositionInBonusRound());
-                                                    Log.i(TAG, "setting local peer to bonus round progress " + peer.getPositionInBonusRound());
+                                                    //Log.i(TAG, "setting local peer to bonus round progress " + peer.getPositionInBonusRound());
                                                 }
 
                                             }
@@ -485,10 +485,10 @@ public class TextFight extends AppCompatActivity
                                 }
 
                                 if(incomingGameContainer.getTypeOfGame().equals("N-W-P")){
-                                    Log.i(TAG, "onPayloadReceived: GOT N-W-P");
+                                    //Log.i(TAG, "onPayloadReceived: GOT N-W-P");
                                     if(alreadyLost){ // if we already lost from some prior, let the claimed winner have a vote
                                         theState.setTypeOfGame("N-W-C");
-                                        Log.i(TAG, "onPayloadReceived: alreadyLost");
+                                        //Log.i(TAG, "onPayloadReceived: alreadyLost");
                                         String send = (new Gson()).toJson(theState);
                                         sendPayload(endpointId, send);
 
@@ -516,7 +516,7 @@ public class TextFight extends AppCompatActivity
                                 }
 
                                 if(incomingGameContainer.getTypeOfGame().equals("N-W-L")){
-                                    Log.i(TAG, "onPayloadReceived: GOT N-W-L");
+                                    //Log.i(TAG, "onPayloadReceived: GOT N-W-L");
                                     alreadyLost = true;
                                     setBonusRoundTokenHolder(false);
                                     setMakeNextWordBonusInitiator(false);
@@ -531,7 +531,7 @@ public class TextFight extends AppCompatActivity
                                 }
 
                                 if(incomingGameContainer.getTypeOfGame().equals("N-W-C")){
-                                    Log.i(TAG, "onPayloadReceived: GOT N-W-C");
+                                    //Log.i(TAG, "onPayloadReceived: GOT N-W-C");
                                     if (claimWinner)
                                         gatherVotes();
                                 }
@@ -549,15 +549,15 @@ public class TextFight extends AppCompatActivity
 
                             }
                             else{
-                                Log.i(TAG, "onPayloadReceived: CONTAINERS ARE EQUAL");
+                                //Log.i(TAG, "onPayloadReceived: CONTAINERS ARE EQUAL");
                             }
                         }
 
                     } catch(NullPointerException e){
-                        Log.e(TAG, "NULL POINTER EXCEPTION" + e.getMessage());
+                        //Log.e(TAG, "NULL POINTER EXCEPTION" + e.getMessage());
 
                     }catch (Exception e){
-                        Log.e(TAG, "GENERAL EXCEPTION " + e.getMessage());
+                        //Log.e(TAG, "GENERAL EXCEPTION " + e.getMessage());
 
                     }
 
@@ -601,8 +601,8 @@ public class TextFight extends AppCompatActivity
      * replaces the fragment back to the regular game and calls methods to clear variables
      */
     public void bonusRoundEnd() {
-        Log.i(TAG, "Bonus round terminated");
-        Log.i(TAG, "Current level:" + myState.getLevelOfPeer());
+        //Log.i(TAG, "Bonus round terminated");
+        //Log.i(TAG, "Current level:" + myState.getLevelOfPeer());
         textMainArenaFragment.level = myState.getLevelOfPeer();
         onClear();
         bonusRoundFragment.type_word.setText("");
@@ -619,11 +619,11 @@ public class TextFight extends AppCompatActivity
      * accepts votes from other peers
      */
     public void gatherVotes(){
-        Log.i(TAG, "GATHERING VOTES");
+        //Log.i(TAG, "GATHERING VOTES");
         runningVotes++;
 
         if(runningVotes >= votesSnapshot){
-            Log.i(TAG, "gatherVotes: WE WON");
+            //Log.i(TAG, "gatherVotes: WE WON");
             if (theState.getTypeOfGame().equals("N") || theState.getTypeOfGame().equals("N-W-P"))
                 textMainArenaFragment.victory();
 
@@ -643,7 +643,7 @@ public class TextFight extends AppCompatActivity
      */
     private void peerSelfSort(String endpointId, String other){
         int result = myFriendlyName.compareTo(other);
-        Log.i(TAG, "peerSelfSort: " + myFriendlyName + " compared to " + other + " = " + result);
+        //Log.i(TAG, "peerSelfSort: " + myFriendlyName + " compared to " + other + " = " + result);
 
         //their endpointId is higher, so they get priority for winning
         if(result < 0){
@@ -673,7 +673,7 @@ public class TextFight extends AppCompatActivity
      * Broadcasts our presence using Nearby Connections so other players can find us.
      */
     private void startAdvertising() { // let someone else connect to me
-        Log.i(TAG, "advertising started");
+        //Log.i(TAG, "advertising started");
 
         // Note: Advertising may fail. To keep this demo simple, we don't handle failures.
         connectionsClient.startAdvertising(
@@ -687,7 +687,7 @@ public class TextFight extends AppCompatActivity
                                     myFriendlyName);
 
                         }
-                        Log.i(TAG, "we are successfully advertising");
+                        //Log.i(TAG, "we are successfully advertising");
                     }
                 }
         )
@@ -696,8 +696,8 @@ public class TextFight extends AppCompatActivity
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         //TODO: add logic depending on the scenario
-                        Log.e(TAG, "onFailure: " + e.getClass() + " " + e.getMessage());
-                        Log.e(TAG, "We were unable to start advertising");
+                        //Log.e(TAG, "onFailure: " + e.getClass() + " " + e.getMessage());
+                        //Log.e(TAG, "We were unable to start advertising");
                     }
                 }
         );
@@ -708,7 +708,7 @@ public class TextFight extends AppCompatActivity
      */
     private void startDiscovery() { //connect to someone else
 
-        Log.i(TAG, "startDiscovery: finding peers");
+        //Log.i(TAG, "startDiscovery: finding peers");
         // Note: Discovery may fail. To keep this demo simple, we don't handle failures.
         connectionsClient.startDiscovery(
                 getPackageName(), endpointDiscoveryCallback, new DiscoveryOptions(MainActivity.STRATEGY))
@@ -716,8 +716,8 @@ public class TextFight extends AppCompatActivity
                         new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Log.i(TAG, "onSuccess: " + getPackageName());
-                                Log.i(TAG, "We're looking for someone to play against");
+                                //Log.i(TAG, "onSuccess: " + getPackageName());
+                                //Log.i(TAG, "We're looking for someone to play against");
                             }
                         }
                 )
@@ -726,13 +726,13 @@ public class TextFight extends AppCompatActivity
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 //TODO: potential logic for failure, restart, potentially?
-                                Log.e(TAG, "onFailure: " + e.getClass() + " " + e.getMessage());
-                                Log.e(TAG, "Could not discover");
+                                //Log.e(TAG, "onFailure: " + e.getClass() + " " + e.getMessage());
+                                //Log.e(TAG, "Could not discover");
 
                             }
                         }
                 );
-        Log.i(TAG, "end separate called to startDiscovery");
+        //Log.i(TAG, "end separate called to startDiscovery");
     }
 
 
@@ -757,7 +757,7 @@ public class TextFight extends AppCompatActivity
                                             //We successfully requested a connection. Now both
                                             // sides must accept before the connection is established
 
-                                            Log.i(TAG, "requested connection: both must accept");
+                                            //Log.i(TAG, "requested connection: both must accept");
                                         }
                                     }
                             )
@@ -767,19 +767,19 @@ public class TextFight extends AppCompatActivity
                                         public void onFailure(@NonNull Exception e) {
 
                                             //TODO: potential logic for failure, restart, potentially?
-                                            Log.e(TAG, "onFailure: " + e.getClass() + " " + e.getMessage());
-                                            Log.e(TAG, "failed to request connection");
+                                            //Log.e(TAG, "onFailure: " + e.getClass() + " " + e.getMessage());
+                                            //Log.e(TAG, "failed to request connection");
 
                                         }
                                     }
                             );
 
-                    Log.i(TAG, "peer found");
+                    //Log.i(TAG, "peer found");
                 }
 
                 @Override
                 public void onEndpointLost(String endpointId) {
-                    Log.i(TAG, "endpoint lost");
+                    //Log.i(TAG, "endpoint lost");
                 }
             };
 
@@ -791,7 +791,7 @@ public class TextFight extends AppCompatActivity
         new ConnectionLifecycleCallback() {
             @Override
             public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
-                Log.i(TAG, "onConnectionInitiated: accepting connection");
+                //Log.i(TAG, "onConnectionInitiated: accepting connection");
                 Toast.makeText(TextFight.this, "accepting peer?", Toast.LENGTH_SHORT).show();
 
                 if(mode.equals(MainActivity.MODE_HOST)){
@@ -803,7 +803,7 @@ public class TextFight extends AppCompatActivity
                     peersMap.put(endpointId, connectionInfo.getEndpointName());
 
 
-                    Log.d(TAG, "onConnectedInitiated, MODE = HOST");
+                    //Log.d(TAG, "onConnectedInitiated, MODE = HOST");
                 }
 
                 else if(mode.equals(MainActivity.MODE_PEER)){
@@ -814,7 +814,7 @@ public class TextFight extends AppCompatActivity
                             endpointId,
                             connectionInfo.getEndpointName());
 
-                    Log.i(TAG, "onConnectionInitiated, MODE = PEER");
+                    //Log.i(TAG, "onConnectionInitiated, MODE = PEER");
 
                 }
             }
@@ -824,11 +824,11 @@ public class TextFight extends AppCompatActivity
                 switch (result.getStatus().getStatusCode()){
                     case ConnectionsStatusCodes.STATUS_OK:
                         // we're connected! can now start sending and receiving data
-                        Log.i(TAG, "onConnectionResult: connection successful");
+                        //Log.i(TAG, "onConnectionResult: connection successful");
 
                         Toast.makeText(TextFight.this, "accepted peer!", Toast.LENGTH_SHORT).show();
                         if(!inBonus){
-                            Log.i(TAG, "not in bonus, update progress bars ");
+                            //Log.i(TAG, "not in bonus, update progress bars ");
                             textMainArenaFragment.updateProgressBars();
 
                             //TODO: put update peer here, instead? peersMap.put(endpointId, connectionInfo.getEndpointName());
@@ -841,12 +841,12 @@ public class TextFight extends AppCompatActivity
                     case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                         // the connection was rejected by one or both sides.
                         Toast.makeText(TextFight.this, "peer rejected", Toast.LENGTH_SHORT).show();
-                        Log.i(TAG, "onConnectionResult: connection failed");
+                        //Log.i(TAG, "onConnectionResult: connection failed");
                         break;
 
                     case ConnectionsStatusCodes.STATUS_ERROR:
                         // the connection broke before it was able to be accepted
-                        Log.e(TAG, "status error for onConnectionResult");
+                        //Log.e(TAG, "status error for onConnectionResult");
                         Toast.makeText(getApplicationContext(), "Connection Broke", Toast.LENGTH_SHORT).show();
                         break;
                 }
@@ -859,7 +859,7 @@ public class TextFight extends AppCompatActivity
                     peersMap.remove(endpointId);
                     onSetWinnerSnapshot();
 
-                    Log.i(TAG, "onDisconnected: disconnected from the opponent");
+                    //Log.i(TAG, "onDisconnected: disconnected from the opponent");
 
                     if(votesSnapshot > 0){
                         if (claimWinner){
@@ -897,7 +897,7 @@ public class TextFight extends AppCompatActivity
      * resets values pertaining to voting, bonus round, and general cleanup
      */
     public void onClear() {
-        Log.i(TAG, "onClear: BONUS ROUND INDEX" + theState.getBonusRoundArrayIndex());
+        //Log.i(TAG, "onClear: BONUS ROUND INDEX" + theState.getBonusRoundArrayIndex());
         TextFight.theState.setBonusRoundArrayIndex(0);
         TextFight.setMakeNextWordBonusInitiator(false);
         TextFight.inBonus = false;
@@ -996,7 +996,7 @@ public class TextFight extends AppCompatActivity
      */
     @Override
     public void onSendToken() {
-        Log.i(TAG, "onSendToken, attempting to determine next");
+        //Log.i(TAG, "onSendToken, attempting to determine next");
 
 
         Iterator<Map.Entry<String, String>> iter = peersMap.entrySet().iterator();
@@ -1011,9 +1011,9 @@ public class TextFight extends AppCompatActivity
         }
 
         if(endpointTarget != null){
-            Log.i(TAG, "onSendToken: found a different peer to send over the token");
+            //Log.i(TAG, "onSendToken: found a different peer to send over the token");
             theState.setTypeOfGame("T");
-            Log.i(TAG, "onSendToken: broadcasting new state out");
+            //Log.i(TAG, "onSendToken: broadcasting new state out");
             sendPayload(endpointTarget.getKey(), new Gson().toJson(theState));
             theState.setTypeOfGame("N");
         }
@@ -1030,7 +1030,7 @@ public class TextFight extends AppCompatActivity
 
 
         for(String endpointId: peersMap.keySet()){
-            Log.i(TAG, "sending " + send + " to " + peersMap.get(endpointId));
+            //Log.i(TAG, "sending " + send + " to " + peersMap.get(endpointId));
             sendPayload(endpointId, send);
         }
 
@@ -1042,7 +1042,7 @@ public class TextFight extends AppCompatActivity
      */
     @Override
     public void onBonusRoundTransition() {
-        Log.i(TAG, "onPayloadReceived: MOVING OVER TO BONUS ROUND SCREEN");
+        //Log.i(TAG, "onPayloadReceived: MOVING OVER TO BONUS ROUND SCREEN");
         //Toast.makeText(TextFight.this, "BR-BROADCAST", Toast.LENGTH_SHORT).show();
 
         if(!inBonus){
@@ -1056,7 +1056,7 @@ public class TextFight extends AppCompatActivity
 
                 int randomIndex = new Random().nextInt(res.getStringArray(R.array.bonusDigitList).length);
 
-                Log.i(TAG, "We are the token holder. Setting the bonus round string index to: " +randomIndex);
+                //Log.i(TAG, "We are the token holder. Setting the bonus round string index to: " +randomIndex);
                 theState.setBonusRoundArrayIndex(randomIndex);
             }
 
@@ -1078,10 +1078,10 @@ public class TextFight extends AppCompatActivity
      */
     @Override
     public void onSetWinnerSnapshot() {
-        Log.i(TAG, "onSetWinnerSnapshot: peersMap size is: " + peersMap.size());
-        Log.i(TAG, "onSetWinnerSnapshot: peers map contains: ");
+        //Log.i(TAG, "onSetWinnerSnapshot: peersMap size is: " + peersMap.size());
+        //Log.i(TAG, "onSetWinnerSnapshot: peers map contains: ");
         for(String el: peersMap.values()){
-            Log.i(TAG, el);
+            //Log.i(TAG, el);
         }
         votesSnapshot = peersMap.size();
 
@@ -1115,7 +1115,7 @@ public class TextFight extends AppCompatActivity
                                 // We successfully requested a connection. Now both
                                 // sides must accept before the connection is established
 
-                                Log.i(TAG, "attemptReconnection: both must accept");
+                                //Log.i(TAG, "attemptReconnection: both must accept");
                                 Toast.makeText(getApplicationContext(), "reconnect!", Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -1125,8 +1125,8 @@ public class TextFight extends AppCompatActivity
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 Toast.makeText(getApplicationContext(), "stop reconnect!", Toast.LENGTH_SHORT).show();
-                                Log.e(TAG, "attemptReconnection: " + e.getClass() + " " + e.getMessage());
-                                Log.e(TAG, "attemptReconnection: will stop trying action of reattempts");
+                                //Log.e(TAG, "attemptReconnection: " + e.getClass() + " " + e.getMessage());
+                                //Log.e(TAG, "attemptReconnection: will stop trying action of reattempts");
 
                             }
                         }
@@ -1153,14 +1153,14 @@ public class TextFight extends AppCompatActivity
             try{
                 //sleep for a 45secs to minute before allowing a bonus word
                 Thread.sleep(45_000L);
-                Log.i(TAG, "doInBackground: done sleeping, should return true");
+                //Log.i(TAG, "doInBackground: done sleeping, should return true");
 
             } catch(InterruptedException e){
-                Log.e(TAG, "doInBackground: " + e.getMessage() );
+                //Log.e(TAG, "doInBackground: " + e.getMessage() );
                 return false;
 
             } catch(Exception e){
-                Log.e(TAG, "doInBackground: GENERAL EXCEPTION:  " + e.getMessage() );
+                //Log.e(TAG, "doInBackground: GENERAL EXCEPTION:  " + e.getMessage() );
                 return false;
             }
 
@@ -1172,12 +1172,12 @@ public class TextFight extends AppCompatActivity
             if (result){
 
                 if( findViewById(R.id.currentWord) != null){
-                    Log.i(TAG, "onPostExecute: setting the next word as the bonus round creator");
+                    //Log.i(TAG, "onPostExecute: setting the next word as the bonus round creator");
                     setMakeNextWordBonusInitiator(true);
                     ((TextView) findViewById(R.id.currentWord)).setTextColor(Color.parseColor("#ffb900"));
 
                 } else{
-                    Log.i(TAG, "onPostExecute: no null pointer exception here!");
+                    //Log.i(TAG, "onPostExecute: no null pointer exception here!");
                 }
             }
             task = null;

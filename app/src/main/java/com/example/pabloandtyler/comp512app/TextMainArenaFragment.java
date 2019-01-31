@@ -108,7 +108,7 @@ public class TextMainArenaFragment extends Fragment
         InputMethodManager imm = (InputMethodManager) getActivity()
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         if(imm != null){
-            Log.i(TAG, "forcing keyboard to appear");
+            //Log.i(TAG, "forcing keyboard to appear");
             imm.toggleSoftInput(
                     InputMethodManager.SHOW_FORCED,
                     InputMethodManager.HIDE_IMPLICIT_ONLY
@@ -188,7 +188,7 @@ public class TextMainArenaFragment extends Fragment
 
         // if we came back or are here for the first time and we have a token, start our timer
         if(TextFight.isBonusRoundTokenHolder()){
-            Log.i(TAG, "onResume: executing background task");
+            //Log.i(TAG, "onResume: executing background task");
             mListener.startBToken();
         }
 
@@ -228,7 +228,7 @@ public class TextMainArenaFragment extends Fragment
     @Override
     public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
 
-        Log.i(TAG, "onKey called");
+        //Log.i(TAG, "onKey called");
 
         // check if the user pressed 'enter' to finish typing a word
         if(keyCode == KeyEvent.KEYCODE_ENTER &&
@@ -271,7 +271,7 @@ public class TextMainArenaFragment extends Fragment
      */
     public void updateValues() {
         //updates the displayed current tier and current level
-        Log.i(TAG,"updateValues() setting current level to " + String.valueOf(level) + " and current tier to " +String.valueOf(tier));
+        //Log.i(TAG,"updateValues() setting current level to " + String.valueOf(level) + " and current tier to " +String.valueOf(tier));
 
         ((ProgressBar) getActivity().findViewById(R.id.YOURPB))
               .setProgress( (int) (TextFight.myState.getLevelOfPeer() * 6.25));
@@ -342,7 +342,7 @@ public class TextMainArenaFragment extends Fragment
      */
     private void incorrectEntry() {
 
-        Log.i(TAG,"incorrectEntry()");
+        //Log.i(TAG,"incorrectEntry()");
 
         // check if we hold a token and pass along if necessary
         if(TextFight.isMakeNextWordBonusInitiator()){
@@ -438,7 +438,7 @@ public class TextMainArenaFragment extends Fragment
      * updates the local GUI to show victory
      */
     public void victory() {
-        Log.i(TAG,"victory()");
+        //Log.i(TAG,"victory()");
 
         ((TextView) getActivity().findViewById(R.id.currentWord))
                 .setText(R.string.win_message);

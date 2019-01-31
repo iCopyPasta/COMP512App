@@ -127,7 +127,7 @@ public class BonusRoundFragment extends Fragment {
 
         // set the current sentence and appropriate references
         TextView typeSentence = getActivity().findViewById(R.id.type_sentence);
-        Log.i(TAG, "onResume: " +  TextFight.theState.getBonusRoundArrayIndex());
+        //Log.i(TAG, "onResume: " +  TextFight.theState.getBonusRoundArrayIndex());
         battleWord = res.getStringArray(R.array.bonusDigitList)[TextFight.theState.getBonusRoundArrayIndex()];
         ((TextView) getActivity().findViewById(R.id.BFriendlyName)).setText(TextFight.myState.getFriendlyName());
         typeSentence.setText(battleWord);
@@ -145,12 +145,12 @@ public class BonusRoundFragment extends Fragment {
                                              public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
                                                  String tmp = type_word.getText().toString();
-                                                 Log.i(TAG, "onTextChanged: onTextChanged: " + tmp);
+                                                 //Log.i(TAG, "onTextChanged: onTextChanged: " + tmp);
 
                                                  if (battleWord.substring(0,tmp.length()).equals(tmp)) {
 
                                                      if(tmp.equals(battleWord)) {
-                                                         Log.i(TAG, "string complete. Victory claimed.");
+                                                         //Log.i(TAG, "string complete. Victory claimed.");
                                                          claimVictory();
                                                      }
                                                      else {
@@ -178,7 +178,7 @@ public class BonusRoundFragment extends Fragment {
         InputMethodManager imm = (InputMethodManager) getActivity()
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         if(imm != null){
-            Log.i(TAG, "forcing keyboard to appear");
+            //Log.i(TAG, "forcing keyboard to appear");
             imm.toggleSoftInput(
                     InputMethodManager.SHOW_FORCED,
                     InputMethodManager.HIDE_IMPLICIT_ONLY
@@ -199,12 +199,12 @@ public class BonusRoundFragment extends Fragment {
      * @param progress int representing percentage of completion
      */
     public void correctSoFar(int progress) {
-        Log.i(TAG, "correct so far with progress: " + progress);
+        //Log.i(TAG, "correct so far with progress: " + progress);
         updateMyBar(progress);
         updateMyState(progress);
         //limit messages sent in bonus round for faster computation/efficiency
         if(progress > thresholdPercentage + THRESHOLD){
-            Log.i(TAG, "correctSoFar: PROGRESS IS: " + progress + " > " + thresholdPercentage + THRESHOLD);
+            //Log.i(TAG, "correctSoFar: PROGRESS IS: " + progress + " > " + thresholdPercentage + THRESHOLD);
             thresholdPercentage += THRESHOLD;
             mListener.onBroadcastState();
         }
@@ -224,7 +224,7 @@ public class BonusRoundFragment extends Fragment {
      * @param progress int representing percentage of completion
      */
     public void updateMyState(int progress) {
-        Log.i(TAG, "Updating my state with: " + progress);
+        //Log.i(TAG, "Updating my state with: " + progress);
         TextFight.myState.setPositionInBonusRound(progress);
     }
 
@@ -293,12 +293,12 @@ public class BonusRoundFragment extends Fragment {
      * updates the local GUI to show victory
      */
     public void Victory() {
-        Log.i(TAG, "Victory: FROM BONUS ROUND FRAGMENT");
+        //Log.i(TAG, "Victory: FROM BONUS ROUND FRAGMENT");
         Toast.makeText(getActivity(), "BONUS WINNER", Toast.LENGTH_SHORT).show();
         TextFight.theState.setTypeOfGame("BD");
-        Log.i(TAG, "Victory: Bonus Round setting level to "+TextFight.myState.getLevelOfPeer()+ "To " + TextFight.myState.getLevelOfPeer()+2);
+        //Log.i(TAG, "Victory: Bonus Round setting level to "+TextFight.myState.getLevelOfPeer()+ "To " + TextFight.myState.getLevelOfPeer()+2);
         TextFight.myState.setLevelOfPeer(TextFight.myState.getLevelOfPeer()+3);
-        Log.i(TAG, "New level:" +TextFight.myState.getLevelOfPeer());
+        //Log.i(TAG, "New level:" +TextFight.myState.getLevelOfPeer());
         resetVictoryParams();
         TextFight.setBonusRoundTokenHolder(true);
         mListener.bonusRoundEnd();
@@ -308,7 +308,7 @@ public class BonusRoundFragment extends Fragment {
      * update our local copy of the progress bar when correctly moving up a level
      */
     public void updateMyBar(int progress) {
-        Log.i(TAG,"updateMyBar() setting current BR progress to " + progress );
+        //Log.i(TAG,"updateMyBar() setting current BR progress to " + progress );
 
         ((ProgressBar) getActivity().findViewById(R.id.BYOURPB))
                 .setProgress(progress);
@@ -318,7 +318,7 @@ public class BonusRoundFragment extends Fragment {
      * callback to TextFight to reset variables
      */
     public void resetVictoryParams(){
-        Log.i(TAG,"resetting victory parameters");
+        //Log.i(TAG,"resetting victory parameters");
         mListener.onClear();
     }
 

@@ -79,9 +79,9 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
 
         if (!hasPermissions(this, REQUIRED_PERMISSIONS)) {
-            Log.i(TAG, "does not have permissions");
+            //Log.i(TAG, "does not have permissions");
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                Log.i(TAG, "requesting permissions");
+                //Log.i(TAG, "requesting permissions");
                 requestPermissions(REQUIRED_PERMISSIONS, REQUEST_CODE_REQUIRED_PERMISSIONS);
             }
         }
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
     /** Finds an opponent to play the game with using Nearby Connections API. */
     public void findOpponent(View view) {
-        Log.i(TAG, "new activity: MODE_PEER passed in");
+        //Log.i(TAG, "new activity: MODE_PEER passed in");
         Intent intent = new Intent(this, TextFight.class);
         intent.putExtra(MODE, MODE_PEER);
         intent.putExtra("FIRST_NODE", false);
@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
 
     /** Hosts a game for a peer using the Nearby Connections API*/
     public void hostGame(View view){
-        Log.i(TAG, "new activity: MODE_HOST passed in");
+        //Log.i(TAG, "new activity: MODE_HOST passed in");
         Intent intent = new Intent(this, TextFight.class);
         intent.putExtra(MODE, MODE_HOST);
         intent.putExtra("FIRST_NODE", true);
